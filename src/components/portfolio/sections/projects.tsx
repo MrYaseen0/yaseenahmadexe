@@ -16,6 +16,11 @@ import {
   Scale,
   Code2,
   Tag,
+  Layers,
+  Clock,
+  GitBranch,
+  Folder,
+  ArrowUpRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +71,7 @@ export function Projects() {
   const [active, setActive] = useState("All");
   const [query, setQuery] = useState("");
   const [readmeRepo, setReadmeRepo] = useState<Repo | null>(null);
+  const [detailRepo, setDetailRepo] = useState<Repo | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -211,6 +217,7 @@ export function Projects() {
                   key={repo.id}
                   repo={repo}
                   onDocs={() => setReadmeRepo(repo)}
+                  onDetails={() => setDetailRepo(repo)}
                 />
               ))}
             </AnimatePresence>
@@ -242,6 +249,9 @@ export function Projects() {
 
       {/* README docs modal */}
       <ReadmeModal repo={readmeRepo} onClose={() => setReadmeRepo(null)} />
+
+      {/* Project detail modal */}
+      <ProjectDetailModal repo={detailRepo} onClose={() => setDetailRepo(null)} />
     </section>
   );
 }
@@ -249,9 +259,11 @@ export function Projects() {
 function ProjectCard({
   repo,
   onDocs,
+  onDetails,
 }: {
   repo: Repo;
   onDocs: () => void;
+  onDetails: () => void;
 }) {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
 
@@ -370,24 +382,32 @@ function ProjectCard({
           )}
 
           {/* actions */}
-          <div className="mt-4 flex gap-2">
+          <div className="mt-4 grid grid-cols-3 gap-2">
             <Button
               size="sm"
               variant="outline"
-              className="flex-1 rounded-lg border-sky-500/30 hover:bg-sky-500/5"
+              className="rounded-lg border-sky-500/30 hover:bg-sky-500/5"
+              onClick={onDetails}
+            >
+              <Eye className="mr-1 h-3.5 w-3.5" />
+              Details
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-lg border-sky-500/30 hover:bg-sky-500/5"
               onClick={onDocs}
             >
-              <BookOpen className="mr-1.5 h-3.5 w-3.5" />
+              <BookOpen className="mr-1 h-3.5 w-3.5" />
               Docs
             </Button>
             <Button
               size="sm"
               asChild
-              className="flex-1 rounded-lg bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+              className="rounded-lg bg-gradient-to-r from-sky-500 to-pink-500 text-white"
             >
-              <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
-                <Github className="mr-1.5 h-3.5 w-3.5" />
-                Code
+              <a href={repo.html_url} target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub">
+                <Github className="h-3.5 w-3.5" />
               </a>
             </Button>
           </div>
@@ -636,4 +656,243 @@ function inline(text: string): React.ReactNode[] {
   }
   if (last < text.length) parts.push(text.slice(last));
   return parts;
+}
+
+// ===== Project Detail Modal — rich visual showcase =====
+function ProjectDetailModal({
+  repo,
+  onClose,
+}: {
+  repo: Repo | null;
+  onClose: () => void;
+}) {
+  if (!repo) return null;
+
+  const preview = getProjectPreview(repo.name);
+  const liveDemo = repo.homepage && repo.homepage.trim() !== "" ? repo.homepage : null;
+  const createdDate = new Date(repo.created_at).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+  });
+  const updatedDate = new Date(repo.pushed_at).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+  });
+
+  return (
+    <Dialog open={!!repo} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-sky-500/20 p-0">
+        {/* Hero preview image */}
+        <div className="relative h-56 overflow-hidden sm:h-64">
+          <img
+            src={preview}
+            alt={`${repo.name} preview`}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-colors hover:bg-black/60"
+            aria-label="Close"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          {/* Featured badge */}
+          {repo.featured && (
+            <Badge className="absolute left-4 top-4 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] text-white shadow-soft">
+              ★ Featured Project
+            </Badge>
+          )}
+
+          {/* Title overlay */}
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-black/40 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur">
+                {repo.category}
+              </span>
+              {repo.language && (
+                <span className="flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur">
+                  <span
+                    className="h-2 w-2 rounded-full"
+                    style={{ background: repo.languageColor }}
+                  />
+                  {repo.language}
+                </span>
+              )}
+            </div>
+            <h2 className="mt-2 text-2xl font-bold capitalize text-white sm:text-3xl">
+              {repo.name.replace(/-/g, " ").replace(/_/g, " ")}
+            </h2>
+          </div>
+        </div>
+
+        <ScrollArea className="max-h-[calc(90vh-16rem)]">
+          <div className="p-6">
+            {/* Description */}
+            <div className="mb-5">
+              <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                <Folder className="h-4 w-4 text-sky-500" />
+                About this project
+              </h3>
+              <p className="text-sm leading-relaxed text-foreground sm:text-base">
+                {repo.description}
+              </p>
+            </div>
+
+            {/* Tech stack / topics */}
+            {repo.topics.length > 0 && (
+              <div className="mb-5">
+                <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                  <Layers className="h-4 w-4 text-pink-500" />
+                  Tech Stack & Topics
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {repo.topics.map((t) => (
+                    <Badge
+                      key={t}
+                      variant="secondary"
+                      className="rounded-lg border border-sky-500/20 bg-gradient-to-r from-sky-500/10 to-pink-500/10 px-3 py-1 text-xs font-medium"
+                    >
+                      {t}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Stats grid */}
+            <div className="mb-5">
+              <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                <Star className="h-4 w-4 text-amber-500" />
+                Repository Stats
+              </h3>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <DetailStat
+                  icon={<Star className="h-4 w-4" />}
+                  value={repo.stargazers_count}
+                  label="Stars"
+                  color="text-amber-500"
+                />
+                <DetailStat
+                  icon={<GitFork className="h-4 w-4" />}
+                  value={repo.forks_count}
+                  label="Forks"
+                  color="text-sky-500"
+                />
+                <DetailStat
+                  icon={<Eye className="h-4 w-4" />}
+                  value={repo.watchers_count}
+                  label="Watchers"
+                  color="text-pink-500"
+                />
+                <DetailStat
+                  icon={<Folder className="h-4 w-4" />}
+                  value={repo.open_issues_count}
+                  label="Issues"
+                  color="text-wood"
+                />
+              </div>
+            </div>
+
+            {/* Meta info */}
+            <div className="mb-5 grid gap-2 rounded-xl border border-sky-500/15 bg-muted/30 p-4 text-xs sm:grid-cols-2">
+              <MetaRow
+                icon={<GitBranch className="h-3.5 w-3.5" />}
+                label="Default branch"
+                value={repo.default_branch}
+              />
+              <MetaRow
+                icon={<Scale className="h-3.5 w-3.5" />}
+                label="License"
+                value={repo.license ? repo.license.name : "Not specified"}
+              />
+              <MetaRow
+                icon={<Calendar className="h-3.5 w-3.5" />}
+                label="Created"
+                value={createdDate}
+              />
+              <MetaRow
+                icon={<Clock className="h-3.5 w-3.5" />}
+                label="Last updated"
+                value={updatedDate}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button
+                asChild
+                className="flex-1 rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+              >
+                <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
+                  <Github className="mr-2 h-4 w-4" />
+                  View Source Code
+                  <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
+                </a>
+              </Button>
+              {liveDemo ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="flex-1 rounded-xl border-green-500/40 hover:bg-green-500/5"
+                >
+                  <a href={liveDemo} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Live Demo
+                  </a>
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DetailStat({
+  icon,
+  value,
+  label,
+  color,
+}: {
+  icon: React.ReactNode;
+  value: number;
+  label: string;
+  color: string;
+}) {
+  return (
+    <div className="rounded-xl border border-sky-500/15 bg-card p-3 text-center shadow-soft">
+      <div className={`mx-auto mb-1 flex justify-center ${color}`}>{icon}</div>
+      <div className="text-lg font-bold text-foreground">
+        {value.toLocaleString()}
+      </div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+    </div>
+  );
+}
+
+function MetaRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <span className="flex items-center gap-1.5 text-muted-foreground">
+        <span className="text-sky-500">{icon}</span>
+        {label}
+      </span>
+      <span className="font-medium text-foreground">{value}</span>
+    </div>
+  );
 }

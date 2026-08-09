@@ -221,3 +221,71 @@ Unresolved items / next phase recommendations:
 - Could add client onboarding flow / booking calendar
 - Could add testimonials submission form (user-generated content)
 - Project preview matching could be improved for repos without clear keyword matches (currently falls back to default-project.png)
+
+---
+Task ID: 5
+Agent: webDevReview (cron round 3)
+Task: QA assessment, new features (Project Detail Modal + Testimonial Submission), hero button hierarchy
+
+Work Log:
+- Reviewed worklog from round 4 — project stable at 13 sections, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 13 sections rendering, no errors
+- VLM assessment identified: project cards need a rich detail modal, no testimonial submission feature, hero button hierarchy needs refinement
+
+New features implemented:
+1. **Project Detail Modal** (`src/components/portfolio/sections/projects.tsx`)
+   - Rich visual showcase modal triggered by new "Details" button on each project card
+   - Hero preview image (h-56/h-64) with gradient overlay + close button + featured badge
+   - Title overlay with category chip + language dot
+   - "About this project" section with full description
+   - "Tech Stack & Topics" section with gradient badges for all topics
+   - "Repository Stats" grid (4 cards): Stars, Forks, Watchers, Issues — each with colored icon
+   - Metadata grid: default branch, license, created date, last updated date
+   - Action buttons: "View Source Code" (gradient) + "Live Demo" (green, only if homepage exists)
+   - Scrollable content area for long descriptions
+   - Added "Details" button to project cards (3-column action grid: Details, Docs, Code icon)
+   - Imported new icons: Layers, Clock, GitBranch, Folder, ArrowUpRight
+2. **Testimonial Submission Feature**
+   - Added Testimonial model to Prisma schema (name, role, company, email, rating, message, approved, color, avatar)
+   - Created `/api/testimonials` route: GET (approved only) + POST (submit, pending approval)
+   - Validation: required fields, email format, min message length (10 chars), rating 1-5
+   - Color auto-assigned based on name hash for avatar variety
+   - Rewrote Testimonials section to:
+     - Fetch visitor-submitted testimonials on load (merged with defaults, visitor ones first)
+     - "Leave a Testimonial" button (pink outline) above the grid
+     - Submit modal with: name, role, company, email, interactive star rating (hover preview), message with character counter
+     - Toast feedback on success ("will appear after review")
+     - "Verified" badge for curated, "New" badge for visitor-submitted
+   - Verified: submitted testimonial saved to DB (approved=false), API returned 200
+3. **Hero Button Hierarchy Refinement**
+   - Split buttons into two groups with visual divider:
+     - Primary actions: "Hire Me" (gradient, larger px-8) + "View Work" (outline, semibold)
+     - Utility links: "Pricing" + "GitHub" + "Resume" (ghost, smaller, muted)
+   - Added vertical gradient divider between groups (hidden on mobile)
+   - Added hover lift (-translate-y-0.5) to Hire Me button
+   - VLM rated button hierarchy: 9/10 (up from 7.5/10)
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 13 sections render correctly
+- No console/page errors
+- Project Detail Modal opens with all sections (preview, about, tech stack, stats, metadata, actions)
+- Testimonial submission form works end-to-end (verified DB record saved)
+- Hero button hierarchy improved (9/10)
+- All services running and stable
+
+Stage Summary:
+- Project now has rich Project Detail Modal (visual showcase with stats + tech grid)
+- Visitors can submit testimonials (pending approval workflow)
+- Hero button hierarchy is now professional and clear
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add admin approval UI for testimonials (currently need DB access to approve)
+- Could add blog/articles section with MDX content
+- Could add booking calendar integration
+- Could improve project preview matching for repos without keyword matches
+- Could add dark mode visual polish testing
+- Could add project screenshot gallery in detail modal (multiple images)

@@ -86,53 +86,63 @@ export function Hero() {
               </span>
             </div>
 
-            <div className="animate-fade-in-up delay-400 mt-8 flex flex-wrap gap-3">
-              <Button
-                onClick={() => scrollTo("#contact")}
-                size="lg"
-                className="group rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-7 text-white shadow-soft transition-all hover:shadow-glow-pink"
-              >
-                <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
-                Hire Me
-              </Button>
-              <Button
-                onClick={() => scrollTo("#projects")}
-                size="lg"
-                variant="outline"
-                className="rounded-full border-sky-500/40 px-7 hover:border-pink-500/50 hover:bg-sky-500/5"
-              >
-                View Work
-              </Button>
-              <Button
-                onClick={() => scrollTo("#pricing")}
-                size="lg"
-                variant="ghost"
-                className="rounded-full"
-              >
-                Pricing
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="ghost"
-                className="rounded-full"
-              >
-                <a href={socials.github} target="_blank" rel="noopener noreferrer">
-                  <Github className="mr-1.5 h-4 w-4" />
-                  GitHub
-                </a>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="rounded-full border-wood/40 px-6 hover:border-wood hover:bg-wood/5"
-              >
-                <a href="/api/resume" target="_blank" rel="noopener noreferrer">
-                  <FileText className="mr-1.5 h-4 w-4 text-wood" />
-                  Resume
-                </a>
-              </Button>
+            <div className="animate-fade-in-up delay-400 mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+              {/* Primary actions */}
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={() => scrollTo("#contact")}
+                  size="lg"
+                  className="group rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-8 text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
+                >
+                  <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                  Hire Me
+                </Button>
+                <Button
+                  onClick={() => scrollTo("#projects")}
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full border-sky-500/50 px-7 font-semibold hover:border-pink-500/60 hover:bg-sky-500/5"
+                >
+                  View Work
+                </Button>
+              </div>
+
+              {/* Divider */}
+              <div className="hidden h-8 w-px bg-gradient-to-b from-sky-500/30 to-pink-500/30 sm:block" />
+
+              {/* Utility links */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  onClick={() => scrollTo("#pricing")}
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full text-muted-foreground hover:text-foreground"
+                >
+                  Pricing
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full text-muted-foreground hover:text-foreground"
+                >
+                  <a href={socials.github} target="_blank" rel="noopener noreferrer">
+                    <Github className="mr-1.5 h-4 w-4" />
+                    GitHub
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full text-wood hover:bg-wood/5"
+                >
+                  <a href="/api/resume" target="_blank" rel="noopener noreferrer">
+                    <FileText className="mr-1.5 h-4 w-4" />
+                    Resume
+                  </a>
+                </Button>
+              </div>
             </div>
 
             {/* Quick stats */}

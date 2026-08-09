@@ -80,3 +80,21 @@ model Subscriber {
   email     String   @unique
   createdAt DateTime @default(now())
 }
+
+// Visitor-submitted testimonials (pending approval before public display)
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  company   String?
+  email     String
+  rating    Int      @default(5)
+  message   String
+  approved  Boolean  @default(false)
+  avatar    String?
+  color     String   @default("sky")
+  createdAt DateTime @default(now())
+
+  @@index([approved])
+  @@index([createdAt])
+}
