@@ -12,6 +12,7 @@ import { Experience } from "@/components/portfolio/sections/experience";
 import { GithubProfile } from "@/components/portfolio/sections/github-profile";
 import { Pricing } from "@/components/portfolio/sections/pricing";
 import { Testimonials } from "@/components/portfolio/sections/testimonials";
+import { Faq } from "@/components/portfolio/sections/faq";
 import { Contact } from "@/components/portfolio/sections/contact";
 import { Footer } from "@/components/portfolio/footer";
 import { ChatWidget } from "@/components/portfolio/chat-widget";
@@ -34,6 +35,7 @@ export default function Home() {
         <GithubProfile />
         <Pricing />
         <Testimonials />
+        <Faq />
         <Contact />
         <Footer />
       </main>

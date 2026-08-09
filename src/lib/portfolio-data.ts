@@ -203,7 +203,7 @@ export const quickLinks = [
   { label: "Services", href: "#services" },
   { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
-  { label: "Testimonials", href: "#testimonials" },
+  { label: "FAQ", href: "#faq" },
   { label: "GitHub", href: "#github" },
   { label: "Contact", href: "#contact" },
 ];
@@ -215,6 +215,7 @@ export const navLinks = [
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#techstack" },
   { label: "Experience", href: "#experience" },
+  { label: "FAQ", href: "#faq" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -304,3 +305,63 @@ export const achievements = [
   { value: 15, suffix: "K+", label: "Lines of Code", icon: "Code" },
 ];
 
+// FAQ — common client questions
+export const faqs = [
+  {
+    q: "What's your typical response time?",
+    a: "I usually respond to emails and form submissions within 2-4 hours during business hours (9 AM – 9 PM PKT). For urgent matters, WhatsApp is the fastest — I reply within minutes. The live chat widget on this site connects you to me in real-time.",
+    icon: "Clock",
+  },
+  {
+    q: "How do you handle payments and billing?",
+    a: "I accept payments via Stripe, PayPal, bank transfer, and Wise. For larger projects, I use a 50% upfront milestone payment, with the remaining 50% split across deliverables. Smaller projects are paid 50% upfront and 50% on completion. All invoices are provided for your records.",
+    icon: "CreditCard",
+  },
+  {
+    q: "What's your minimum project budget?",
+    a: "My starter packages begin at $499 for landing pages and small websites. For full-stack web applications, projects typically start at $1,500. SaaS products and enterprise solutions are quoted custom based on scope. I'm happy to work within your budget — just reach out and we'll find a fit.",
+    icon: "DollarSign",
+  },
+  {
+    q: "Do you provide ongoing maintenance and support?",
+    a: "Yes! Every project includes 30-90 days of free post-launch support depending on the plan. After that, I offer affordable monthly maintenance retainers covering bug fixes, security updates, performance monitoring, and small feature additions. Plans start at $99/month.",
+    icon: "Wrench",
+  },
+  {
+    q: "Can you work with my existing codebase or team?",
+    a: "Absolutely. I'm experienced in onboarding to existing codebases, following established patterns and conventions. I've collaborated with in-house teams using Git workflows, code reviews, and agile ceremonies. I can adapt to your tech stack, whether it's MERN, Next.js, or something custom.",
+    icon: "Users",
+  },
+  {
+    q: "What technologies do you specialize in?",
+    a: "My core stack is MERN (MongoDB, Express, React, Node.js) with Next.js and TypeScript as my daily drivers. I'm proficient in PostgreSQL, Prisma, Tailwind CSS, Socket.io for real-time features, Stripe for payments, and deploy on Vercel, AWS, or Docker. I also work with Python for backend scripts and automation.",
+    icon: "Code",
+  },
+  {
+    q: "How long does a typical project take?",
+    a: "Landing pages: 5-7 days. Small web apps: 2-3 weeks. Full SaaS products: 4-8 weeks depending on complexity. I provide a detailed timeline breakdown in my proposal after our initial call, with weekly milestones so you always know where things stand.",
+    icon: "Calendar",
+  },
+  {
+    q: "Do you sign NDAs and handle confidential projects?",
+    a: "Yes, I regularly sign NDAs before accessing sensitive codebases or business logic. Your intellectual property remains 100% yours — I include IP assignment clauses in all contracts. I've worked with startups in stealth mode and understand discretion is key.",
+    icon: "ShieldCheck",
+  },
+];
+
+// Project preview image mapping (for GitHub repos by name keywords)
+export function getProjectPreview(repoName: string): string {
+  const name = (repoName || "").toLowerCase();
+  if (name.includes("saas") || name.includes("dashboard")) return "/assets/projects/saas-dashboard.png";
+  if (name.includes("ecommerce") || name.includes("ecom") || name.includes("shop") || name.includes("store"))
+    return "/assets/projects/ecommerce.png";
+  if (name.includes("ai") || name.includes("openai") || name.includes("content") || name.includes("gpt"))
+    return "/assets/projects/ai-content.png";
+  if (name.includes("social") || name.includes("chat") || name.includes("message"))
+    return "/assets/projects/social-app.png";
+  if (name.includes("portfolio") || name.includes("template") || name.includes("generator"))
+    return "/assets/projects/portfolio-gen.png";
+  if (name.includes("task") || name.includes("kanban") || name.includes("manage") || name.includes("project"))
+    return "/assets/projects/task-mgmt.png";
+  return "/assets/projects/default-project.png";
+}

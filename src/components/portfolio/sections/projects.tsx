@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
-import { developer, socials } from "@/lib/portfolio-data";
+import { developer, socials, getProjectPreview } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
 interface Repo {
@@ -274,34 +274,58 @@ function ProjectCard({
         }}
         className="transform-3d group relative flex h-full flex-col overflow-hidden rounded-2xl border border-sky-500/20 bg-card shadow-soft transition-shadow hover:shadow-card-hover"
       >
+        {/* Project preview image */}
+        <div className="relative h-36 overflow-hidden sm:h-40">
+          <img
+            src={getProjectPreview(repo.name)}
+            alt={`${repo.name} preview`}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
+          {/* Featured badge overlay */}
+          {repo.featured && (
+            <Badge className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white shadow-soft">
+              ★ Featured
+            </Badge>
+          )}
+
+          {/* Category chip overlay */}
+          <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+            {repo.category}
+          </span>
+
+          {/* Language dot */}
+          {repo.language && (
+            <div className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-black/40 px-2.5 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+              <span
+                className="h-2 w-2 rounded-full"
+                style={{ background: repo.languageColor }}
+              />
+              {repo.language}
+            </div>
+          )}
+        </div>
+
         {/* Top gradient bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-sky-400 via-pink-400 to-wood" />
+        <div className="h-1 w-full bg-gradient-to-r from-sky-400 via-pink-400 to-wood" />
 
         <div className="flex flex-1 flex-col p-5">
           {/* header */}
-          <div className="mb-3 flex items-start justify-between gap-2">
+          <div className="mb-2 flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500/15 to-pink-500/15">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500/15 to-pink-500/15">
                 <Github className="h-4 w-4 text-sky-600" />
               </div>
-              <div>
-                <h3 className="font-bold leading-tight text-foreground">
-                  {repo.name.replace(/-/g, " ").replace(/_/g, " ")}
-                </h3>
-                <span className="text-[11px] text-muted-foreground">
-                  {repo.category}
-                </span>
-              </div>
+              <h3 className="font-bold leading-tight text-foreground">
+                {repo.name.replace(/-/g, " ").replace(/_/g, " ")}
+              </h3>
             </div>
-            {repo.featured && (
-              <Badge className="rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white">
-                Featured
-              </Badge>
-            )}
           </div>
 
           {/* description */}
-          <p className="mb-3 line-clamp-3 text-sm text-muted-foreground">
+          <p className="mb-3 line-clamp-2 text-sm text-muted-foreground">
             {repo.description}
           </p>
 

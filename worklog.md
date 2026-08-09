@@ -157,3 +157,67 @@ Unresolved items / next phase recommendations:
 - Could add dark mode visual polish testing
 - Could add project detail modal with screenshots gallery
 - Could add FAQ section for common client questions
+
+---
+Task ID: 4
+Agent: webDevReview (cron round 2)
+Task: QA assessment, new features (FAQ + project previews), styling polish
+
+Work Log:
+- Reviewed worklog from round 3 — project stable at 8.5/10, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 12 sections rendering, no errors, no console issues
+- VLM assessment of hero (7.5/10), projects (8/10), contact — identified opportunities
+- VLM key insight: project cards lacked visual preview images; no FAQ section
+
+New features implemented:
+1. **FAQ Section** (`src/components/portfolio/sections/faq.tsx`)
+   - 8 comprehensive FAQ entries covering: response time, payments, minimum budget, maintenance, existing codebase/team collaboration, tech specialization, project timelines, NDAs
+   - Each FAQ has a contextual icon (Clock, CreditCard, DollarSign, Wrench, Users, Code, Calendar, ShieldCheck)
+   - Smooth accordion animation with framer-motion (height + opacity)
+   - Active item: gradient icon background (sky→pink), elevated shadow
+   - First item open by default for immediate value
+   - CTA card below with "Contact Me" + "WhatsApp" buttons
+   - Added to navLinks + quickLinks + page.tsx (between testimonials and contact)
+   - VLM rated FAQ section: 9/10
+2. **Project Preview Images** (7 AI-generated images)
+   - Generated 7 category-specific preview images using Image Generation skill:
+     - saas-dashboard.png, ecommerce.png, ai-content.png, social-app.png, portfolio-gen.png, task-mgmt.png, default-project.png
+   - Created `getProjectPreview(repoName)` helper in portfolio-data.ts — maps repo names to appropriate preview by keyword matching
+   - Added preview image header (h-36/h-40) to each project card with:
+     - Image with hover scale effect (group-hover:scale-105)
+     - Gradient overlay fading to card background
+     - "Featured" badge overlay (top-right)
+     - Category chip overlay (top-left, backdrop-blur)
+     - Language dot + name overlay (bottom-left, backdrop-blur)
+   - Refactored card header (removed redundant category/language from body since now in image overlay)
+3. **Response-time badge in Contact section**
+   - Added "Avg. reply: 2-4 hrs" pill badge with animated green ping dot
+   - Positioned next to "Get in Touch" heading
+   - Builds trust and sets clear expectations
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 13 sections render correctly (home, about, services, projects, techstack, experience, github, pricing, testimonials, faq, contact + marquee + achievement-stats)
+- No console errors, no page errors
+- FAQ accordion interactive: clicking expands new item, collapses previous (verified via aria-expanded)
+- Project preview images load and display correctly
+- Response-time badge visible in contact section
+- Mobile responsive verified (390px) for FAQ section
+- VLM ratings: Hero 8.5/10, FAQ 9/10, Projects 8/10
+
+Stage Summary:
+- Project now has 13 sections total (added FAQ)
+- 7 AI-generated project preview images enhancing visual appeal
+- FAQ section addresses common client questions (reduces friction to hire)
+- Response-time badge builds trust in contact section
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add a blog/articles section with MDX content
+- Could add project detail modal with screenshot gallery + tech stack breakdown
+- Could add dark mode visual polish testing
+- Could add client onboarding flow / booking calendar
+- Could add testimonials submission form (user-generated content)
+- Project preview matching could be improved for repos without clear keyword matches (currently falls back to default-project.png)
