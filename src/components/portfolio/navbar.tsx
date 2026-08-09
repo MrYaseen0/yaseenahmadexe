@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun, MessageCircle } from "lucide-react";
+import { Menu, X, Moon, Sun, MessageCircle, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -109,6 +109,16 @@ export function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="hidden rounded-full lg:inline-flex"
+            aria-label="Open command palette (Ctrl+K)"
+            title="Quick search (Ctrl+K)"
+          >
+            <Search className="h-4 w-4" />
+          </Button>
           {mounted && (
             <Button
               variant="ghost"

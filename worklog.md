@@ -494,3 +494,74 @@ Unresolved items / next phase recommendations:
 - Could add blog table of contents for long articles
 - Could add search across entire site (not just projects/blog)
 - Could add visitor analytics dashboard
+
+---
+Task ID: 9
+Agent: webDevReview (cron round 7)
+Task: QA assessment, new features (Command Palette + Back-to-Top button)
+
+Work Log:
+- Reviewed worklog from round 8 — project stable at 15 sections, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 15 sections rendering, no errors
+- VLM assessment: hero (8/10), navbar (8/10) — identified command palette (Ctrl+K) as highest-impact navigation feature for 15-section portfolio
+
+New features implemented:
+1. **Command Palette (Ctrl+K)** (`src/components/portfolio/command-palette.tsx`)
+   - Full-featured command palette with 22 searchable items across 4 categories:
+     - **Sections** (7): Home, About, Services, Projects, Skills, Blog, Contact — with # hash icons (sky blue)
+     - **Services** (6): Web Dev, Mobile, Backend, Database, UI/UX, SaaS — with sparkles icons (pink)
+     - **Projects** (6): SaaS Dashboard, E-Commerce, AI Content, Social App, Portfolio Gen, Task Mgmt — with briefcase icons (wood)
+     - **Actions** (3): Hire Me, Download Resume, Visit GitHub — with action-specific icons
+   - Global keyboard shortcuts:
+     - `Ctrl+K` / `Cmd+K` — toggle palette
+     - `/` — open palette (when not typing in an input)
+     - `Escape` — close
+     - `ArrowUp` / `ArrowDown` — navigate results
+     - `Enter` — select and execute action
+   - Features:
+     - Live search filtering across label, hint, and keywords
+     - Results grouped by category (Section, Service, Project, Action) with uppercase headers
+     - Active item highlighted with gradient background + CornerDownLeft indicator
+     - Mouse hover updates active index
+     - Auto-scroll active item into view
+     - Results count in footer
+     - Keyboard navigation hints (↑↓ navigate, ↵ select)
+     - ESC badge in search input
+   - Floating trigger button (bottom-left, desktop only) with "Quick search ⌘K" label
+   - Search icon button in navbar (triggers palette via synthetic Ctrl+K event)
+   - Accessible: sr-only DialogTitle for screen readers
+   - VLM rated command palette: 9/10 ("production-grade, rivals Linear/Vercel/Raycast")
+   - Verified: Ctrl+K opens, search "blog" → 1 result, arrow keys navigate, Enter scrolls to section
+2. **Back-to-Top Floating Button** (`src/components/portfolio/back-to-top.tsx`)
+   - Appears after scrolling 600px down
+   - Animated entrance/exit (scale + fade + slide)
+   - Sky blue → pink hover color transition
+   - Mobile-only (lg:hidden) — desktop uses command palette trigger in same position
+   - Smooth scroll to top on click
+   - Verified: appears on scroll, click scrolls to top (scrollY: 0)
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 15 sections render correctly
+- No page errors (fixed accessibility warning by adding sr-only DialogTitle)
+- Command palette opens via Ctrl+K, search filters work, keyboard navigation works, Enter executes action
+- Back-to-top button appears on scroll and scrolls to top on click
+- All services running and stable
+
+Stage Summary:
+- Portfolio now has full command palette (Ctrl+K) for instant navigation across all 15 sections + projects + services + actions
+- Back-to-top button provides quick scroll recovery on mobile
+- Navigation UX dramatically improved for the large 15-section portfolio
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add admin UI dashboard for testimonial/article management
+- Could add RSS feed for blog
+- Could add project screenshot gallery in detail modal
+- Could add booking calendar integration
+- Could add blog table of contents for long articles
+- Could add visitor analytics dashboard
+- Could add fuzzy matching highlights in command palette search results
+- Could add "Recently visited" section to command palette

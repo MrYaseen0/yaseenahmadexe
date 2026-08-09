@@ -18,6 +18,8 @@ import { Faq } from "@/components/portfolio/sections/faq";
 import { Contact } from "@/components/portfolio/sections/contact";
 import { Footer } from "@/components/portfolio/footer";
 import { ChatWidget } from "@/components/portfolio/chat-widget";
+import { CommandPalette } from "@/components/portfolio/command-palette";
+import { BackToTop } from "@/components/portfolio/back-to-top";
 
 export default function Home() {
   return (
@@ -44,6 +46,8 @@ export default function Home() {
         <Footer />
       </main>
       <ChatWidget />
+      <CommandPalette />
+      <BackToTop />
     </>
   );
 }
