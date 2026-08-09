@@ -565,3 +565,75 @@ Unresolved items / next phase recommendations:
 - Could add visitor analytics dashboard
 - Could add fuzzy matching highlights in command palette search results
 - Could add "Recently visited" section to command palette
+
+---
+Task ID: 10
+Agent: webDevReview (cron round 8)
+Task: QA assessment, new features (RSS feed + Booking section + Article Table of Contents)
+
+Work Log:
+- Reviewed worklog from round 9 — project stable at 15 sections with command palette, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 15 sections rendering, no errors
+- VLM assessment: hero (8/10), blog (no RSS), contact (no booking integration)
+- VLM identified: RSS feed for blog, booking/scheduling section, article table of contents as high-value features
+
+New features implemented:
+1. **RSS Feed** (`src/app/api/blog/rss/route.ts`)
+   - Valid RSS 2.0 XML feed with Atom namespace
+   - Includes all published articles with title, link, description, pubDate, author, categories
+   - Channel metadata: title, link, description, language, managingEditor, copyright, image (logo)
+   - Cache headers (1 hour s-maxage)
+   - XML-escaped all content (prevents injection)
+   - Returns Content-Type: application/rss+xml
+   - Added RSS link button (amber-themed) at bottom of Blog section with Rss + ExternalLink icons
+   - Verified: returns valid XML at /api/blog/rss (200 status)
+2. **Booking/Scheduling Section** (`src/components/portfolio/sections/booking.tsx`)
+   - Added Booking model to Prisma (name, email, purpose, date, time, timezone, notes, status)
+   - Created /api/booking route (GET list + POST submit with validation)
+   - 3-step booking flow with progress indicator:
+     - Step 1: Purpose selection (4 options: Project Consultation, Code Review, Hire Me, Mentorship) with emoji icons
+     - Step 2: Date & time picker — 14-day grid (Fridays excluded as weekend in PK), 9 time slots (10 AM - 8 PM PKT)
+     - Step 3: Details form (name, email, notes) with summary card showing purpose + date + time
+   - Success state: green checkmark, confirmation message with date/time/purpose, "Book another call" button
+   - Trust badges: Google Meet/Zoom, 30-45 min sessions, All timezones welcome, Free consultation
+   - "Available this week" status indicator with animated green ping dot
+   - Toast feedback on submission
+   - Added "Book" to navbar + "Book a Call" to quickLinks
+   - VLM rated booking section: 9/10 ("production-quality, rivals Calendly/SavvyCal")
+   - Verified: full flow tested end-to-end (purpose → date → time → details → success), saved to DB
+3. **Article Table of Contents** (article modal in blog.tsx)
+   - TableOfContents component extracts H2/H3 headings from markdown content
+   - Collapsible (collapsed by default, click to expand)
+   - Heading count badge
+   - H2 headings marked with ▸, H3 with • (indented)
+   - Clicking a ToC item smooth-scrolls to the heading (within radix ScrollArea viewport)
+   - Added ID attributes + scroll-mt-4 to all rendered headings (h1-h4) for anchor navigation
+   - Slug generation: lowercase, strip non-alphanumeric, spaces to hyphens
+   - Only shows if 3+ headings exist
+   - Verified: SaaS article shows 9-item ToC, VLM recreated full HTML structure confirming quality
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 16 sections render correctly (13 with IDs + marquee + achievement-stats + newsletter + booking)
+- No console/page errors
+- RSS feed returns valid XML (200 status)
+- Booking API works (verified end-to-end: submission saved to DB, success state shown)
+- Article ToC shows and is collapsible with clickable navigation
+- All services running and stable
+
+Stage Summary:
+- Blog now has RSS feed for content syndication
+- New Booking section enables direct consultation scheduling (3-step flow)
+- Article modal has table of contents for better long-form reading UX
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add admin UI dashboard for booking/testimonial/article management
+- Could add project screenshot gallery in detail modal
+- Could add visitor analytics dashboard
+- Could add fuzzy matching highlights in command palette
+- Could add "Recently visited" section to command palette
+- Could add email notification integration for booking confirmations
+- Could add calendar export (.ics file) for confirmed bookings

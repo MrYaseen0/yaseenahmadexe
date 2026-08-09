@@ -204,6 +204,7 @@ export const quickLinks = [
   { label: "Projects", href: "#projects" },
   { label: "Experience", href: "#experience" },
   { label: "Blog", href: "#blog" },
+  { label: "Book a Call", href: "#booking" },
   { label: "FAQ", href: "#faq" },
   { label: "Contact", href: "#contact" },
 ];
@@ -215,6 +216,7 @@ export const navLinks = [
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#techstack" },
   { label: "Blog", href: "#blog" },
+  { label: "Book", href: "#booking" },
   { label: "Contact", href: "#contact" },
 ];
 

@@ -12,6 +12,7 @@ import { Experience } from "@/components/portfolio/sections/experience";
 import { GithubProfile } from "@/components/portfolio/sections/github-profile";
 import { Blog } from "@/components/portfolio/sections/blog";
 import { Newsletter } from "@/components/portfolio/sections/newsletter";
+import { Booking } from "@/components/portfolio/sections/booking";
 import { Pricing } from "@/components/portfolio/sections/pricing";
 import { Testimonials } from "@/components/portfolio/sections/testimonials";
 import { Faq } from "@/components/portfolio/sections/faq";
@@ -39,6 +40,7 @@ export default function Home() {
         <GithubProfile />
         <Blog />
         <Newsletter />
+        <Booking />
         <Pricing />
         <Testimonials />
         <Faq />

@@ -13,6 +13,10 @@ import {
   Search,
   CheckCircle2,
   Link2,
+  Rss,
+  ExternalLink,
+  List,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -245,7 +249,7 @@ export function Blog() {
                 )}
 
                 {/* RSS / subscribe hint */}
-                <div className="mt-10 text-center">
+                <div className="mt-10 flex flex-col items-center gap-3 text-center">
                   <p className="text-sm text-muted-foreground">
                     Want to read more?{" "}
                     <button
@@ -259,6 +263,17 @@ export function Blog() {
                       Let&apos;s connect →
                     </button>
                   </p>
+                  <a
+                    href="/api/blog/rss"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/5 px-4 py-2 text-xs font-medium text-amber-600 transition-all hover:border-amber-500/50 hover:bg-amber-500/10 dark:text-amber-400"
+                    aria-label="Subscribe to RSS feed"
+                  >
+                    <Rss className="h-3.5 w-3.5" />
+                    RSS Feed
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
                 </div>
               </>
             )}
@@ -557,6 +572,9 @@ function ArticleModal({
               </div>
             ) : article ? (
               <>
+                {/* Table of contents */}
+                <TableOfContents content={article.content} />
+
                 {/* Excerpt */}
                 <p className="mb-6 border-l-4 border-sky-500/40 bg-sky-500/5 py-2 pl-4 text-base font-medium italic text-foreground/80">
                   {article.excerpt}
@@ -751,6 +769,85 @@ function ShareButton({
   );
 }
 
+// Table of contents — extracts H2/H3 headings from markdown
+function TableOfContents({ content }: { content: string }) {
+  const [collapsed, setCollapsed] = useState(true);
+  const headings = useMemo(() => {
+    const lines = content.split("\n");
+    const result: { level: number; text: string; slug: string }[] = [];
+    lines.forEach((line) => {
+      const m = line.match(/^(#{2,3})\s+(.*)$/);
+      if (m) {
+        const level = m[1].length;
+        const text = m[2];
+        const slug = text
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-");
+        result.push({ level, text, slug });
+      }
+    });
+    return result;
+  }, [content]);
+
+  if (headings.length < 3) return null;
+
+  const handleClick = (slug: string) => {
+    const viewport = document.querySelector("[data-radix-scroll-area-viewport]");
+    const el = document.getElementById(slug);
+    if (el && viewport) {
+      const top = el.offsetTop - 20;
+      viewport.scrollTo({ top, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <div className="mb-6 overflow-hidden rounded-xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 to-pink-500/5">
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className="flex w-full items-center justify-between px-4 py-3 text-left"
+      >
+        <span className="flex items-center gap-2 text-sm font-bold text-foreground">
+          <List className="h-4 w-4 text-sky-500" />
+          Table of Contents
+          <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[10px]">
+            {headings.length}
+          </Badge>
+        </span>
+        <ChevronDown
+          className={cn(
+            "h-4 w-4 text-muted-foreground transition-transform",
+            !collapsed && "rotate-180"
+          )}
+        />
+      </button>
+      {!collapsed && (
+        <nav className="border-t border-sky-500/10 px-4 py-3">
+          <ul className="space-y-1">
+            {headings.map((h, i) => (
+              <li
+                key={i}
+                className={cn(h.level === 3 && "ml-4")}
+              >
+                <button
+                  onClick={() => handleClick(h.slug)}
+                  className="flex items-center gap-2 text-left text-xs text-muted-foreground transition-colors hover:text-sky-600 dark:hover:text-sky-400"
+                >
+                  <span className="text-sky-500/50">
+                    {h.level === 2 ? "▸" : "•"}
+                  </span>
+                  <span className="line-clamp-1">{h.text}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+    </div>
+  );
+}
+
 // Lightweight markdown renderer
 function MarkdownRenderer({ content }: { content: string }) {
   const lines = content.split("\n");
@@ -781,15 +878,21 @@ function MarkdownRenderer({ content }: { content: string }) {
     const h = line.match(/^(#{1,4})\s+(.*)$/);
     if (h) {
       const level = h[1].length;
-      const text = renderInline(h[2]);
+      const headingText = h[2];
+      const text = renderInline(headingText);
+      const slug = headingText
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .trim()
+        .replace(/\s+/g, "-");
       if (level === 1)
-        out.push(<h1 key={i} className="mb-3 mt-6 text-2xl font-bold text-foreground">{text}</h1>);
+        out.push(<h1 key={i} id={slug} className="mb-3 mt-6 scroll-mt-4 text-2xl font-bold text-foreground">{text}</h1>);
       else if (level === 2)
-        out.push(<h2 key={i} className="mb-2 mt-5 text-xl font-bold text-foreground">{text}</h2>);
+        out.push(<h2 key={i} id={slug} className="mb-2 mt-5 scroll-mt-4 text-xl font-bold text-foreground">{text}</h2>);
       else if (level === 3)
-        out.push(<h3 key={i} className="mb-2 mt-4 text-lg font-semibold text-foreground">{text}</h3>);
+        out.push(<h3 key={i} id={slug} className="mb-2 mt-4 scroll-mt-4 text-lg font-semibold text-foreground">{text}</h3>);
       else
-        out.push(<h4 key={i} className="mb-1 mt-3 text-base font-semibold text-foreground">{text}</h4>);
+        out.push(<h4 key={i} id={slug} className="mb-1 mt-3 scroll-mt-4 text-base font-semibold text-foreground">{text}</h4>);
       return;
     }
 

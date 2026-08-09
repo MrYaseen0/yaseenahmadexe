@@ -117,3 +117,21 @@ model Article {
   @@index([published])
   @@index([createdAt])
 }
+
+// Booking requests for consultation calls
+model Booking {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  purpose   String
+  date      String
+  time      String
+  timezone  String
+  notes     String?
+  status    String   @default("pending") // pending, confirmed, declined, completed
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+  @@index([date])
+}
