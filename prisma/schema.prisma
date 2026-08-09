@@ -147,3 +147,14 @@ model Visit {
   @@index([section])
   @@index([createdAt])
 }
+
+// Editable site content (key-value store for dynamic website data)
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique // e.g. "hero_name", "hero_tagline", "contact_email"
+  value     String
+  category  String   @default("general") // hero, about, contact, services, etc.
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}

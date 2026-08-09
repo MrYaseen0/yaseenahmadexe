@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { developer, socials } from "@/lib/portfolio-data";
+import { PuzzlePhoto } from "@/components/portfolio/puzzle-photo";
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -234,14 +235,14 @@ function HeroPhotoCard() {
           <span className="text-sm">⚛️</span>
         </div>
 
-        {/* Photo */}
+        {/* Photo with puzzle crack animation */}
         <div className="relative aspect-[4/5] overflow-hidden">
-          <img
+          <PuzzlePhoto
             src="/assets/dev-photo.jpg"
             alt={`${developer.name} — ${developer.role}`}
-            className="h-full w-full object-cover"
+            className="h-full w-full"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
 
           {/* Floating badges over photo */}
           <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
