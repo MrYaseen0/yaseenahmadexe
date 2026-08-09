@@ -11,6 +11,8 @@ import {
   BookOpen,
   Tag,
   Search,
+  CheckCircle2,
+  Link2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -265,7 +267,12 @@ export function Blog() {
       </div>
 
       {/* Article detail modal */}
-      <ArticleModal slug={selectedSlug} onClose={() => setSelectedSlug(null)} />
+      <ArticleModal
+        slug={selectedSlug}
+        allArticles={articles}
+        onClose={() => setSelectedSlug(null)}
+        onSelectArticle={(s) => setSelectedSlug(s)}
+      />
     </section>
   );
 }
@@ -417,14 +424,19 @@ function ArticleCard({
 
 function ArticleModal({
   slug,
+  allArticles,
   onClose,
+  onSelectArticle,
 }: {
   slug: string | null;
+  allArticles: Article[];
   onClose: () => void;
+  onSelectArticle: (slug: string) => void;
 }) {
   const [article, setArticle] = useState<FullArticle | null>(null);
   const [loading, setLoading] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
+  const [shareCopied, setShareCopied] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   // Attach native scroll listener to the radix viewport (the onScroll prop
@@ -600,6 +612,108 @@ function ArticleModal({
                     Hire Me
                   </Button>
                 </div>
+
+                {/* Social sharing */}
+                <div className="mt-4 flex items-center gap-2 border-t border-sky-500/10 pt-4">
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    Share:
+                  </span>
+                  <ShareButton
+                    label="Twitter"
+                    href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+                      article.title
+                    )}&via=yaseenahmadexe`}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </ShareButton>
+                  <ShareButton
+                    label="LinkedIn"
+                    href={`https://linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                      `https://yaseenahmadexe.vercel.app/#blog`
+                    )}`}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/></svg>
+                  </ShareButton>
+                  <ShareButton
+                    label="Facebook"
+                    href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                      `https://yaseenahmadexe.vercel.app/#blog`
+                    )}`}
+                  >
+                    <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  </ShareButton>
+                  <button
+                    onClick={() => {
+                      const url = `https://yaseenahmadexe.vercel.app/#blog`;
+                      if (navigator.clipboard) {
+                        navigator.clipboard.writeText(url);
+                        setShareCopied(true);
+                        setTimeout(() => setShareCopied(false), 2000);
+                      }
+                    }}
+                    className="flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-pink-500/40 hover:bg-sky-500/10 hover:text-sky-600"
+                  >
+                    {shareCopied ? (
+                      <>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Link2 className="h-3.5 w-3.5" />
+                        Copy link
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Related articles */}
+                {(() => {
+                  const articleTags = article.tags.split(",").map((t) => t.trim());
+                  const related = allArticles
+                    .filter(
+                      (a) =>
+                        a.slug !== article.slug &&
+                        a.tags.split(",").map((t) => t.trim()).some((t) => articleTags.includes(t))
+                    )
+                    .slice(0, 3);
+                  if (related.length === 0) return null;
+                  return (
+                    <div className="mt-6 border-t border-sky-500/10 pt-5">
+                      <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
+                        <BookOpen className="h-4 w-4 text-sky-500" />
+                        Related Articles
+                      </h4>
+                      <div className="space-y-2">
+                        {related.map((r) => {
+                          const relColors = colorMap[r.coverColor] || colorMap.sky;
+                          return (
+                            <button
+                              key={r.id}
+                              onClick={() => {
+                                onSelectArticle(r.slug);
+                                setReadingProgress(0);
+                              }}
+                              className="group flex w-full items-center gap-3 rounded-xl border border-sky-500/15 bg-card p-3 text-left transition-all hover:border-pink-500/30 hover:shadow-soft"
+                            >
+                              <div className={cn("h-10 w-1.5 shrink-0 rounded-full bg-gradient-to-b", relColors.gradient)} />
+                              <div className="min-w-0 flex-1">
+                                <div className="line-clamp-1 text-sm font-semibold text-foreground group-hover:text-sky-600">
+                                  {r.title}
+                                </div>
+                                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                                  <Clock className="h-3 w-3" />
+                                  {r.readTime} min read
+                                </div>
+                              </div>
+                              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-sky-500" />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </>
             ) : (
               <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
@@ -611,6 +725,29 @@ function ArticleModal({
         </ScrollArea>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Social share button helper
+function ShareButton({
+  label,
+  href,
+  children,
+}: {
+  label: string;
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Share on ${label}`}
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-500/30 bg-card text-muted-foreground transition-all hover:border-pink-500/40 hover:bg-sky-500/10 hover:text-sky-600"
+    >
+      {children}
+    </a>
   );
 }
 

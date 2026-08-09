@@ -21,6 +21,8 @@ import {
   GitBranch,
   Folder,
   ArrowUpRight,
+  ArrowUpDown,
+  ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -70,6 +72,7 @@ export function Projects() {
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState("All");
   const [query, setQuery] = useState("");
+  const [sortBy, setSortBy] = useState<"updated" | "stars" | "forks" | "name">("updated");
   const [readmeRepo, setReadmeRepo] = useState<Repo | null>(null);
   const [detailRepo, setDetailRepo] = useState<Repo | null>(null);
 
@@ -102,6 +105,21 @@ export function Projects() {
       r.description.toLowerCase().includes(q) ||
       r.topics.some((t) => t.toLowerCase().includes(q));
     return matchCat && matchQuery;
+  });
+
+  // Sort the filtered results
+  const sorted = [...filtered].sort((a, b) => {
+    switch (sortBy) {
+      case "stars":
+        return b.stargazers_count - a.stargazers_count;
+      case "forks":
+        return b.forks_count - a.forks_count;
+      case "name":
+        return a.name.localeCompare(b.name);
+      case "updated":
+      default:
+        return new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime();
+    }
   });
 
   return (
@@ -138,7 +156,23 @@ export function Projects() {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Sort dropdown */}
+            <div className="relative">
+              <ArrowUpDown className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="h-9 cursor-pointer appearance-none rounded-full border border-sky-500/30 bg-card pl-8 pr-8 text-xs font-medium shadow-soft transition-colors hover:border-pink-500/40 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                aria-label="Sort projects"
+              >
+                <option value="updated">Recently Updated</option>
+                <option value="stars">Most Stars</option>
+                <option value="forks">Most Forks</option>
+                <option value="name">Name (A-Z)</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            </div>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -212,7 +246,7 @@ export function Projects() {
             className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
             <AnimatePresence mode="popLayout">
-              {filtered.map((repo) => (
+              {sorted.map((repo) => (
                 <ProjectCard
                   key={repo.id}
                   repo={repo}
@@ -224,7 +258,7 @@ export function Projects() {
           </motion.div>
         )}
 
-        {filtered.length === 0 && !loading && (
+        {sorted.length === 0 && !loading && (
           <div className="mt-12 text-center text-muted-foreground">
             No projects match your search.
           </div>
