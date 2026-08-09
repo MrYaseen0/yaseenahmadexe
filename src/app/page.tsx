@@ -11,6 +11,7 @@ import { TechStack } from "@/components/portfolio/sections/techstack";
 import { Experience } from "@/components/portfolio/sections/experience";
 import { GithubProfile } from "@/components/portfolio/sections/github-profile";
 import { Blog } from "@/components/portfolio/sections/blog";
+import { Newsletter } from "@/components/portfolio/sections/newsletter";
 import { Pricing } from "@/components/portfolio/sections/pricing";
 import { Testimonials } from "@/components/portfolio/sections/testimonials";
 import { Faq } from "@/components/portfolio/sections/faq";
@@ -35,6 +36,7 @@ export default function Home() {
         <Experience />
         <GithubProfile />
         <Blog />
+        <Newsletter />
         <Pricing />
         <Testimonials />
         <Faq />

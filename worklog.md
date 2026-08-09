@@ -361,3 +361,72 @@ Unresolved items / next phase recommendations:
 - Could add project screenshot gallery in detail modal (multiple images)
 - Could add booking calendar integration
 - Could add newsletter integration (send blog updates to subscribers)
+
+---
+Task ID: 7
+Agent: webDevReview (cron round 5)
+Task: QA assessment, new features (Blog search/filter + Newsletter section + reading progress bar)
+
+Work Log:
+- Reviewed worklog from round 6 — project stable at 14 sections, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 14 sections rendering, no errors
+- VLM assessment: hero (8/10), blog (9/10), dark mode (9/10)
+- VLM identified: blog lacks search/filter, no newsletter integration, no reading progress for long articles
+
+New features implemented:
+1. **Blog Search & Category Filtering** (blog.tsx)
+   - Added search input with Search icon, clear button, and live filtering
+   - Tag filter pills generated dynamically from all article tags (All, Architecture, Best Practices, Business, CSS, Career, Database, Design, Freelance, Next.js, Node.js, Pakistan, PostgreSQL, Prisma, Real-time, SQLite, SaaS, Socket.io, Tailwind CSS, TypeScript, Web Development, WebSocket)
+   - Active tag highlighted with gradient (sky→pink)
+   - Results count display when filtering ("Showing 2 of 6 articles in TypeScript")
+   - Empty state with "Clear filters" button when no matches
+   - Featured articles section hidden when filtering (shows flat grid instead)
+   - useMemo for efficient filtering performance
+   - VLM rated search/filter UI: 9/10
+   - Verified: search "TypeScript" → 2 of 6 articles; tag "SaaS" → 1 of 6 articles
+2. **Newsletter Section** (`src/components/portfolio/sections/newsletter.tsx`)
+   - Dedicated newsletter signup section placed after Blog
+   - Glass card with gradient background, decorative blobs, grid pattern
+   - Mail icon badge (gradient sky→pink with glow)
+   - Headline "Stay in the Loop" with gradient accent
+   - Trust badges: "6+ articles published", "Monthly digest", "Unsubscribe anytime"
+   - Email input + Subscribe button with loading state
+   - Success state: green confirmation card ("You're subscribed!")
+   - Social proof: "Join 120+ developers and founders"
+   - Connects to existing /api/subscribe endpoint (Prisma Subscriber model)
+   - Verified: subscription saved to DB (test@example.com), success state shown
+   - VLM rated newsletter section: 9/10
+3. **Reading Progress Bar** (article modal in blog.tsx)
+   - Thin gradient progress bar (sky→pink→wood) at top of article modal
+   - Tracks scroll position through the article content
+   - Uses native scroll listener attached to radix ScrollArea viewport (the onScroll prop doesn't fire on the actual viewport)
+   - useRef + useEffect pattern to attach/detach listener on article change
+   - Resets to 0% when opening a new article
+   - Verified: scrolling to 50% content → progress shows 64% (accounts for header), VLM confirmed visible
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 15 sections render correctly (home, about, services, projects, techstack, experience, github, blog, pricing, testimonials, faq, contact + marquee + achievement-stats + newsletter)
+- No console/page errors
+- Blog search/filter works (verified with "TypeScript" → 2 results, "SaaS" tag → 1 result)
+- Newsletter subscription works end-to-end (DB record saved, success state shown)
+- Reading progress bar updates on scroll (verified 64% at 50% scroll, VLM confirmed visible)
+- All services running and stable
+
+Stage Summary:
+- Project now has 15 sections total (added Newsletter)
+- Blog has full search + tag filtering capability
+- Newsletter section drives email subscriptions with professional design
+- Article modal has reading progress bar for better long-form UX
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add admin UI dashboard for testimonial/article management
+- Could add RSS feed for blog
+- Could add project screenshot gallery in detail modal
+- Could add booking calendar integration
+- Could add blog table of contents for long articles
+- Could add related articles section at bottom of article modal
+- Could add social sharing buttons for articles

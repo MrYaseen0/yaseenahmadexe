@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -10,9 +10,11 @@ import {
   X,
   BookOpen,
   Tag,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +68,8 @@ export function Blog() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [activeTag, setActiveTag] = useState("All");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -84,8 +88,35 @@ export function Blog() {
     load();
   }, [load]);
 
-  const featured = articles.filter((a) => a.featured);
-  const regular = articles.filter((a) => !a.featured);
+  // Collect all unique tags
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    articles.forEach((a) => {
+      a.tags.split(",").forEach((t) => {
+        const trimmed = t.trim();
+        if (trimmed) tagSet.add(trimmed);
+      });
+    });
+    return ["All", ...Array.from(tagSet).sort()];
+  }, [articles]);
+
+  // Filter articles by search query and active tag
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    return articles.filter((a) => {
+      const matchesTag = activeTag === "All" || a.tags.split(",").map((t) => t.trim()).includes(activeTag);
+      const matchesQuery =
+        !q ||
+        a.title.toLowerCase().includes(q) ||
+        a.excerpt.toLowerCase().includes(q) ||
+        a.tags.toLowerCase().includes(q);
+      return matchesTag && matchesQuery;
+    });
+  }, [articles, query, activeTag]);
+
+  const featured = filtered.filter((a) => a.featured);
+  const regular = filtered.filter((a) => !a.featured);
+  const isFiltering = query.trim() !== "" || activeTag !== "All";
 
   return (
     <section id="blog" className="relative py-20 sm:py-28">
@@ -112,50 +143,123 @@ export function Blog() {
           </div>
         ) : (
           <>
-            {/* Featured articles */}
-            {featured.length > 0 && (
-              <div className="mt-12 grid gap-6 md:grid-cols-2">
-                {featured.map((article, i) => (
-                  <FeaturedArticleCard
-                    key={article.id}
-                    article={article}
-                    index={i}
-                    onRead={() => setSelectedSlug(article.slug)}
-                  />
+            {/* Search & filter controls */}
+            <div className="mt-10 flex flex-col items-center justify-between gap-4 sm:flex-row">
+              {/* Tag filter pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setActiveTag(tag)}
+                    className={cn(
+                      "rounded-full px-3.5 py-1.5 text-xs font-medium transition-all",
+                      activeTag === tag
+                        ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+                        : "bg-muted text-muted-foreground hover:bg-sky-500/10 hover:text-sky-600"
+                    )}
+                  >
+                    {tag}
+                  </button>
                 ))}
               </div>
-            )}
 
-            {/* Regular articles */}
-            {regular.length > 0 && (
-              <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {regular.map((article, i) => (
-                  <ArticleCard
-                    key={article.id}
-                    article={article}
-                    index={i}
-                    onRead={() => setSelectedSlug(article.slug)}
-                  />
-                ))}
+              {/* Search input */}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search articles..."
+                  className="rounded-full pl-9 pr-4"
+                />
+                {query && (
+                  <button
+                    onClick={() => setQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
+                    aria-label="Clear search"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
               </div>
-            )}
-
-            {/* RSS / subscribe hint */}
-            <div className="mt-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                Want to read more?{" "}
-                <button
-                  onClick={() =>
-                    document
-                      .querySelector("#contact")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="font-semibold text-pink-600 underline-offset-4 hover:underline dark:text-pink-400"
-                >
-                  Let&apos;s connect →
-                </button>
-              </p>
             </div>
+
+            {/* Results count when filtering */}
+            {isFiltering && (
+              <div className="mt-4 text-center text-xs text-muted-foreground">
+                Showing {filtered.length} of {articles.length} articles
+                {activeTag !== "All" && (
+                  <>
+                    {" "}in <span className="font-semibold text-sky-600 dark:text-sky-400">{activeTag}</span>
+                  </>
+                )}
+              </div>
+            )}
+
+            {filtered.length === 0 ? (
+              <div className="mt-12 flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
+                <Search className="h-10 w-10 text-muted-foreground/40" />
+                <p className="text-sm">No articles match your search.</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-sky-500/30"
+                  onClick={() => {
+                    setQuery("");
+                    setActiveTag("All");
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            ) : (
+              <>
+                {/* Featured articles (hidden when filtering) */}
+                {!isFiltering && featured.length > 0 && (
+                  <div className="mt-12 grid gap-6 md:grid-cols-2">
+                    {featured.map((article, i) => (
+                      <FeaturedArticleCard
+                        key={article.id}
+                        article={article}
+                        index={i}
+                        onRead={() => setSelectedSlug(article.slug)}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Regular articles */}
+                {regular.length > 0 && (
+                  <div className={cn("grid gap-6 md:grid-cols-2 lg:grid-cols-3", !isFiltering && "mt-6")}>
+                    {regular.map((article, i) => (
+                      <ArticleCard
+                        key={article.id}
+                        article={article}
+                        index={i}
+                        onRead={() => setSelectedSlug(article.slug)}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* RSS / subscribe hint */}
+                <div className="mt-10 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    Want to read more?{" "}
+                    <button
+                      onClick={() =>
+                        document
+                          .querySelector("#contact")
+                          ?.scrollIntoView({ behavior: "smooth" })
+                      }
+                      className="font-semibold text-pink-600 underline-offset-4 hover:underline dark:text-pink-400"
+                    >
+                      Let&apos;s connect →
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
@@ -320,6 +424,27 @@ function ArticleModal({
 }) {
   const [article, setArticle] = useState<FullArticle | null>(null);
   const [loading, setLoading] = useState(false);
+  const [readingProgress, setReadingProgress] = useState(0);
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
+
+  // Attach native scroll listener to the radix viewport (the onScroll prop
+  // on ScrollArea doesn't fire on the actual scrollable viewport)
+  useEffect(() => {
+    if (!article) return;
+    const root = scrollAreaRef.current;
+    if (!root) return;
+    const viewport = root.querySelector("[data-radix-scroll-area-viewport]") as HTMLElement | null;
+    if (!viewport) return;
+
+    const handleScroll = () => {
+      const max = viewport.scrollHeight - viewport.clientHeight;
+      if (max > 0) {
+        setReadingProgress(Math.min(100, (viewport.scrollTop / max) * 100));
+      }
+    };
+    viewport.addEventListener("scroll", handleScroll, { passive: true });
+    return () => viewport.removeEventListener("scroll", handleScroll);
+  }, [article]);
 
   useEffect(() => {
     if (!slug) {
@@ -329,6 +454,7 @@ function ArticleModal({
     // Loading state set synchronously to show spinner during async fetch
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
+    setReadingProgress(0);
     fetch(`/api/blog/${slug}`)
       .then((r) => r.json())
       .then((data) => {
@@ -351,6 +477,14 @@ function ArticleModal({
   return (
     <Dialog open={!!slug} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-sky-500/20 p-0">
+        {/* Reading progress bar */}
+        <div className="absolute inset-x-0 top-0 z-20 h-1 bg-muted/30">
+          <div
+            className="h-full bg-gradient-to-r from-sky-500 via-pink-500 to-wood transition-[width] duration-150 ease-out"
+            style={{ width: `${readingProgress}%` }}
+          />
+        </div>
+
         {/* Header with gradient */}
         <div className={cn("relative bg-gradient-to-br p-6", colors.bg)}>
           <div className="absolute inset-0 bg-grid opacity-30" />
@@ -392,7 +526,17 @@ function ArticleModal({
           </DialogHeader>
         </div>
 
-        <ScrollArea className="max-h-[60vh]">
+        <ScrollArea
+          ref={scrollAreaRef}
+          className="max-h-[60vh]"
+          onScroll={(e: React.UIEvent<HTMLDivElement>) => {
+            const el = e.currentTarget;
+            const max = el.scrollHeight - el.clientHeight;
+            if (max > 0) {
+              setReadingProgress(Math.min(100, (el.scrollTop / max) * 100));
+            }
+          }}
+        >
           <div className="p-6">
             {loading ? (
               <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
