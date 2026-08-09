@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
+import { TechBadge } from "../tech-icons";
 import { developer, socials, getProjectPreview } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
@@ -375,17 +376,11 @@ function ProjectCard({
             {repo.description}
           </p>
 
-          {/* topics */}
+          {/* topics — tech stack badges with colored icons */}
           {repo.topics.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1">
               {repo.topics.slice(0, 4).map((t) => (
-                <Badge
-                  key={t}
-                  variant="secondary"
-                  className="rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] font-medium text-sky-700 dark:text-sky-300"
-                >
-                  {t}
-                </Badge>
+                <TechBadge key={t} tech={t} />
               ))}
             </div>
           )}
@@ -785,13 +780,7 @@ function ProjectDetailModal({
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {repo.topics.map((t) => (
-                    <Badge
-                      key={t}
-                      variant="secondary"
-                      className="rounded-lg border border-sky-500/20 bg-gradient-to-r from-sky-500/10 to-pink-500/10 px-3 py-1 text-xs font-medium"
-                    >
-                      {t}
-                    </Badge>
+                    <TechBadge key={t} tech={t} size="md" />
                   ))}
                 </div>
               </div>

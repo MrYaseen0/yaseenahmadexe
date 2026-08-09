@@ -37,8 +37,20 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [showQuickSearch, setShowQuickSearch] = useState(true);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  // Hide the floating Quick search button after scrolling past the hero
+  // (it overlaps content below; navbar search button remains available)
+  useEffect(() => {
+    const onScroll = () => {
+      setShowQuickSearch(window.scrollY < 400);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // Global keyboard shortcut: Ctrl+K / Cmd+K to open, "/" when not typing
   useEffect(() => {
@@ -191,16 +203,24 @@ export function CommandPalette() {
 
   return (
     <>
-      {/* Trigger button (hidden, but available for click) */}
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-sky-500/30 bg-card/80 px-3 py-2 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur transition-all hover:border-pink-500/40 hover:text-foreground lg:flex"
-        aria-label="Open command palette"
-      >
-        <Search className="h-3.5 w-3.5" />
-        <span>Quick search</span>
-        <kbd className="rounded border border-sky-500/30 bg-muted px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
-      </button>
+      {/* Trigger button — only visible in hero area to avoid overlapping content */}
+      <AnimatePresence>
+        {showQuickSearch && (
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setOpen(true)}
+            className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-sky-500/30 bg-card/80 px-3 py-2 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur transition-colors hover:border-pink-500/40 hover:text-foreground lg:flex"
+            aria-label="Open command palette"
+          >
+            <Search className="h-3.5 w-3.5" />
+            <span>Quick search</span>
+            <kbd className="rounded border border-sky-500/30 bg-muted px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-xl overflow-hidden rounded-2xl border-sky-500/20 bg-card/95 p-0 shadow-card-hover backdrop-blur-xl">

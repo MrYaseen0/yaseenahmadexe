@@ -712,3 +712,73 @@ Unresolved items / next phase recommendations:
 - Could add email notification integration for booking confirmations
 - Could add visitor geolocation (city/country level) for analytics
 - Could add conversion funnel tracking (visit → booking → hire)
+
+---
+Task ID: 12
+Agent: webDevReview (cron round 10)
+Task: QA assessment, bug fix (quick search overlap), new features (tech badges + admin dashboard)
+
+Work Log:
+- Reviewed worklog from round 11 — project stable at 16 sections, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 16 sections rendering, no errors
+- VLM assessment: hero (7/10) — identified bug: Quick search floating button overlaps project cards
+- Bug confirmed: getBoundingClientRect overlap check showed quick search button overlapping first project card
+
+Bug fixed:
+1. **Quick search button overlap** (command-palette.tsx)
+   - Added scroll listener that hides the floating Quick search button after scrolling past 400px
+   - Button only visible in hero area (where it doesn't overlap content)
+   - Navbar search button remains available site-wide as alternative
+   - Animated entrance/exit with framer-motion AnimatePresence
+   - Verified: button visible at top (opacity: 1), hidden after scrolling to projects
+
+New features implemented:
+1. **Tech Stack Colored Icons** (`src/components/portfolio/tech-icons.tsx`)
+   - Created TechBadge component with 40+ technology mappings
+   - Each tech has: brand color, background tint, text color, short symbol
+   - Mapped techs: TypeScript (TS, blue), JavaScript (JS, yellow), Python (Py, blue), React (⚛, sky), Next.js (N, slate), Node.js (⬢, green), MongoDB (🍃, green), PostgreSQL (🐘, blue), Prisma (◭, indigo), Docker (🐳, blue), Stripe ($, indigo), OpenAI (AI, green), GraphQL (◆, pink), Socket.io (↻, slate), and more
+   - Falls back to plain text pill for unknown techs
+   - Two sizes: sm (card) and md (detail modal)
+   - Applied to project cards (replacing plain text badges) and project detail modal
+   - VLM rated: 7/10 (color-coding provides immediate visual recognition)
+2. **Admin Dashboard** (`src/app/admin/page.tsx`)
+   - Password-protected admin interface at /admin
+   - Login screen with lock icon, password input, unlock button
+   - Default key: "yaseen-admin-2026" (stored in localStorage)
+   - 4-tab dashboard:
+     - **Overview**: 4 stat cards (Total Visits, Bookings, Testimonials, Subscribers) + Top Viewed Sections bar chart
+     - **Bookings**: list of all booking requests with client name, email, purpose, date/time, status badge, notes, .ics download link, submission timestamp
+     - **Testimonials**: all testimonials with approve/delete actions, status badges, star ratings, message preview
+     - **Email List**: newsletter subscribers with copy-all-emails button
+   - Header with refresh, view site, logout buttons
+   - Pending bookings badge on tab
+   - Created /api/admin/subscribers endpoint (GET, auth-protected)
+   - VLM rated admin login: 8/10, dashboard: 8/10, bookings tab: 8/10
+   - Verified: login works, dashboard shows live data (14 visits, 3 bookings, 1 testimonial, 1 subscriber), bookings list with .ics download
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 16 sections render correctly
+- No console/page errors
+- Quick search button no longer overlaps content (hidden after scroll)
+- Tech badges render on project cards with colored symbols
+- Admin dashboard accessible at /admin, login works, all 4 tabs functional
+- All services running and stable
+
+Stage Summary:
+- Fixed quick search button overlap bug (now hides on scroll)
+- Project cards now show colored tech stack badges with symbols
+- New admin dashboard at /admin for managing bookings, testimonials, subscribers
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add project screenshot gallery in detail modal (multi-image carousel)
+- Could add fuzzy matching highlights in command palette search results
+- Could add "Recently visited" section to command palette
+- Could add email notification integration for booking confirmations
+- Could add visitor geolocation (city/country level) for analytics
+- Could add conversion funnel tracking (visit → booking → hire)
+- Could add article edit/create UI in admin dashboard
+- Could add export bookings/subscribers as CSV
