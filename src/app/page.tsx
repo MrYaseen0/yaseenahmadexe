@@ -10,6 +10,7 @@ import { Projects } from "@/components/portfolio/sections/projects";
 import { TechStack } from "@/components/portfolio/sections/techstack";
 import { Experience } from "@/components/portfolio/sections/experience";
 import { GithubProfile } from "@/components/portfolio/sections/github-profile";
+import { Blog } from "@/components/portfolio/sections/blog";
 import { Pricing } from "@/components/portfolio/sections/pricing";
 import { Testimonials } from "@/components/portfolio/sections/testimonials";
 import { Faq } from "@/components/portfolio/sections/faq";
@@ -33,6 +34,7 @@ export default function Home() {
         <TechStack />
         <Experience />
         <GithubProfile />
+        <Blog />
         <Pricing />
         <Testimonials />
         <Faq />

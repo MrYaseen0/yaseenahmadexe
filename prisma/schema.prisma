@@ -98,3 +98,22 @@ model Testimonial {
   @@index([approved])
   @@index([createdAt])
 }
+
+// Blog articles written by Yaseen
+model Article {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  excerpt   String
+  content   String
+  tags      String
+  coverColor String  @default("sky")
+  readTime  Int      @default(5)
+  published Boolean  @default(true)
+  featured  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published])
+  @@index([createdAt])
+}
