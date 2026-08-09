@@ -1,0 +1,262 @@
+"use client";
+
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import {
+  ArrowDown,
+  Github,
+  MapPin,
+  Sparkles,
+  Code2,
+  Star,
+  GitFork,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { developer, socials } from "@/lib/portfolio-data";
+
+export function Hero() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+
+  const yPhoto = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const yText = useTransform(scrollYProgress, [0, 1], [0, 60]);
+
+  const scrollTo = (href: string) =>
+    document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
+
+  return (
+    <section
+      id="home"
+      ref={ref}
+      className="relative flex min-h-screen items-center overflow-hidden pt-24 pb-16"
+    >
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid items-center gap-10 lg:grid-cols-12">
+          {/* Left: text */}
+          <motion.div
+            style={{ y: yText }}
+            className="lg:col-span-7"
+          >
+            <div className="animate-fade-in-up">
+              <Badge
+                variant="secondary"
+                className="mb-5 gap-1.5 rounded-full border-sky-500/30 bg-sky-500/10 px-3 py-1 text-sky-700 dark:text-sky-300"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+                {developer.status}
+              </Badge>
+            </div>
+
+            <h1 className="animate-fade-in-up delay-100 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+              <span className="block text-muted-foreground">Hi, I&apos;m</span>
+              <span className="mt-2 block text-gradient-sky-pink">
+                {developer.name}
+              </span>
+            </h1>
+
+            <p className="animate-fade-in-up delay-200 mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl">
+              {developer.tagline}{" "}
+              <span className="font-semibold text-foreground">
+                {developer.role}
+              </span>{" "}
+              specializing in{" "}
+              <span className="font-semibold text-pink-600 dark:text-pink-400">
+                MERN stack
+              </span>
+              , SaaS architecture, and modern cloud solutions.
+            </p>
+
+            <div className="animate-fade-in-up delay-300 mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-sky-500" />
+                {developer.location}
+              </span>
+              <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+              <span className="flex items-center gap-1.5">
+                <Code2 className="h-4 w-4 text-pink-500" />
+                {developer.jobTitle}
+              </span>
+            </div>
+
+            <div className="animate-fade-in-up delay-400 mt-8 flex flex-wrap gap-3">
+              <Button
+                onClick={() => scrollTo("#contact")}
+                size="lg"
+                className="group rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-7 text-white shadow-soft transition-all hover:shadow-glow-pink"
+              >
+                <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                Hire Me
+              </Button>
+              <Button
+                onClick={() => scrollTo("#projects")}
+                size="lg"
+                variant="outline"
+                className="rounded-full border-sky-500/40 px-7 hover:border-pink-500/50 hover:bg-sky-500/5"
+              >
+                View Work
+              </Button>
+              <Button
+                onClick={() => scrollTo("#pricing")}
+                size="lg"
+                variant="ghost"
+                className="rounded-full"
+              >
+                Pricing
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="ghost"
+                className="rounded-full"
+              >
+                <a href={socials.github} target="_blank" rel="noopener noreferrer">
+                  <Github className="mr-1.5 h-4 w-4" />
+                  GitHub
+                </a>
+              </Button>
+            </div>
+
+            {/* Quick stats */}
+            <div className="animate-fade-in-up delay-500 mt-10 grid max-w-lg grid-cols-3 gap-3">
+              {[
+                { v: "20+", l: "Projects Built" },
+                { v: "MERN", l: "Stack Specialist" },
+                { v: "100%", l: "Client Focused" },
+              ].map((s) => (
+                <div
+                  key={s.l}
+                  className="glass rounded-2xl p-3 text-center shadow-soft"
+                >
+                  <div className="text-xl font-bold text-gradient-sky-pink sm:text-2xl">
+                    {s.v}
+                  </div>
+                  <div className="mt-0.5 text-[11px] font-medium text-muted-foreground sm:text-xs">
+                    {s.l}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Right: 3D photo card */}
+          <motion.div
+            style={{ y: yPhoto }}
+            className="lg:col-span-5"
+          >
+            <HeroPhotoCard />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.button
+        onClick={() => scrollTo("#about")}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 8, 0] }}
+        transition={{ opacity: { duration: 0.6, delay: 1.2 }, y: { duration: 2, repeat: Infinity } }}
+        className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground sm:flex"
+        aria-label="Scroll down"
+      >
+        <span className="text-xs font-medium uppercase tracking-widest">
+          Scroll Down
+        </span>
+        <ArrowDown className="h-4 w-4" />
+      </motion.button>
+    </section>
+  );
+}
+
+function HeroPhotoCard() {
+  return (
+    <div
+      className="animate-fade-in-scale delay-300 perspective-2000 relative mx-auto max-w-sm"
+    >
+      {/* Floating ring decorations */}
+      <motion.div
+        className="absolute -left-6 -top-6 h-20 w-20 rounded-full border-2 border-dashed border-sky-500/40"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div
+        className="absolute -bottom-6 -right-6 h-16 w-16 rounded-full border-2 border-pink-500/40"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Glow */}
+      <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl" />
+
+      {/* Card with tilt on hover */}
+      <motion.div
+        whileHover={{ rotateY: 8, rotateX: -4, scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 200, damping: 18 }}
+        className="transform-3d relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-glow-sky"
+      >
+        {/* Top bar */}
+        <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
+          <div className="flex gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+            <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+            <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+          </div>
+          <span className="font-mono text-[11px] font-medium text-muted-foreground">
+            {developer.name} — Developer
+          </span>
+          <span className="text-sm">⚛️</span>
+        </div>
+
+        {/* Photo */}
+        <div className="relative aspect-[4/5] overflow-hidden">
+          <img
+            src="/assets/dev-photo.jpg"
+            alt={`${developer.name} — ${developer.role}`}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
+
+          {/* Floating badges over photo */}
+          <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+            ⚛️ React & Next.js
+          </div>
+          <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
+            {developer.followers} Followers
+          </div>
+        </div>
+
+        {/* Footer with github stats */}
+        <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
+          <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Stars" value="1.2k" />
+          <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Forks" value="320" />
+          <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Repos" value="50+" />
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function GithubStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 px-2 py-2.5">
+      <span className="flex items-center gap-1 text-muted-foreground">
+        {icon}
+        <span className="text-[10px] uppercase tracking-wider">{label}</span>
+      </span>
+      <span className="text-sm font-bold text-foreground">{value}</span>
+    </div>
+  );
+}

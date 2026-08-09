@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Contact messages sent through the website form
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  website   String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([read])
+}
+
+// Hiring requests with project details
+model HireRequest {
+  id           String   @id @default(cuid())
+  name         String
+  email        String
+  company      String?
+  projectType  String
+  budget       String?
+  timeline     String?
+  description  String
+  status       String   @default("pending") // pending, reviewed, accepted, declined
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+// Real-time chat messages (persisted for history)
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  sender    String // "visitor" | "owner"
+  name      String?
+  content   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+// Newsletter / email subscribers
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
