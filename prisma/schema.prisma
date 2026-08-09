@@ -135,3 +135,15 @@ model Booking {
   @@index([status])
   @@index([date])
 }
+
+// Anonymous visitor stats (privacy-respecting — no PII, just counts)
+model Visit {
+  id        String   @id @default(cuid())
+  section   String   // which section was viewed (e.g. "home", "projects")
+  referrer  String?  // where the visitor came from (origin only)
+  path      String   // page path
+  createdAt DateTime @default(now())
+
+  @@index([section])
+  @@index([createdAt])
+}

@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Globe,
+  CalendarPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -186,7 +187,14 @@ export function Booking() {
 
           <div className="p-6 sm:p-8">
             {booked ? (
-              <SuccessView onReset={reset} date={selectedDate} time={selectedTime} purpose={purpose} />
+              <SuccessView
+                onReset={reset}
+                date={selectedDate}
+                time={selectedTime}
+                purpose={purpose}
+                name={form.name}
+                email={form.email}
+              />
             ) : step === 1 ? (
               <Step1Purpose
                 purpose={purpose}
@@ -499,17 +507,30 @@ function SuccessView({
   date,
   time,
   purpose,
+  name,
+  email,
 }: {
   onReset: () => void;
   date: string;
   time: string;
   purpose: string;
+  name: string;
+  email: string;
 }) {
   const dateLabel = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
     day: "numeric",
   });
+
+  const purposeLabel = purposesMap[purpose] || purpose;
+  const calendarUrl = `/api/booking/calendar?${new URLSearchParams({
+    date,
+    time,
+    purpose: purposeLabel,
+    name,
+    email,
+  })}`;
 
   return (
     <motion.div
@@ -523,22 +544,35 @@ function SuccessView({
       <div>
         <h3 className="text-xl font-bold text-foreground">Booking Request Sent! 🎉</h3>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Your <strong>{purposesMap[purpose] || purpose}</strong> call for{" "}
+          Your <strong>{purposeLabel}</strong> call for{" "}
           <strong>{dateLabel}</strong> at <strong>{time}</strong> has been requested.
           I&apos;ll send a calendar invite to your email within a few hours to confirm.
         </p>
       </div>
+
+      {/* Action buttons */}
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <a
+          href={calendarUrl}
+          download
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
+        >
+          <CalendarPlus className="h-4 w-4" />
+          Add to Calendar
+        </a>
+        <Button
+          onClick={onReset}
+          variant="outline"
+          className="rounded-full border-sky-500/30"
+        >
+          Book another call
+        </Button>
+      </div>
+
       <div className="mt-2 flex items-center gap-2 rounded-full border border-sky-500/20 bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
         <Mail className="h-3.5 w-3.5 text-sky-500" />
         {developer.email}
       </div>
-      <Button
-        onClick={onReset}
-        variant="outline"
-        className="mt-2 rounded-full border-sky-500/30"
-      >
-        Book another call
-      </Button>
     </motion.div>
   );
 }

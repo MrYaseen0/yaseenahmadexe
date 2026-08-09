@@ -21,6 +21,8 @@ import { Footer } from "@/components/portfolio/footer";
 import { ChatWidget } from "@/components/portfolio/chat-widget";
 import { CommandPalette } from "@/components/portfolio/command-palette";
 import { BackToTop } from "@/components/portfolio/back-to-top";
+import { StatsWidget } from "@/components/portfolio/stats-widget";
+import { SectionTracker } from "@/components/portfolio/section-tracker";
 
 export default function Home() {
   return (
@@ -28,6 +30,7 @@ export default function Home() {
       <AnimatedBackground />
       <ScrollProgress />
       <Navbar />
+      <SectionTracker />
       <main className="relative flex min-h-screen flex-col">
         <Hero />
         <Marquee />
@@ -50,6 +53,7 @@ export default function Home() {
       <ChatWidget />
       <CommandPalette />
       <BackToTop />
+      <StatsWidget />
     </>
   );
 }

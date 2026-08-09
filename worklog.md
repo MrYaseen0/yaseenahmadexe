@@ -637,3 +637,78 @@ Unresolved items / next phase recommendations:
 - Could add "Recently visited" section to command palette
 - Could add email notification integration for booking confirmations
 - Could add calendar export (.ics file) for confirmed bookings
+
+---
+Task ID: 11
+Agent: webDevReview (cron round 9)
+Task: QA assessment, new features (Calendar export + Visitor analytics + Stats widget)
+
+Work Log:
+- Reviewed worklog from round 10 — project stable at 16 sections, all services running
+- Verified services: dev (3000: 200), chat (3003: running), Caddy (81: 200)
+- QA via agent-browser: 16 sections rendering, no errors
+- VLM assessment: hero (8/10), projects (suggested multi-image gallery + tech stack icons)
+- VLM identified: calendar export for bookings, visitor analytics as high-value features
+
+New features implemented:
+1. **Calendar Export (.ics)** (`src/app/api/booking/calendar/route.ts`)
+   - Generates valid .ics calendar file for confirmed bookings
+   - Query params: date, time, purpose, name, email
+   - Parses "10:00 AM" format → 24h → UTC for ICS DTSTART/DTEND
+   - 45-minute call duration
+   - Includes: VEVENT with UID, DTSTAMP, DTSTART, DTEND, SUMMARY, DESCRIPTION, LOCATION
+   - ORGANIZER (Yaseen), ATTENDEE (client), STATUS:TENTATIVE
+   - 15-minute VALARM reminder before the call
+   - Proper ICS escaping (backslash, semicolon, comma, newline)
+   - Content-Type: text/calendar, Content-Disposition: attachment
+   - Added "Add to Calendar" button to booking success state (gradient button with CalendarPlus icon)
+   - Verified: generates valid .ics file (200 status), button appears on success state
+   - VLM rated calendar export: 9/10
+2. **Visitor Analytics System**
+   - Added Visit model to Prisma (section, referrer, path, createdAt) — anonymous, no PII
+   - Created `/api/track` POST endpoint — records section views with referrer origin only (privacy-respecting)
+   - Created `/api/stats` GET endpoint — aggregates:
+     - Visit counts (total, last24h, last7d, last30d)
+     - Top 10 sections by view count
+     - Engagement metrics (bookings, pendingBookings, testimonials, approvedTestimonials, subscribers, articles)
+   - Created `useSectionTracking` hook — IntersectionObserver-based, tracks when sections scroll into view (50% visibility threshold, fires once per section)
+   - Created `SectionTracker` client wrapper component (for server component page)
+   - Tracking is fire-and-forget (never blocks UX, silent failures)
+3. **Live Analytics Stats Widget** (`src/components/portfolio/stats-widget.tsx`)
+   - Floating glassmorphic dashboard widget (bottom of page)
+   - "Live Analytics" header with pulsing green "Live" indicator
+   - 6 stat cards in 3x2 grid: Total Views, This Week, Bookings, Testimonials, Subscribers, Articles
+   - Each card: colored icon, gradient number, label, sub-context (e.g. "+2 today", "2 pending")
+   - "Most Viewed Sections" section with horizontal bar chart (gradient bars, top 5)
+   - Loading skeleton state
+   - Animated entrance (framer-motion)
+   - Verified: shows live data (2 views, 2 bookings, 1 testimonial, 1 subscriber, 6 articles)
+   - VLM rated stats widget: 8.5/10 ("polished, developer-portfolio-grade")
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 16 sections render correctly
+- No console/page errors
+- Calendar export generates valid .ics (200 status, proper VCALENDAR/VEVENT structure)
+- Booking flow with "Add to Calendar" button works end-to-end
+- Visitor tracking records section views (verified: POST returns success:true)
+- Stats API returns live aggregated data (verified: 2 visits, 2 bookings, 6 articles)
+- Stats widget renders with live data and bar chart
+- All services running and stable
+
+Stage Summary:
+- Booking section now has calendar export (.ics download) for confirmed bookings
+- Visitor analytics system tracks section views anonymously (privacy-respecting)
+- Live analytics dashboard widget shows real-time stats + engagement metrics
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add admin UI dashboard for booking/testimonial/article management
+- Could add project screenshot gallery in detail modal (multi-image carousel)
+- Could add tech stack colored icons to project cards
+- Could add fuzzy matching highlights in command palette
+- Could add "Recently visited" section to command palette
+- Could add email notification integration for booking confirmations
+- Could add visitor geolocation (city/country level) for analytics
+- Could add conversion funnel tracking (visit → booking → hire)
