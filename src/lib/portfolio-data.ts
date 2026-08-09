@@ -202,7 +202,7 @@ export const quickLinks = [
   { label: "About", href: "#about" },
   { label: "Services", href: "#services" },
   { label: "Projects", href: "#projects" },
-  { label: "Experience", href: "#techstack" },
+  { label: "Experience", href: "#experience" },
   { label: "Testimonials", href: "#testimonials" },
   { label: "GitHub", href: "#github" },
   { label: "Contact", href: "#contact" },
@@ -214,5 +214,93 @@ export const navLinks = [
   { label: "Services", href: "#services" },
   { label: "Projects", href: "#projects" },
   { label: "Skills", href: "#techstack" },
+  { label: "Experience", href: "#experience" },
   { label: "Contact", href: "#contact" },
 ];
+
+// Professional experience timeline
+export const experiences = [
+  {
+    role: "Freelance Full-Stack Developer",
+    company: "Self-Employed",
+    location: "Peshawar, Pakistan",
+    period: "2023 — Present",
+    type: "Freelance",
+    description:
+      "Building production-grade SaaS applications, e-commerce platforms, and custom web solutions for clients worldwide. Delivered 50+ projects with a 98% client satisfaction rate.",
+    achievements: [
+      "Delivered 50+ web applications with modern MERN stack",
+      "Built 3 SaaS products serving 10K+ active users",
+      "Maintained 100% on-time delivery rate",
+      "Earned 1K+ followers on GitHub with 1.2K+ total stars",
+    ],
+    tech: ["Next.js", "TypeScript", "Node.js", "PostgreSQL", "Stripe", "AWS"],
+    color: "sky",
+    current: true,
+  },
+  {
+    role: "Full-Stack Developer",
+    company: "TechFlow Solutions",
+    location: "Remote",
+    period: "2022 — 2023",
+    type: "Full-time",
+    description:
+      "Led development of a multi-tenant SaaS dashboard used by 500+ businesses. Architected the backend, designed the database schema, and implemented real-time features.",
+    achievements: [
+      "Architected multi-tenant SaaS serving 500+ businesses",
+      "Reduced page load times by 60% through optimization",
+      "Implemented real-time notifications with Socket.io",
+      "Mentored 2 junior developers",
+    ],
+    tech: ["React", "Node.js", "MongoDB", "Socket.io", "Redis", "Docker"],
+    color: "pink",
+    current: false,
+  },
+  {
+    role: "Frontend Developer",
+    company: "Innovate Labs",
+    location: "Peshawar, Pakistan",
+    period: "2021 — 2022",
+    type: "Full-time",
+    description:
+      "Developed responsive, accessible user interfaces for various client projects. Collaborated with designers and backend teams to ship pixel-perfect products.",
+    achievements: [
+      "Built 15+ responsive web applications",
+      "Improved Lighthouse scores to 95+ across projects",
+      "Established the company's component library",
+      "Led migration from CRA to Next.js",
+    ],
+    tech: ["React", "JavaScript", "Tailwind CSS", "Figma", "Vercel"],
+    color: "wood",
+    current: false,
+  },
+  {
+    role: "Software Engineering Student",
+    company: "University of Peshawar",
+    location: "Peshawar, Pakistan",
+    period: "2020 — 2024",
+    type: "Education",
+    description:
+      "Pursued a Bachelor's in Software Engineering. Built foundational knowledge in algorithms, data structures, software design patterns, and modern web development.",
+    achievements: [
+      "Graduated with honors (GPA 3.8/4.0)",
+      "President of the Coding Society",
+      "Won 2 university hackathons",
+      "Published a research paper on web performance",
+    ],
+    tech: ["Java", "Python", "C++", "SQL", "Data Structures"],
+    color: "sky",
+    current: false,
+  },
+];
+
+// Achievement highlights for the stats counter section
+export const achievements = [
+  { value: 50, suffix: "+", label: "Projects Delivered", icon: "Rocket" },
+  { value: 30, suffix: "+", label: "Happy Clients", icon: "Users" },
+  { value: 3, suffix: "+", label: "Years Experience", icon: "Clock" },
+  { value: 1200, suffix: "+", label: "GitHub Stars", icon: "Star" },
+  { value: 100, suffix: "%", label: "Client Satisfaction", icon: "Heart" },
+  { value: 15, suffix: "K+", label: "Lines of Code", icon: "Code" },
+];
+

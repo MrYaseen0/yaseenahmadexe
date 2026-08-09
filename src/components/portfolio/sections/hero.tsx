@@ -10,6 +10,7 @@ import {
   Code2,
   Star,
   GitFork,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -119,6 +120,17 @@ export function Hero() {
                 <a href={socials.github} target="_blank" rel="noopener noreferrer">
                   <Github className="mr-1.5 h-4 w-4" />
                   GitHub
+                </a>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="rounded-full border-wood/40 px-6 hover:border-wood hover:bg-wood/5"
+              >
+                <a href="/api/resume" target="_blank" rel="noopener noreferrer">
+                  <FileText className="mr-1.5 h-4 w-4 text-wood" />
+                  Resume
                 </a>
               </Button>
             </div>

@@ -77,6 +77,13 @@ function persistMessage(msg: LiveMessage) {
 io.on("connection", (socket) => {
   console.log(`[chat] connected: ${socket.id}`);
 
+  // Broadcast updated online count to everyone
+  const broadcastOnlineCount = () => {
+    const count = io.engine.clientsCount;
+    io.emit("online-count", { count, timestamp: new Date().toISOString() });
+  };
+  broadcastOnlineCount();
+
   // Visitor joins their own session room
   socket.on("join", (data: { sessionId: string; name?: string }) => {
     const sessionId = data?.sessionId || socket.id;
@@ -87,6 +94,9 @@ io.on("connection", (socket) => {
     // Send recent history
     const history = sessionMessages.get(sessionId) || [];
     socket.emit("history", { messages: history });
+
+    // Send current online count to the new visitor
+    socket.emit("online-count", { count: io.engine.clientsCount, timestamp: new Date().toISOString() });
 
     // Owner presence announcement
     socket.emit("system", {
@@ -212,6 +222,11 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log(`[chat] disconnected: ${socket.id}`);
+    // Broadcast updated online count after a short delay (so disconnect is processed)
+    setTimeout(() => {
+      const count = io.engine.clientsCount;
+      io.emit("online-count", { count, timestamp: new Date().toISOString() });
+    }, 100);
   });
 
   socket.on("error", (err: Error) => {

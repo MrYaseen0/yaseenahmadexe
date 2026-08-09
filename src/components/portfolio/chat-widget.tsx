@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { io, Socket } from "socket.io-client";
-import { MessageCircle, X, Send, Loader2, MinusCircle } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, MinusCircle, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -26,6 +26,7 @@ export function ChatWidget() {
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [onlineCount, setOnlineCount] = useState(1);
   const [sessionId] = useState(() => {
     if (typeof window === "undefined") return "init";
     const key = "ya-chat-session";
@@ -75,6 +76,7 @@ export function ChatWidget() {
       ]);
     });
     s.on("typing", (data: { isTyping: boolean }) => setTyping(data.isTyping));
+    s.on("online-count", (data: { count: number }) => setOnlineCount(data.count));
 
     return () => {
       s.disconnect();
@@ -167,7 +169,15 @@ export function ChatWidget() {
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-400" />
               </div>
               <div className="flex-1">
-                <div className="text-sm font-bold">{developer.name}</div>
+                <div className="flex items-center gap-1.5 text-sm font-bold">
+                  {developer.name}
+                  {connected && (
+                    <span className="flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-medium">
+                      <Users className="h-2.5 w-2.5" />
+                      {onlineCount} online
+                    </span>
+                  )}
+                </div>
                 <div className="text-[11px] opacity-90">
                   {connected ? "🟢 Online · typically replies in minutes" : "Connecting..."}
                 </div>

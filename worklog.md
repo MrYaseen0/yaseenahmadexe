@@ -87,3 +87,73 @@ Stage Summary:
 - Theme matches requirements: sky blue + pink + half-white + wooden touches
 - Both dev server (port 3000) and chat service (port 3003) running in background
 - Ready for production; next phase: cron job for ongoing QA
+
+---
+Task ID: 3
+Agent: webDevReview (cron round 1)
+Task: QA assessment, bug fixes, new features, styling improvements
+
+Work Log:
+- Reviewed worklog.md — project was stable (7-8.5/10), all features working
+- Verified services: dev server (port 3000: 200), chat service (port 3003: running), Caddy gateway (port 81: 200)
+- QA testing via agent-browser: all 9 original sections render correctly, no errors in console/dev log, GitHub API returning 200s
+- VLM assessment identified opportunities: typography hierarchy, premium shadows, button hover lifts, missing experience timeline
+
+New features implemented:
+1. **Experience/Career Timeline section** (`src/components/portfolio/sections/experience.tsx`)
+   - 4 timeline entries (Freelance 2023-Present, TechFlow 2022-2023, Innovate Labs 2021-2022, University 2020-2024)
+   - Alternating left/right layout on desktop, single column on mobile
+   - Each entry: role, company, period, location, type badge, description, achievements list, tech tags
+   - "Current" badge with animated ping for active position
+   - Color-coded by category (sky/pink/wood)
+   - Added to portfolio-data.ts + navLinks + quickLinks
+2. **Animated Achievement Stats section** (`src/components/portfolio/sections/achievement-stats.tsx`)
+   - 6 stat cards with count-up animation (IntersectionObserver-triggered)
+   - Numbers animate from 0 to target using easeOutExpo easing
+   - Stats: 50+ Projects, 30+ Clients, 3+ Years, 1,200+ Stars, 100% Satisfaction, 15K+ Lines of Code
+   - Glass card with decorative grid + gradient blobs
+3. **Download Resume feature** (`src/app/api/resume/route.ts`)
+   - Generates a printable ATS-friendly HTML resume with all developer info
+   - Professional styling (sky-blue/pink accents matching theme)
+   - "Save as PDF / Print" button (browser print dialog)
+   - Resume button added to hero section (wood-themed to match palette)
+4. **Live online visitor count** in chat widget
+   - Chat service broadcasts `online-count` event on connect/disconnect
+   - Chat widget header shows "N online" badge with Users icon
+   - Real-time updates as visitors join/leave
+
+Styling improvements (globals.css):
+- Refined body typography (line-height 1.6, letter-spacing, font smoothing)
+- Heading text-wrap: balance for better line breaks
+- Paragraph text-wrap: pretty
+- Button hover lift micro-interaction (translateY -1px)
+- Premium diffuse shadow classes (shadow-premium, shadow-premium-hover)
+- Hover-lift utility class for cards
+- Link-underline animation utility
+- Glass-card refined component
+
+Verification results:
+- Lint passes clean (0 errors, 0 warnings)
+- All 10 sections render (home, about, services, projects, techstack, experience, github, pricing, testimonials, contact)
+- VLM hero rating improved: 7/10 → 8.5/10
+- VLM experience section rating: 8.5/10
+- Mobile responsive verified (390px viewport)
+- Chat widget online count working (shows "1 online")
+- Resume page loads correctly with print button
+- Navbar includes Experience link
+- No runtime errors in console or dev log
+
+Stage Summary:
+- Project now has 12 sections total (added Experience timeline + Achievement stats)
+- 3 new features: experience timeline, animated counters, resume download
+- 1 enhanced feature: live online count in chat widget
+- Premium styling refinements applied globally
+- All services running and stable
+- Ready for next cron round
+
+Unresolved items / next phase recommendations:
+- Could add a blog/articles section with MDX content
+- Could add a "Hire Me" calendar/booking integration
+- Could add dark mode visual polish testing
+- Could add project detail modal with screenshots gallery
+- Could add FAQ section for common client questions
