@@ -149,7 +149,7 @@ export function Hero() {
             {/* Quick stats */}
             <div className="animate-fade-in-up delay-500 mt-10 grid grid-cols-3 gap-3">
               {[
-                { v: "20+", l: "Projects Built" },
+                { v: "15+", l: "Projects Built" },
                 { v: "MERN", l: "Stack Specialist" },
                 { v: "100%", l: "Client Focused" },
               ].map((s) => (

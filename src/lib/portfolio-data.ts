@@ -56,11 +56,11 @@ export const socials = {
 };
 
 export const stats = [
-  { label: "Projects Built", value: "20+", icon: "FolderGit2" },
+  { label: "Projects Built", value: "15+", icon: "FolderGit2" },
   { label: "Stack Specialist", value: "MERN", icon: "Layers" },
   { label: "Client Focused", value: "100%", icon: "HeartHandshake" },
   { label: "Years Experience", value: "3+", icon: "Clock" },
-  { label: "Dedication", value: "100%", icon: "Zap" },
+  { label: "On-Time Delivery", value: "100%", icon: "Zap" },
 ];
 
 export const services = [
@@ -251,7 +251,7 @@ export const achievements = [
   { value: 15, suffix: "+", label: "Projects Built", icon: "Rocket" },
   { value: 3, suffix: "+", label: "Years Experience", icon: "Clock" },
   { value: 100, suffix: "%", label: "Learning Focus", icon: "Heart" },
-  { value: 10, suffix: "K+", label: "Lines of Code", icon: "Code" },
+  { value: 100, suffix: "%", label: "On-Time Delivery", icon: "Clock" },
 ];
 
 // FAQ — common client questions

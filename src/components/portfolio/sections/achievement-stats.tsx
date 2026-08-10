@@ -90,7 +90,7 @@ export function AchievementStats() {
               { value: 15, suffix: "+", label: "Projects Built", icon: "Rocket", color: "text-sky-500" },
               { value: 3, suffix: "+", label: "Years Experience", icon: "Clock", color: "text-wood" },
               { value: 100, suffix: "%", label: "Learning Focus", icon: "Heart", color: "text-pink-500" },
-              { value: 10, suffix: "K+", label: "Lines of Code", icon: "Code", color: "text-wood" },
+              { value: 100, suffix: "%", label: "On-Time Delivery", icon: "Clock", color: "text-wood" },
             ].map((stat, i) => (
               <StatCard key={stat.label} stat={stat} start={inView} delay={i * 100} />
             ))}
