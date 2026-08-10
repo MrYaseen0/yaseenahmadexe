@@ -26,10 +26,11 @@ interface CounterProps {
 }
 
 function useCountUp(target: number, duration = 2000, start: boolean) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(target);
 
   useEffect(() => {
     if (!start) return;
+    setCount(0);
     let raf = 0;
     const startTime = performance.now();
     const animate = (now: number) => {
