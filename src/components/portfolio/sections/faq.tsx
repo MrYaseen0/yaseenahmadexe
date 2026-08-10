@@ -96,7 +96,7 @@ export function Faq() {
                       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="px-5 pb-5 pl-20 pr-5">
+                      <div className="px-5 pb-5 pl-14 pr-5 sm:pl-20">
                         <p className="text-sm leading-relaxed text-muted-foreground sm:text-[15px]">
                           {faq.a}
                         </p>

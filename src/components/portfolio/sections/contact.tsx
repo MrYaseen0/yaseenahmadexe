@@ -47,7 +47,7 @@ export function Contact() {
           subtitle="Have a project in mind? Let's discuss how I can help bring your ideas to life."
         />
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-5">
+        <div className="mt-14 grid gap-6 md:gap-8 lg:grid-cols-5">
           {/* Contact info */}
           <div className="animate-slide-in-left lg:col-span-2">
             <div className="glass rounded-3xl border border-sky-500/15 p-6 shadow-soft sm:p-8">

@@ -20,9 +20,9 @@ export function About() {
           subtitle="Get to know the developer behind the code."
         />
 
-        <div className="mt-14 grid items-center gap-10 lg:grid-cols-2">
+        <div className="mt-14 grid items-center gap-8 md:gap-10 lg:grid-cols-2">
           {/* Left: photo + floating tags */}
-          <div className="animate-slide-in-left perspective-1000 relative">
+          <div className="animate-slide-in-left perspective-1000 relative overflow-hidden">
             <div className="relative mx-auto max-w-md">
               {/* Wooden frame accent */}
               <div className="absolute -inset-3 rounded-[2rem] border-2 border-wood/30 bg-wood/5" />

@@ -37,11 +37,11 @@ export function Hero() {
       className="relative flex min-h-screen items-center overflow-hidden pt-24 pb-16"
     >
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-center gap-10 lg:grid-cols-12">
+        <div className="grid items-center gap-8 md:gap-10 md:grid-cols-2 lg:grid-cols-12">
           {/* Left: text */}
           <motion.div
             style={{ y: yText }}
-            className="lg:col-span-7"
+            className="md:col-span-1 lg:col-span-7"
           >
             <div className="animate-fade-in-up">
               <Badge
@@ -147,7 +147,7 @@ export function Hero() {
             </div>
 
             {/* Quick stats */}
-            <div className="animate-fade-in-up delay-500 mt-10 grid max-w-lg grid-cols-3 gap-3">
+            <div className="animate-fade-in-up delay-500 mt-10 grid grid-cols-3 gap-3">
               {[
                 { v: "20+", l: "Projects Built" },
                 { v: "MERN", l: "Stack Specialist" },
@@ -171,7 +171,7 @@ export function Hero() {
           {/* Right: 3D photo card */}
           <motion.div
             style={{ y: yPhoto }}
-            className="lg:col-span-5"
+            className="md:col-span-1 lg:col-span-5"
           >
             <HeroPhotoCard />
           </motion.div>

@@ -144,7 +144,7 @@ export function Booking() {
 
         <div className="animate-fade-in-up mt-12 overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover">
           {/* Status bar */}
-          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-6 py-4">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
@@ -322,7 +322,7 @@ function Step2DateTime({
             <Calendar className="h-3.5 w-3.5 text-sky-500" />
             Select Date
           </Label>
-          <div className="grid grid-cols-7 gap-1.5 sm:grid-cols-4">
+          <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-7">
             {availableDates.map((d) => (
               <button
                 key={d.iso}
@@ -356,7 +356,7 @@ function Step2DateTime({
             Select Time
           </Label>
           {selectedDate ? (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {timeSlots.map((t) => (
                 <button
                   key={t}
