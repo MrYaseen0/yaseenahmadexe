@@ -168,10 +168,10 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* Right: 3D photo card */}
+          {/* Right: 3D photo card — overflow-hidden clips decorations on mobile */}
           <motion.div
             style={{ y: yPhoto }}
-            className="md:col-span-1 lg:col-span-5"
+            className="relative overflow-hidden rounded-3xl md:col-span-1 lg:col-span-5 lg:overflow-visible"
           >
             <HeroPhotoCard />
           </motion.div>
@@ -234,7 +234,7 @@ function HeroPhotoCard() {
         </div>
 
         {/* Photo with puzzle crack animation */}
-        <div className="relative aspect-[4/5] overflow-hidden">
+        <div className="relative aspect-[3/4] overflow-hidden sm:aspect-[4/5]">
           <PuzzlePhoto
             src="/assets/dev-photo.jpg"
             alt={`${developer.name} — ${developer.role}`}
