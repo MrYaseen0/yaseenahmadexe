@@ -12,7 +12,6 @@ import {
   Loader2,
   CheckCircle2,
   ChevronLeft,
-  ChevronRight,
   Globe,
   CalendarPlus,
 } from "lucide-react";

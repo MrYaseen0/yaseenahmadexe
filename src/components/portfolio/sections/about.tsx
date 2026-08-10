@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Code2, GraduationCap, Heart, MapPin, Briefcase } from "lucide-react";
+import { GraduationCap, Heart, MapPin, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "../section-heading";

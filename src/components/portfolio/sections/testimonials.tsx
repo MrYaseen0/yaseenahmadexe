@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote, Star, MessageSquarePlus, Loader2, X, CheckCircle2 } from "lucide-react";
+import { Quote, Star, MessageSquarePlus, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,17 +78,17 @@ export function Testimonials() {
         </div>
 
         {/* Testimonials grid */}
-        <Stagger className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {allTestimonials.length === 0 ? (
-            <div className="col-span-full rounded-2xl border border-sky-500/15 bg-card p-12 text-center">
-              <Quote className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-              <h3 className="text-lg font-semibold">No testimonials yet</h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Be the first to leave a testimonial! Click the button above to share your experience.
-              </p>
-            </div>
-          ) : (
-            allTestimonials.map((t, i) => (
+        {allTestimonials.length === 0 ? (
+          <div className="mt-12 rounded-2xl border border-sky-500/15 bg-card p-12 text-center">
+            <Quote className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
+            <h3 className="text-lg font-semibold">No testimonials yet</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Be the first to leave a testimonial! Click the button above to share your experience.
+            </p>
+          </div>
+        ) : (
+          <Stagger className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {allTestimonials.map((t, i) => (
             <Reveal
               asChild
               key={t.name + i}
@@ -136,9 +136,9 @@ export function Testimonials() {
                 </div>
               </div>
             </Reveal>
-          ))
-          )}
-        </Stagger>
+          ))}
+          </Stagger>
+        )}
 
         {/* Stats summary */}
         <Stagger className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3">
