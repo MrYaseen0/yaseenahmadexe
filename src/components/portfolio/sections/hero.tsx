@@ -34,14 +34,14 @@ export function Hero() {
     <section
       id="home"
       ref={ref}
-      className="relative flex min-h-screen items-center overflow-x-hidden pt-24 pb-16 sm:overflow-hidden"
+      className="relative flex min-h-screen items-start overflow-hidden pt-24 pb-16 md:items-center"
     >
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid items-start gap-8 md:items-center md:gap-10 md:grid-cols-2 lg:grid-cols-12">
           {/* Left: text */}
           <motion.div
             style={{ y: yText }}
-            className="relative z-10 md:col-span-1 lg:col-span-7"
+            className="md:col-span-1 lg:col-span-7"
           >
             <div className="animate-fade-in-up">
               <Badge
@@ -168,10 +168,10 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* Right: 3D photo card — overflow-hidden clips decorations on mobile */}
+          {/* Right: 3D photo card */}
           <motion.div
             style={{ y: yPhoto }}
-            className="relative overflow-hidden rounded-3xl md:col-span-1 lg:col-span-5 lg:overflow-visible"
+            className="md:col-span-1 lg:col-span-5"
           >
             <HeroPhotoCard />
           </motion.div>
@@ -198,67 +198,94 @@ export function Hero() {
 
 function HeroPhotoCard() {
   return (
-    <div className="animate-fade-in-scale delay-300 relative mx-auto mt-4 max-w-[260px] sm:mt-0 sm:max-w-sm sm:perspective-2000">
-      {/* Floating ring decorations — hidden on mobile */}
-      <motion.div
-        className="absolute -left-6 -top-6 hidden h-20 w-20 rounded-full border-2 border-dashed border-sky-500/40 sm:block"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
-      <motion.div
-        className="absolute -bottom-6 -right-6 hidden h-16 w-16 rounded-full border-2 border-pink-500/40 sm:block"
-        animate={{ rotate: -360 }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-      />
-
-      {/* Glow — hidden on mobile */}
-      <div className="absolute -inset-4 hidden rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl sm:block" />
-
-      {/* Card */}
-      <motion.div
-        whileHover={{ rotateY: 8, rotateX: -4, scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 200, damping: 18 }}
-        className="relative overflow-hidden rounded-2xl border border-white/40 bg-white shadow-glow-sky sm:transform-3d sm:rounded-[2rem]"
-      >
-        {/* Top bar */}
-        <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
-          <div className="flex gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-            <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+    <>
+      {/* Mobile: clean simple card — no decorations, no 3D */}
+      <div className="mx-auto max-w-[260px] sm:hidden">
+        <div className="overflow-hidden rounded-2xl border border-white/40 bg-white shadow-glow-sky">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+            </div>
+            <span className="font-mono text-[11px] font-medium text-muted-foreground">
+              {developer.name} — Developer
+            </span>
+            <span className="text-sm">⚛️</span>
           </div>
-          <span className="font-mono text-[11px] font-medium text-muted-foreground">
-            {developer.name} — Developer
-          </span>
-          <span className="text-sm">⚛️</span>
-        </div>
-
-        {/* Photo with puzzle crack animation */}
-        <div className="relative aspect-[3/4] overflow-hidden sm:aspect-[4/5]">
-          <PuzzlePhoto
-            src="/assets/dev-photo.jpg"
-            alt={`${developer.name} — ${developer.role}`}
-            className="h-full w-full"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
-
-          {/* Floating badges over photo */}
-          <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
-            ⚛️ React & Next.js
+          <div className="relative aspect-[3/4] overflow-hidden">
+            <PuzzlePhoto
+              src="/assets/dev-photo.jpg"
+              alt={`${developer.name} — ${developer.role}`}
+              className="h-full w-full"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
+            <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+              ⚛️ React & Next.js
+            </div>
+            <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
+              Full-Stack Dev
+            </div>
           </div>
-          <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
-            Full-Stack Dev
+          <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
+            <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Stack" value="MERN" />
+            <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Focus" value="SaaS" />
+            <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Status" value="Open" />
           </div>
         </div>
+      </div>
 
-        {/* Footer with quick stats */}
-        <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
-          <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Stack" value="MERN" />
-          <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Focus" value="SaaS" />
-          <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Status" value="Open" />
-        </div>
-      </motion.div>
-    </div>
+      {/* Desktop: full fancy card with decorations and 3D */}
+      <div className="hidden animate-fade-in-scale delay-300 relative mx-auto perspective-2000 sm:block sm:max-w-sm">
+        <motion.div
+          className="absolute -left-6 -top-6 h-20 w-20 rounded-full border-2 border-dashed border-sky-500/40"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute -bottom-6 -right-6 h-16 w-16 rounded-full border-2 border-pink-500/40"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl" />
+        <motion.div
+          whileHover={{ rotateY: 8, rotateX: -4, scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          className="transform-3d relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-glow-sky"
+        >
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+            </div>
+            <span className="font-mono text-[11px] font-medium text-muted-foreground">
+              {developer.name} — Developer
+            </span>
+            <span className="text-sm">⚛️</span>
+          </div>
+          <div className="relative aspect-[4/5] overflow-hidden">
+            <PuzzlePhoto
+              src="/assets/dev-photo.jpg"
+              alt={`${developer.name} — ${developer.role}`}
+              className="h-full w-full"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
+            <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+              ⚛️ React & Next.js
+            </div>
+            <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
+              Full-Stack Dev
+            </div>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
+            <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Stack" value="MERN" />
+            <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Focus" value="SaaS" />
+            <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Status" value="Open" />
+          </div>
+        </motion.div>
+      </div>
+    </>
   );
 }
 
