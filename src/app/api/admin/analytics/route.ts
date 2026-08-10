@@ -1,15 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-function checkAuth(request: Request) {
-  const auth = request.headers.get("authorization");
-  const token = auth?.replace("Bearer ", "");
-  return !!(token && token.startsWith("ya-admin-") && token.endsWith("yaseen"));
-}
+import { verifyAdmin } from "@/lib/auth";
 
 // GET — aggregated analytics data for charts (admin only)
 export async function GET(request: Request) {
-  if (!checkAuth(request)) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

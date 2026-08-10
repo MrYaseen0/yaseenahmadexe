@@ -34,8 +34,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const ADMIN_EMAIL = "yaseenahmad13579@gmail.com";
-const ADMIN_PASSWORD = "Yaseen@13579";
 const TOKEN_STORAGE = "ya-admin-token";
 
 interface Booking {
@@ -93,7 +91,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem(TOKEN_STORAGE);
-    if (stored && stored.startsWith("ya-admin-")) {
+    // A valid token is a signed JWT: header.payload.signature
+    if (stored && stored.split(".").length === 3) {
       setToken(stored);
       setAuthed(true);
     }
@@ -219,7 +218,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
     setLoading(true);
     try {
       const [bookingRes, testRes, subRes, analyticsRes, contentRes] = await Promise.all([
-        fetch("/api/booking"),
+        fetch("/api/booking", { headers: authHeaders }),
         fetch("/api/admin/testimonials", { headers: authHeaders }),
         fetch("/api/admin/subscribers", { headers: authHeaders }),
         fetch("/api/admin/analytics", { headers: authHeaders }),

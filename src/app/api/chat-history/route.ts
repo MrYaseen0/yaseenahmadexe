@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Get chat history for a session
 export async function GET(request: Request) {
@@ -24,6 +25,15 @@ export async function GET(request: Request) {
 
 // Save a chat message (also used by WebSocket service via internal call)
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limit = rateLimit(`chat:${ip}`, { limit: 20, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many messages. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
+    );
+  }
+
   try {
     const body = await request.json();
     const { sessionId, sender, name, content } = body;

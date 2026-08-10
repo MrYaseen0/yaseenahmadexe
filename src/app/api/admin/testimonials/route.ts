@@ -1,20 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-// Simple admin key check (in production, use proper auth)
-const ADMIN_KEY = process.env.ADMIN_KEY || "yaseen-admin-2026";
-
-function checkAuth(request: Request) {
-  const auth = request.headers.get("authorization");
-  if (!auth || auth !== `Bearer ${ADMIN_KEY}`) {
-    return false;
-  }
-  return true;
-}
+import { verifyAdmin } from "@/lib/auth";
 
 // GET — list ALL testimonials (including pending) for admin review
 export async function GET(request: Request) {
-  if (!checkAuth(request)) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -31,7 +21,7 @@ export async function GET(request: Request) {
 
 // PATCH — approve or reject a testimonial
 export async function PATCH(request: Request) {
-  if (!checkAuth(request)) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

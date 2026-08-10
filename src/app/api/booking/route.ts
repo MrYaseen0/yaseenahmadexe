@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyAdmin } from "@/lib/auth";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
-// GET — list all bookings (admin only, simplified for portfolio)
-export async function GET() {
+// GET — list all bookings (admin only)
+export async function GET(request: Request) {
+  if (!verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const bookings = await db.booking.findMany({
       orderBy: { createdAt: "desc" },
@@ -16,6 +21,15 @@ export async function GET() {
 
 // POST — submit a new booking request
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limit = rateLimit(`booking:${ip}`, { limit: 5, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down and try again shortly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
+    );
+  }
+
   try {
     const body = await request.json();
     const { name, email, purpose, date, time, timezone, notes } = body;

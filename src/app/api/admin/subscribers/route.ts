@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-const ADMIN_KEY = process.env.ADMIN_KEY || "yaseen-admin-2026";
-
-function checkAuth(request: Request) {
-  const auth = request.headers.get("authorization");
-  return auth === `Bearer ${ADMIN_KEY}`;
-}
+import { verifyAdmin } from "@/lib/auth";
 
 // GET — list all newsletter subscribers
 export async function GET(request: Request) {
-  if (!checkAuth(request)) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

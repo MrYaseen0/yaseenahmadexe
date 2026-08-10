@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-// Admin credentials (configured per user request)
-const ADMIN_EMAIL = "yaseenahmad13579@gmail.com";
-const ADMIN_PASSWORD = "Yaseen@13579";
-
-// Simple session token store (in production, use JWT + secure storage)
-const VALID_TOKEN = `ya-admin-${Date.now()}-yaseen`;
+import { verifyCredentials, signAdminToken, verifyAdmin } from "@/lib/auth";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
+  // Throttle login attempts to blunt credential brute-forcing.
+  const ip = getClientIp(request);
+  const limit = rateLimit(`admin-auth:${ip}`, { limit: 10, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "Too many attempts. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
+    );
+  }
+
   try {
     const body = await request.json();
     const { email, password } = body;
@@ -20,17 +25,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const emailMatch = email.toLowerCase().trim() === ADMIN_EMAIL;
-    const passwordMatch = password === ADMIN_PASSWORD;
-
-    if (!emailMatch || !passwordMatch) {
+    if (!verifyCredentials(email, password)) {
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
 
-    // Log the admin login
+    const token = signAdminToken(String(email).toLowerCase().trim());
+
+    // Log the admin login (best-effort).
     try {
       await db.visit.create({
         data: {
@@ -45,8 +49,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      token: VALID_TOKEN,
-      email: ADMIN_EMAIL,
+      token,
+      email: String(email).toLowerCase().trim(),
       message: "Authentication successful",
     });
   } catch (error: any) {
@@ -58,14 +62,10 @@ export async function POST(request: Request) {
   }
 }
 
-// GET — verify if a token is still valid
+// GET — verify whether the presented token is still valid
 export async function GET(request: Request) {
-  const auth = request.headers.get("authorization");
-  const token = auth?.replace("Bearer ", "");
-
-  if (token && token.startsWith("ya-admin-") && token.endsWith("yaseen")) {
-    return NextResponse.json({ valid: true, email: ADMIN_EMAIL });
+  if (verifyAdmin(request)) {
+    return NextResponse.json({ valid: true });
   }
-
   return NextResponse.json({ valid: false }, { status: 401 });
 }

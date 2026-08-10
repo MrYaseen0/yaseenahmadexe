@@ -1,13 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-
-const ADMIN_TOKEN_PREFIX = "ya-admin-";
-
-function checkAuth(request: Request) {
-  const auth = request.headers.get("authorization");
-  const token = auth?.replace("Bearer ", "");
-  return !!(token && token.startsWith(ADMIN_TOKEN_PREFIX) && token.endsWith("yaseen"));
-}
+import { verifyAdmin } from "@/lib/auth";
 
 // GET — fetch all site content (public read, so the site can use dynamic data)
 export async function GET() {
@@ -27,7 +20,7 @@ export async function GET() {
 
 // PUT — update or create site content (admin only)
 export async function PUT(request: Request) {
-  if (!checkAuth(request)) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -67,7 +60,7 @@ export async function PUT(request: Request) {
 
 // DELETE — remove a content key (admin only)
 export async function DELETE(request: Request) {
-  if (!checkAuth(request)) {
+  if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 // POST — record a section view (anonymous, privacy-respecting)
 export async function POST(request: Request) {
+  // Looser limit: this fires on scroll/section changes, so allow bursts.
+  const ip = getClientIp(request);
+  const limit = rateLimit(`track:${ip}`, { limit: 60, windowMs: 60_000 });
+  if (!limit.ok) {
+    return NextResponse.json({ success: false }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { section, path } = body;
