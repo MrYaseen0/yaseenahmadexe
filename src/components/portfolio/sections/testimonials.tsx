@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Quote, Star, MessageSquarePlus, Loader2, X, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
+import { Reveal, Stagger } from "../reveal";
 
 // No hardcoded testimonials — only real visitor submissions are shown
 
@@ -78,7 +78,7 @@ export function Testimonials() {
         </div>
 
         {/* Testimonials grid */}
-        <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Stagger className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {allTestimonials.length === 0 ? (
             <div className="col-span-full rounded-2xl border border-sky-500/15 bg-card p-12 text-center">
               <Quote className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
@@ -89,10 +89,10 @@ export function Testimonials() {
             </div>
           ) : (
             allTestimonials.map((t, i) => (
-            <motion.div
+            <Reveal
+              asChild
               key={t.name + i}
-              className="animate-fade-in-up group relative overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
-              style={{ animationDelay: `${(i % 3) * 0.1}s` }}
+              className="group relative overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
             >
               <Quote className="absolute right-4 top-4 h-10 w-10 text-sky-500/10 transition-colors group-hover:text-pink-500/20" />
 
@@ -135,19 +135,20 @@ export function Testimonials() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </Reveal>
           ))
           )}
-        </div>
+        </Stagger>
 
         {/* Stats summary */}
-        <div className="animate-fade-in-up mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <Stagger className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {[
             { v: visitorTestimonials.length.toString(), l: "Testimonials" },
             { v: "100%", l: "Commitment to Quality" },
             { v: "100%", l: "On-Time Delivery" },
           ].map((s) => (
-            <div
+            <Reveal
+              asChild
               key={s.l}
               className="glass rounded-2xl p-5 text-center shadow-soft"
             >
@@ -157,9 +158,9 @@ export function Testimonials() {
               <div className="mt-1 text-xs text-muted-foreground sm:text-sm">
                 {s.l}
               </div>
-            </div>
+            </Reveal>
           ))}
-        </div>
+        </Stagger>
       </div>
 
       {/* Submit testimonial modal */}

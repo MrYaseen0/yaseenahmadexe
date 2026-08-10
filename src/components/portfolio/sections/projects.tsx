@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   Github,
   Star,
@@ -301,6 +301,7 @@ function ProjectCard({
   onDetails: () => void;
 }) {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
+  const reduced = useReducedMotion() ?? false;
 
   const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -311,7 +312,14 @@ function ProjectCard({
   const handleLeave = () => setTilt({ rx: 0, ry: 0 });
 
   return (
-    <div className="animate-fade-in-scale perspective-1000">
+    <motion.div
+      layout
+      initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
+      transition={{ duration: reduced ? 0.2 : 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="perspective-1000"
+    >
       <div
         onMouseMove={handleMove}
         onMouseLeave={handleLeave}
@@ -442,7 +450,7 @@ function ProjectCard({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

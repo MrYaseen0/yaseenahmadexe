@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Briefcase,
   MapPin,
@@ -10,6 +9,7 @@ import {
   Building2,
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
+import { Reveal } from "../reveal";
 import { experiences } from "@/lib/portfolio-data";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -122,7 +122,8 @@ function TimelineItem({
       <div className="hidden sm:block sm:w-1/2" />
 
       {/* Card */}
-      <div
+      <Reveal
+        direction={isLeft ? "right" : "left"}
         className={cn(
           "ml-12 sm:ml-0 sm:w-1/2",
           isLeft ? "sm:pr-12" : "sm:pl-12"
@@ -207,7 +208,7 @@ function TimelineItem({
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </div>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   Mail,
   Phone,
@@ -34,6 +33,7 @@ import {
 } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
+import { Reveal } from "../reveal";
 import { developer, socials } from "@/lib/portfolio-data";
 
 export function Contact() {
@@ -49,7 +49,7 @@ export function Contact() {
 
         <div className="mt-14 grid gap-6 md:gap-8 lg:grid-cols-5">
           {/* Contact info */}
-          <div className="animate-slide-in-left lg:col-span-2">
+          <Reveal direction="right" className="lg:col-span-2">
             <div className="glass rounded-3xl border border-sky-500/15 p-6 shadow-soft sm:p-8">
               <div className="mb-3 flex flex-wrap items-center gap-3">
                 <h3 className="text-2xl font-bold">Get in Touch</h3>
@@ -112,10 +112,10 @@ export function Contact() {
                 Chat on WhatsApp
               </a>
             </div>
-          </div>
+          </Reveal>
 
           {/* Forms */}
-          <div className="animate-slide-in-right lg:col-span-3">
+          <Reveal direction="left" delay={0.1} className="lg:col-span-3">
             <div className="rounded-3xl border border-sky-500/15 bg-card p-6 shadow-card-hover sm:p-8">
               <Tabs defaultValue="hire" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1">
@@ -143,7 +143,7 @@ export function Contact() {
                 </TabsContent>
               </Tabs>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

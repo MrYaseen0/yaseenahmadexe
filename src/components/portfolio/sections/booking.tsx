@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
+import { Reveal } from "../reveal";
 import { developer } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
@@ -142,7 +143,7 @@ export function Booking() {
           subtitle="Skip the back-and-forth emails. Pick a time that works for you and let's talk about your project."
         />
 
-        <div className="animate-fade-in-up mt-12 overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover">
+        <Reveal className="mt-12 overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover">
           {/* Status bar */}
           <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center gap-2">
@@ -228,7 +229,7 @@ export function Booking() {
               />
             )}
           </div>
-        </div>
+        </Reveal>
 
         {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">

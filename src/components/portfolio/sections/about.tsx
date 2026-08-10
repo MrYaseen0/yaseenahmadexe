@@ -5,6 +5,7 @@ import { Code2, GraduationCap, Heart, MapPin, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "../section-heading";
+import { Reveal } from "../reveal";
 import { developer } from "@/lib/portfolio-data";
 
 const skillChips = developer.skills;
@@ -22,7 +23,7 @@ export function About() {
 
         <div className="mt-14 grid items-center gap-8 md:gap-10 lg:grid-cols-2">
           {/* Left: photo + floating tags */}
-          <div className="animate-slide-in-left perspective-1000 relative overflow-hidden">
+          <Reveal direction="right" className="perspective-1000 relative overflow-hidden">
             <div className="relative mx-auto max-w-md">
               {/* Wooden frame accent */}
               <div className="absolute -inset-3 rounded-[2rem] border-2 border-wood/30 bg-wood/5" />
@@ -87,10 +88,10 @@ export function About() {
                 ⚡ Node.js
               </FloatingChip>
             </div>
-          </div>
+          </Reveal>
 
           {/* Right: text + code card */}
-          <div className="animate-slide-in-right space-y-6">
+          <Reveal direction="left" delay={0.1} className="space-y-6">
             <h3 className="text-2xl font-bold sm:text-3xl md:text-4xl">
               Turning Ideas Into{" "}
               <span className="text-gradient-sky-pink">Digital Reality</span>
@@ -155,13 +156,13 @@ export function About() {
                 value="Available"
               />
             </div>
-          </div>
+          </Reveal>
         </div>
 
         {/* Code snippet card (full width below) */}
-        <div className="animate-fade-in-up mt-14">
+        <Reveal className="mt-14">
           <CodeCard />
-        </div>
+        </Reveal>
       </div>
     </section>
   );

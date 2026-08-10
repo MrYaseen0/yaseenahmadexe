@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import {
   Github,
   Users,
@@ -12,6 +11,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
+import { Reveal } from "../reveal";
 import { developer, socials } from "@/lib/portfolio-data";
 
 interface Profile {
@@ -113,7 +113,7 @@ export function GithubProfile() {
           subtitle="My open-source contributions and development activity, live from GitHub."
         />
 
-        <div className="animate-fade-in-up mt-14 mx-auto max-w-4xl">
+        <Reveal className="mt-14 mx-auto max-w-4xl">
           {error && (
             <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-center text-sm text-amber-700 dark:text-amber-300">
               GitHub data could not be loaded. Showing fallback information.
@@ -232,7 +232,7 @@ export function GithubProfile() {
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );

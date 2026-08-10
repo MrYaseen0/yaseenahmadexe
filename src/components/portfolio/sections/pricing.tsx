@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "../section-heading";
+import { Reveal, Stagger } from "../reveal";
 import { cn } from "@/lib/utils";
 
 const plans = [
@@ -100,19 +100,19 @@ export function Pricing() {
           subtitle="Transparent pricing for every stage of your project. Custom quotes available on request."
         />
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {plans.map((plan, i) => {
+        <Stagger className="mt-14 grid gap-6 lg:grid-cols-3">
+          {plans.map((plan) => {
             const colors = colorMap[plan.color];
             return (
-              <motion.div
+              <Reveal
+                asChild
                 key={plan.name}
                 className={cn(
-                  "animate-fade-in-up relative overflow-hidden rounded-2xl border bg-gradient-to-b p-6 shadow-soft transition-shadow hover:-translate-y-2 hover:shadow-card-hover",
+                  "relative overflow-hidden rounded-2xl border bg-gradient-to-b p-6 shadow-soft transition-shadow hover:-translate-y-2 hover:shadow-card-hover",
                   colors.border,
                   colors.bg,
                   plan.popular && "lg:scale-105"
                 )}
-                style={{ animationDelay: `${i * 0.1}s` }}
               >
                 {plan.popular && (
                   <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] font-bold text-white">
@@ -155,10 +155,10 @@ export function Pricing() {
                 >
                   Get Started
                 </Button>
-              </motion.div>
+              </Reveal>
             );
           })}
-        </div>
+        </Stagger>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Need something different?{" "}

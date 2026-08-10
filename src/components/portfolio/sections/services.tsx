@@ -1,8 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import { SectionHeading } from "../section-heading";
+import { Reveal, Stagger } from "../reveal";
 import { services } from "@/lib/portfolio-data";
 import { useTilt } from "../use-tilt";
 import { cn } from "@/lib/utils";
@@ -39,11 +39,11 @@ export function Services() {
           subtitle="Specialized services to bring your digital ideas to life with cutting-edge technology."
         />
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((s, i) => (
-            <ServiceCard key={s.title} service={s} index={i} />
+        <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((s) => (
+            <ServiceCard key={s.title} service={s} />
           ))}
-        </div>
+        </Stagger>
       </div>
     </section>
   );
@@ -51,19 +51,14 @@ export function Services() {
 
 function ServiceCard({
   service,
-  index,
 }: {
   service: (typeof services)[number];
-  index: number;
 }) {
   const { ref, style, glare, handleMove, handleLeave } = useTilt(8);
   const colors = colorMap[service.color];
 
   return (
-    <div
-      className="animate-fade-in-up perspective-1000"
-      style={{ animationDelay: `${index * 0.08}s` }}
-    >
+    <Reveal asChild className="perspective-1000">
       <div
         ref={ref}
         onMouseMove={handleMove}
@@ -140,6 +135,6 @@ function ServiceCard({
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>
-    </div>
+    </Reveal>
   );
 }
