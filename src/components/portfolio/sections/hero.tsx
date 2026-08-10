@@ -200,7 +200,7 @@ function HeroPhotoCard() {
   return (
     <>
       {/* Mobile: clean simple card — no decorations, no 3D */}
-      <div className="mx-auto max-w-[260px] sm:hidden">
+      <div className="sm:hidden">
         <div className="overflow-hidden rounded-2xl border border-white/40 bg-white shadow-glow-sky">
           <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
             <div className="flex gap-1.5">
