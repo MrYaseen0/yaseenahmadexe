@@ -16,69 +16,7 @@ import {
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
 
-// Curated default testimonials (always visible)
-const defaultTestimonials = [
-  {
-    name: "Sarah Johnson",
-    role: "Startup Founder",
-    company: "TechFlow Inc.",
-    avatar: "SJ",
-    rating: 5,
-    text: "Yaseen delivered our SaaS dashboard ahead of schedule. His attention to detail and clean code made maintenance a breeze. Highly recommended!",
-    color: "from-sky-400 to-blue-500",
-    verified: true,
-  },
-  {
-    name: "Ahmed Hassan",
-    role: "Product Manager",
-    company: "Innovate Labs",
-    avatar: "AH",
-    rating: 5,
-    text: "Excellent communication and technical skills. Yaseen transformed our requirements into a polished product. Will definitely work with him again.",
-    color: "from-pink-400 to-rose-500",
-    verified: true,
-  },
-  {
-    name: "Emily Chen",
-    role: "CTO",
-    company: "CloudScale",
-    avatar: "EC",
-    rating: 5,
-    text: "Working with Yaseen was a pleasure. He understands modern architecture deeply and writes production-ready code. True professional.",
-    color: "from-amber-500 to-orange-600",
-    verified: true,
-  },
-  {
-    name: "Marcus Williams",
-    role: "Entrepreneur",
-    company: "BuildRight",
-    avatar: "MW",
-    rating: 5,
-    text: "From concept to deployment, Yaseen handled everything flawlessly. Our e-commerce platform is fast, scalable, and beautiful.",
-    color: "from-sky-400 to-cyan-500",
-    verified: true,
-  },
-  {
-    name: "Fatima Khan",
-    role: "Marketing Director",
-    company: "GrowthHub",
-    avatar: "FK",
-    rating: 5,
-    text: "The AI content tool Yaseen built saved us countless hours. Brilliant execution and ongoing support. Couldn't be happier!",
-    color: "from-pink-400 to-fuchsia-500",
-    verified: true,
-  },
-  {
-    name: "David Park",
-    role: "Lead Developer",
-    company: "DevStudio",
-    avatar: "DP",
-    rating: 5,
-    text: "I've worked with many developers — Yaseen stands out. Clean code, thoughtful architecture, and a great collaborator.",
-    color: "from-amber-600 to-red-600",
-    verified: true,
-  },
-];
+// No hardcoded testimonials — only real visitor submissions are shown
 
 interface VisitorTestimonial {
   id: string;
@@ -105,20 +43,17 @@ export function Testimonials() {
       .catch(() => {});
   }, []);
 
-  // Merge: visitor testimonials first, then defaults
-  const allTestimonials = [
-    ...visitorTestimonials.map((t) => ({
-      name: t.name,
-      role: t.role,
-      company: t.company || "Verified Client",
-      avatar: t.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase(),
-      rating: t.rating,
-      text: t.message,
-      color: colorMap[t.color as keyof typeof colorMap] || colorMap.sky,
-      verified: false,
-    })),
-    ...defaultTestimonials,
-  ];
+  // Only show real visitor testimonials
+  const allTestimonials = visitorTestimonials.map((t) => ({
+    name: t.name,
+    role: t.role,
+    company: t.company || "Verified Client",
+    avatar: t.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase(),
+    rating: t.rating,
+    text: t.message,
+    color: colorMap[t.color as keyof typeof colorMap] || colorMap.sky,
+    verified: false,
+  }));
 
   return (
     <section id="testimonials" className="relative py-20 sm:py-28">
@@ -144,7 +79,16 @@ export function Testimonials() {
 
         {/* Testimonials grid */}
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {allTestimonials.map((t, i) => (
+          {allTestimonials.length === 0 ? (
+            <div className="col-span-full rounded-2xl border border-sky-500/15 bg-card p-12 text-center">
+              <Quote className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
+              <h3 className="text-lg font-semibold">No testimonials yet</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Be the first to leave a testimonial! Click the button above to share your experience.
+              </p>
+            </div>
+          ) : (
+            allTestimonials.map((t, i) => (
             <motion.div
               key={t.name + i}
               className="animate-fade-in-up group relative overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
@@ -192,16 +136,16 @@ export function Testimonials() {
                 </div>
               </div>
             </motion.div>
-          ))}
+          ))
+          )}
         </div>
 
         {/* Stats summary */}
-        <div className="animate-fade-in-up mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="animate-fade-in-up mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3">
           {[
-            { v: "30+", l: "Happy Clients" },
-            { v: "50+", l: "Projects Delivered" },
-            { v: "5.0", l: "Average Rating" },
-            { v: "98%", l: "Repeat Hire Rate" },
+            { v: visitorTestimonials.length.toString(), l: "Testimonials" },
+            { v: "100%", l: "Commitment to Quality" },
+            { v: "100%", l: "On-Time Delivery" },
           ].map((s) => (
             <div
               key={s.l}

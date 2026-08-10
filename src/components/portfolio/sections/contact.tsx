@@ -84,9 +84,9 @@ export function Contact() {
                 <ContactItem
                   icon={<MapPin className="h-5 w-5" />}
                   label="Location"
-                  value={developer.address}
+                  value={developer.location}
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    developer.address
+                    developer.location
                   )}`}
                   color="wood"
                 />

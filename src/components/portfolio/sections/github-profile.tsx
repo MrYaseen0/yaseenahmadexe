@@ -36,47 +36,48 @@ const fallbackProfile: Profile = {
   avatar_url: "/assets/dev-photo.jpg",
   html_url: socials.github,
   bio: "Full-Stack Developer building production-grade SaaS applications with modern web technologies.",
-  followers: 1240,
-  following: 180,
-  public_repos: 52,
-  totalStars: 1280,
+  followers: 0,
+  following: 0,
+  public_repos: 0,
+  totalStars: 0,
   company: "Freelance",
   blog: developer.website,
   location: developer.location,
-  created_at: "2021-06-01T00:00:00Z",
+  created_at: "2024-01-01T00:00:00Z",
 };
 
 export function GithubProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [userRes, reposRes] = await Promise.all([
-          fetch(`https://api.github.com/users/${developer.githubUsername}`, {
-            next: { revalidate: 300 },
-          }),
+        const [profileRes, reposRes] = await Promise.all([
+          fetch("/api/github/profile", { cache: "no-store" }),
           fetch("/api/github", { cache: "no-store" }),
         ]);
         let p: Partial<Profile> = {};
-        if (userRes.ok) {
-          const u = await userRes.json();
-          p = {
-            login: u.login,
-            name: u.name,
-            avatar_url: u.avatar_url,
-            html_url: u.html_url,
-            bio: u.bio,
-            followers: u.followers,
-            following: u.following,
-            public_repos: u.public_repos,
-            company: u.company,
-            blog: u.blog,
-            location: u.location,
-            created_at: u.created_at,
-          };
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          if (!profileData.error) {
+            p = {
+              login: profileData.login,
+              name: profileData.name,
+              avatar_url: profileData.avatar_url,
+              html_url: profileData.html_url,
+              bio: profileData.bio,
+              followers: profileData.followers,
+              following: profileData.following,
+              public_repos: profileData.public_repos,
+              company: profileData.company,
+              blog: profileData.blog,
+              location: profileData.location,
+              created_at: profileData.created_at,
+            };
+          }
         }
         let stars = 0;
         if (reposRes.ok) {
@@ -89,7 +90,10 @@ export function GithubProfile() {
         if (cancelled) return;
         setProfile({ ...fallbackProfile, ...p, totalStars: stars || fallbackProfile.totalStars });
       } catch {
-        if (!cancelled) setProfile(fallbackProfile);
+        if (!cancelled) {
+          setProfile(fallbackProfile);
+          setError(true);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -110,6 +114,11 @@ export function GithubProfile() {
         />
 
         <div className="animate-fade-in-up mt-14 mx-auto max-w-4xl">
+          {error && (
+            <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-center text-sm text-amber-700 dark:text-amber-300">
+              GitHub data could not be loaded. Showing fallback information.
+            </div>
+          )}
           <div className="overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 via-white to-pink-500/5 shadow-card-hover dark:from-sky-500/5 dark:via-slate-900 dark:to-pink-500/5">
             {/* Top banner */}
             <div className="relative h-28 bg-gradient-to-r from-sky-500 via-pink-500 to-wood">

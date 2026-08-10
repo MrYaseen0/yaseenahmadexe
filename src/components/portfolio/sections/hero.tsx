@@ -249,15 +249,15 @@ function HeroPhotoCard() {
             ⚛️ React & Next.js
           </div>
           <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
-            {developer.followers} Followers
+            Full-Stack Dev
           </div>
         </div>
 
-        {/* Footer with github stats */}
+        {/* Footer with quick stats */}
         <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
-          <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Stars" value="1.2k" />
-          <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Forks" value="320" />
-          <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Repos" value="50+" />
+          <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Stack" value="MERN" />
+          <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Focus" value="SaaS" />
+          <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Status" value="Open" />
         </div>
       </motion.div>
     </div>

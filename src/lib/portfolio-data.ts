@@ -9,7 +9,6 @@ export const developer = {
   tagline: "I build scalable web applications that help businesses grow.",
   bio: "Full-Stack Developer specializing in MERN stack, SaaS architecture, and modern cloud solutions.",
   location: "Peshawar, Pakistan",
-  address: "Block 14, Flat 12, Benazir Labour Colony, Industrial Estate, Peshawar, 25000, Pakistan",
   status: "Available for work",
   availability: "open",
   jobTitle: "Freelance Developer",
@@ -18,13 +17,9 @@ export const developer = {
   phoneRaw: "+923189370042",
   website: "yaseenahmadexe.vercel.app",
   githubUsername: "MrYaseen0",
-  followers: "1K+",
-  projectsCount: "50+",
-  experience: "3+",
-  dedication: "100%",
   aboutTitle: "Turning Ideas Into Digital Reality",
   aboutText:
-    "I'm Yaseen Ahmad, a Full-Stack Developer and Software Engineering Student from Peshawar, Pakistan. I specialize in building production-grade SaaS applications using modern web technologies.",
+    "I'm Yaseen Ahmad, a Software Engineering Student and Full-Stack Developer from Peshawar, Pakistan. I specialize in building production-grade SaaS applications using modern web technologies.",
   aboutText2:
     "With expertise in Next.js, TypeScript, and React, I create scalable, performant applications that solve real-world problems. I'm passionate about clean code, great UX, and continuous learning.",
   skills: [
@@ -64,7 +59,6 @@ export const stats = [
   { label: "Projects Built", value: "20+", icon: "FolderGit2" },
   { label: "Stack Specialist", value: "MERN", icon: "Layers" },
   { label: "Client Focused", value: "100%", icon: "HeartHandshake" },
-  { label: "Followers", value: "1K+", icon: "Users" },
   { label: "Years Experience", value: "3+", icon: "Clock" },
   { label: "Dedication", value: "100%", icon: "Zap" },
 ];
@@ -122,51 +116,43 @@ export const services = [
 
 export const featuredProjects = [
   {
-    title: "SaaS Dashboard",
+    title: "GitNova",
     description:
-      "A full-featured SaaS dashboard with authentication, analytics, and subscription management.",
-    tags: ["Next.js", "TypeScript", "Stripe", "PostgreSQL"],
+      "Multi-agent AI platform with advanced orchestration, 225+ backend tests, and production-grade architecture.",
+    tags: ["Python", "AI/ML", "Multi-Agent", "Testing"],
     gradient: "from-sky-400 via-sky-500 to-blue-600",
     featured: true,
   },
   {
-    title: "E-Commerce Platform",
+    title: "Healtheon OS",
     description:
-      "Modern e-commerce solution with cart, checkout, and admin panel for inventory management.",
-    tags: ["React", "Node.js", "MongoDB", "Tailwind"],
+      "Multi-agent clinical AI system with healthcare-focused architecture and comprehensive test coverage.",
+    tags: ["Python", "AI", "Healthcare", "Multi-Agent"],
     gradient: "from-pink-400 via-pink-500 to-rose-600",
     featured: true,
   },
   {
-    title: "AI Content Generator",
+    title: "XAUUSD Trading Pipeline",
     description:
-      "AI-powered content creation tool using OpenAI API for generating blog posts and marketing copy.",
-    tags: ["Next.js", "OpenAI", "Prisma", "Vercel"],
+      "Automated gold trading pipeline with real-time market data, analysis, and execution capabilities.",
+    tags: ["Python", "Finance", "Real-Time", "Automation"],
     gradient: "from-amber-600 via-orange-600 to-rose-600",
     featured: true,
   },
   {
-    title: "Social Media App",
+    title: "NutriMate",
     description:
-      "Real-time social platform with posts, comments, messaging, and notification system.",
-    tags: ["React", "Firebase", "Socket.io", "Material UI"],
+      "Nutrition tracking application with meal planning, calorie counting, and health insights.",
+    tags: ["React", "Node.js", "Health", "Tracking"],
     gradient: "from-sky-400 via-cyan-500 to-teal-600",
     featured: true,
   },
   {
-    title: "Portfolio Generator",
+    title: "3D Portfolio",
     description:
-      "Dynamic portfolio builder allowing developers to create and deploy portfolios in minutes.",
-    tags: ["Next.js", "MDX", "Tailwind", "Vercel"],
+      "This portfolio website built with Next.js, Three.js, Framer Motion, and modern web technologies.",
+    tags: ["Next.js", "Three.js", "Tailwind", "Framer Motion"],
     gradient: "from-pink-400 via-fuchsia-500 to-purple-600",
-    featured: true,
-  },
-  {
-    title: "Task Management",
-    description:
-      "Kanban-style project management tool with drag-and-drop, deadlines, and team collaboration.",
-    tags: ["React", "DnD Kit", "Zustand", "Supabase"],
-    gradient: "from-amber-700 via-orange-700 to-red-700",
     featured: true,
   },
 ];
@@ -229,81 +215,43 @@ export const experiences = [
     period: "2023 — Present",
     type: "Freelance",
     description:
-      "Building production-grade SaaS applications, e-commerce platforms, and custom web solutions for clients worldwide. Delivered 50+ projects with a 98% client satisfaction rate.",
+      "Building production-grade SaaS applications, e-commerce platforms, and custom web solutions. Specializing in MERN stack and Next.js projects.",
     achievements: [
-      "Delivered 50+ web applications with modern MERN stack",
-      "Built 3 SaaS products serving 10K+ active users",
-      "Maintained 100% on-time delivery rate",
-      "Earned 1K+ followers on GitHub with 1.2K+ total stars",
+      "Built GitNova — a multi-agent AI platform with 225+ backend tests",
+      "Developed Healtheon OS — clinical AI system with multi-agent architecture",
+      "Created XAUUSD automated trading pipeline with real-time data",
+      "Built NutriMate — a nutrition tracking application",
     ],
-    tech: ["Next.js", "TypeScript", "Node.js", "PostgreSQL", "Stripe", "AWS"],
+    tech: ["Next.js", "TypeScript", "Node.js", "PostgreSQL", "Python", "AI/ML"],
     color: "sky",
     current: true,
   },
   {
-    role: "Full-Stack Developer",
-    company: "TechFlow Solutions",
-    location: "Remote",
-    period: "2022 — 2023",
-    type: "Full-time",
-    description:
-      "Led development of a multi-tenant SaaS dashboard used by 500+ businesses. Architected the backend, designed the database schema, and implemented real-time features.",
-    achievements: [
-      "Architected multi-tenant SaaS serving 500+ businesses",
-      "Reduced page load times by 60% through optimization",
-      "Implemented real-time notifications with Socket.io",
-      "Mentored 2 junior developers",
-    ],
-    tech: ["React", "Node.js", "MongoDB", "Socket.io", "Redis", "Docker"],
-    color: "pink",
-    current: false,
-  },
-  {
-    role: "Frontend Developer",
-    company: "Innovate Labs",
-    location: "Peshawar, Pakistan",
-    period: "2021 — 2022",
-    type: "Full-time",
-    description:
-      "Developed responsive, accessible user interfaces for various client projects. Collaborated with designers and backend teams to ship pixel-perfect products.",
-    achievements: [
-      "Built 15+ responsive web applications",
-      "Improved Lighthouse scores to 95+ across projects",
-      "Established the company's component library",
-      "Led migration from CRA to Next.js",
-    ],
-    tech: ["React", "JavaScript", "Tailwind CSS", "Figma", "Vercel"],
-    color: "wood",
-    current: false,
-  },
-  {
     role: "Software Engineering Student",
-    company: "University of Peshawar",
+    company: "CECOS University",
     location: "Peshawar, Pakistan",
-    period: "2020 — 2024",
+    period: "2022 — Present",
     type: "Education",
     description:
-      "Pursued a Bachelor's in Software Engineering. Built foundational knowledge in algorithms, data structures, software design patterns, and modern web development.",
+      "Pursuing a Bachelor's in Software Engineering. Building foundational knowledge in algorithms, data structures, software design patterns, and modern web development.",
     achievements: [
-      "Graduated with honors (GPA 3.8/4.0)",
-      "President of the Coding Society",
-      "Won 2 university hackathons",
-      "Published a research paper on web performance",
+      "Studying software engineering fundamentals",
+      "Building real-world projects alongside coursework",
+      "Contributing to open-source projects on GitHub",
+      "Learning modern web technologies and best practices",
     ],
     tech: ["Java", "Python", "C++", "SQL", "Data Structures"],
-    color: "sky",
+    color: "pink",
     current: false,
   },
 ];
 
 // Achievement highlights for the stats counter section
 export const achievements = [
-  { value: 50, suffix: "+", label: "Projects Delivered", icon: "Rocket" },
-  { value: 30, suffix: "+", label: "Happy Clients", icon: "Users" },
+  { value: 15, suffix: "+", label: "Projects Built", icon: "Rocket" },
   { value: 3, suffix: "+", label: "Years Experience", icon: "Clock" },
-  { value: 1200, suffix: "+", label: "GitHub Stars", icon: "Star" },
-  { value: 100, suffix: "%", label: "Client Satisfaction", icon: "Heart" },
-  { value: 15, suffix: "K+", label: "Lines of Code", icon: "Code" },
+  { value: 100, suffix: "%", label: "Learning Focus", icon: "Heart" },
+  { value: 10, suffix: "K+", label: "Lines of Code", icon: "Code" },
 ];
 
 // FAQ — common client questions

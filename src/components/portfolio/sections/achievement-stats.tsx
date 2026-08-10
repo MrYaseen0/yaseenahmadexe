@@ -84,14 +84,12 @@ export function AchievementStats() {
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-pink-500/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-sky-500/10 blur-3xl" />
 
-          <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { value: 50, suffix: "+", label: "Projects Delivered", icon: "Rocket", color: "text-sky-500" },
-              { value: 30, suffix: "+", label: "Happy Clients", icon: "Users", color: "text-pink-500" },
+              { value: 15, suffix: "+", label: "Projects Built", icon: "Rocket", color: "text-sky-500" },
               { value: 3, suffix: "+", label: "Years Experience", icon: "Clock", color: "text-wood" },
-              { value: 1200, suffix: "+", label: "GitHub Stars", icon: "Star", color: "text-sky-500" },
-              { value: 100, suffix: "%", label: "Satisfaction", icon: "Heart", color: "text-pink-500" },
-              { value: 15, suffix: "K+", label: "Lines of Code", icon: "Code", color: "text-wood" },
+              { value: 100, suffix: "%", label: "Learning Focus", icon: "Heart", color: "text-pink-500" },
+              { value: 10, suffix: "K+", label: "Lines of Code", icon: "Code", color: "text-wood" },
             ].map((stat, i) => (
               <StatCard key={stat.label} stat={stat} start={inView} delay={i * 100} />
             ))}
