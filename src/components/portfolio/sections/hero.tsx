@@ -37,7 +37,7 @@ export function Hero() {
       className="relative flex min-h-screen items-center overflow-hidden pt-24 pb-16"
     >
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid items-center gap-8 md:gap-10 md:grid-cols-2 lg:grid-cols-12">
+        <div className="grid items-start gap-8 md:items-center md:gap-10 md:grid-cols-2 lg:grid-cols-12">
           {/* Left: text */}
           <motion.div
             style={{ y: yText }}
@@ -199,7 +199,7 @@ export function Hero() {
 function HeroPhotoCard() {
   return (
     <div
-      className="animate-fade-in-scale delay-300 perspective-2000 relative mx-auto max-w-sm"
+      className="animate-fade-in-scale delay-300 perspective-2000 relative mx-auto max-w-[280px] sm:max-w-sm"
     >
       {/* Floating ring decorations */}
       <motion.div
