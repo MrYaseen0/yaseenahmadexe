@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,6 +14,18 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+// Desktop mirror (Option B): force a fixed 1280px layout viewport on mobile so
+// phones render the exact desktop layout, zoomed out to fit. `initialScale:
+// undefined` is required — Next.js merges the viewport export per-key over its
+// default { width: "device-width", initialScale: 1 }, so without this the tag
+// would emit `initial-scale=1` and render 1:1 (horizontal scroll) instead of
+// scaling to fit. Desktop browsers ignore this meta, so the desktop view is
+// unchanged. Pinch-zoom stays enabled (no user-scalable / maximum-scale set).
+export const viewport: Viewport = {
+  width: 1280,
+  initialScale: undefined,
+};
 
 export const metadata: Metadata = {
   title: "Yaseen Ahmad — Full-Stack Developer | MERN & SaaS Specialist",
