@@ -34,14 +34,14 @@ export function Hero() {
     <section
       id="home"
       ref={ref}
-      className="relative flex min-h-screen items-center overflow-hidden pt-24 pb-16"
+      className="relative flex min-h-screen items-center overflow-x-hidden pt-24 pb-16 sm:overflow-hidden"
     >
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid items-start gap-8 md:items-center md:gap-10 md:grid-cols-2 lg:grid-cols-12">
           {/* Left: text */}
           <motion.div
             style={{ y: yText }}
-            className="md:col-span-1 lg:col-span-7"
+            className="relative z-10 md:col-span-1 lg:col-span-7"
           >
             <div className="animate-fade-in-up">
               <Badge
@@ -198,29 +198,27 @@ export function Hero() {
 
 function HeroPhotoCard() {
   return (
-    <div
-      className="animate-fade-in-scale delay-300 perspective-2000 relative mx-auto max-w-[280px] sm:max-w-sm"
-    >
-      {/* Floating ring decorations */}
+    <div className="animate-fade-in-scale delay-300 relative mx-auto mt-4 max-w-[260px] sm:mt-0 sm:max-w-sm sm:perspective-2000">
+      {/* Floating ring decorations — hidden on mobile */}
       <motion.div
-        className="absolute -left-6 -top-6 h-20 w-20 rounded-full border-2 border-dashed border-sky-500/40"
+        className="absolute -left-6 -top-6 hidden h-20 w-20 rounded-full border-2 border-dashed border-sky-500/40 sm:block"
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
       />
       <motion.div
-        className="absolute -bottom-6 -right-6 h-16 w-16 rounded-full border-2 border-pink-500/40"
+        className="absolute -bottom-6 -right-6 hidden h-16 w-16 rounded-full border-2 border-pink-500/40 sm:block"
         animate={{ rotate: -360 }}
         transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Glow */}
-      <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl" />
+      {/* Glow — hidden on mobile */}
+      <div className="absolute -inset-4 hidden rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl sm:block" />
 
-      {/* Card with tilt on hover */}
+      {/* Card */}
       <motion.div
         whileHover={{ rotateY: 8, rotateX: -4, scale: 1.02 }}
         transition={{ type: "spring", stiffness: 200, damping: 18 }}
-        className="transform-3d relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-glow-sky"
+        className="relative overflow-hidden rounded-2xl border border-white/40 bg-white shadow-glow-sky sm:transform-3d sm:rounded-[2rem]"
       >
         {/* Top bar */}
         <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
