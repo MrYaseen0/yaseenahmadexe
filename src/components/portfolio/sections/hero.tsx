@@ -14,8 +14,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { developer, socials } from "@/lib/portfolio-data";
+import { developer, socials, keyStats } from "@/lib/portfolio-data";
 import { PuzzlePhoto } from "@/components/portfolio/puzzle-photo";
+import dynamic from "next/dynamic";
+
+// Real WebGL 3D scene — loaded client-side only (no SSR, no hydration risk).
+const Hero3D = dynamic(() => import("@/components/portfolio/three/hero3d"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -149,9 +156,9 @@ export function Hero() {
             {/* Quick stats */}
             <div className="animate-fade-in-up delay-500 mt-10 grid grid-cols-3 gap-3">
               {[
-                { v: "15+", l: "Projects Built" },
+                { v: keyStats.projects, l: "Projects Built" },
                 { v: "MERN", l: "Stack Specialist" },
-                { v: "100%", l: "Client Focused" },
+                { v: keyStats.satisfaction, l: "Client Focused" },
               ].map((s) => (
                 <div
                   key={s.l}
@@ -171,9 +178,15 @@ export function Hero() {
           {/* Right: 3D photo card */}
           <motion.div
             style={{ y: yPhoto }}
-            className="md:col-span-1 lg:col-span-5"
+            className="relative md:col-span-1 lg:col-span-5"
           >
-            <HeroPhotoCard />
+            {/* Real WebGL 3D scene behind the photo card (desktop only) */}
+            <div className="pointer-events-none absolute inset-0 hidden sm:block">
+              <Hero3D />
+            </div>
+            <div className="relative z-10">
+              <HeroPhotoCard />
+            </div>
           </motion.div>
         </div>
       </div>

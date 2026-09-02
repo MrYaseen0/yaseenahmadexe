@@ -53,6 +53,9 @@ cd "$BUILD_DIR" || exit 1
 
 ls -lah
 
+# Legacy embedded (SQLite) path — kept for file: DATABASE_URL deployments.
+# The current schema is postgresql, so production must set DATABASE_URL to a
+# postgres:// connection (start.sh fails early if it's neither).
 DEFAULT_PACKAGED_DB_PATH="/app/db/custom.db"
 DEFAULT_PACKAGED_DATABASE_URL="file:$DEFAULT_PACKAGED_DB_PATH"
 
@@ -75,19 +78,30 @@ if [ -f "./next-service-dist/server.js" ]; then
     export NODE_ENV=production
     export PORT="${PORT:-3000}"
     export HOSTNAME="${HOSTNAME:-0.0.0.0}"
-    export DATABASE_URL="${DATABASE_URL:-$DEFAULT_PACKAGED_DATABASE_URL}"
-
-    if [ "$DATABASE_URL" = "$DEFAULT_PACKAGED_DATABASE_URL" ]; then
-        if [ ! -f "$DEFAULT_PACKAGED_DB_PATH" ]; then
-            echo "❌ 未找到打包后的数据库文件 $DEFAULT_PACKAGED_DB_PATH"
-            echo "   为避免生产环境启动到空数据库，启动已终止"
+    # Prisma provider-aware startup:
+    #   postgres://… → use as-is (production default for this repo)
+    #   file:…       → legacy embedded SQLite (requires the packaged db file)
+    #   neither      → fail early with a clear message instead of booting a
+    #                  broken app against an uninitialised datasource.
+    case "${DATABASE_URL:-}" in
+        file:*)
+            export DATABASE_URL="$DATABASE_URL"
+            if [ ! -f "$DEFAULT_PACKAGED_DB_PATH" ]; then
+                echo "❌ 未找到打包后的数据库文件 $DEFAULT_PACKAGED_DB_PATH"
+                echo "   为避免生产环境启动到空数据库，启动已终止"
+                exit 1
+            fi
+            echo "🗄️  当前使用打包数据库: $DEFAULT_PACKAGED_DB_PATH"
+            ;;
+        postgres*)
+            echo "🗄️  当前使用外部 Postgres: ${DATABASE_URL%%@*}"
+            ;;
+        *)
+            echo "❌ DATABASE_URL 未设置或不匹配（需要 postgres://... 或 file:...）"
+            echo "   当前 schema.prisma 为 postgresql，生产环境请设置 DATABASE_URL。"
             exit 1
-        fi
-
-        echo "🗄️  当前使用打包数据库: $DEFAULT_PACKAGED_DB_PATH"
-    else
-        echo "🗄️  当前使用外部指定数据库: $DATABASE_URL"
-    fi
+            ;;
+    esac
     
     # 后台启动 Next.js
     bun server.js &

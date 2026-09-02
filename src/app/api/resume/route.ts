@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { developer, experiences, techStack } from "@/lib/portfolio-data";
+import { developer, experiences, techStack, keyStats } from "@/lib/portfolio-data";
 
 // Generate a clean, ATS-friendly HTML resume and return it as a downloadable file.
 // Using HTML (printable) instead of PDF to avoid heavy dependencies — opens in browser
@@ -186,8 +186,8 @@ export async function GET() {
 
     <h2>Key Stats</h2>
     <div class="skills">
-      • 50+ Projects Delivered · 30+ Happy Clients · 3+ Years Experience<br/>
-      • 1.2K+ GitHub Stars · 1K+ Followers · 100% Client Satisfaction<br/>
+      • ${keyStats.projects} Projects Delivered · ${keyStats.clients}+ Happy Clients · ${keyStats.years} Years Experience<br/>
+      • ${keyStats.onTime} On-Time Delivery · ${keyStats.satisfaction} Client Satisfaction · ${keyStats.followers} Community<br/>
       • Status: <strong style="color:#16a34a">🟢 ${developer.status}</strong>
     </div>
 

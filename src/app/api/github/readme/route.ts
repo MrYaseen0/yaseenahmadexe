@@ -13,6 +13,16 @@ export async function GET(request: Request) {
     );
   }
 
+  // Validate the repo name before interpolating it into a URL: GitHub repo
+  // names are [A-Za-z0-9._-]+ only. No "/", "..", "\\", "%" etc. — this
+  // prevents path traversal / URL smuggling via the `repo` param.
+  if (!/^[A-Za-z0-9._-]{1,100}$/.test(repo)) {
+    return NextResponse.json(
+      { error: "Invalid repo name" },
+      { status: 400 }
+    );
+  }
+
   try {
     const branches = ["main", "master"];
     let readme: string | null = null;

@@ -26,11 +26,12 @@ interface CounterProps {
 }
 
 function useCountUp(target: number, duration = 2000, start: boolean) {
-  const [count, setCount] = useState(target);
+  // Starts at 0 so no reset-setState is needed inside the effect; the first
+  // rAF tick (async) sets the real values.
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     if (!start) return;
-    setCount(0);
     let raf = 0;
     const startTime = performance.now();
     const animate = (now: number) => {

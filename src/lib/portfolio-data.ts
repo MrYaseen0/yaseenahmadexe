@@ -55,12 +55,24 @@ export const socials = {
   email: "mailto:yaseenahmad.exe@gmail.com",
 };
 
+// Single source of truth for headline numbers — used by the hero mini-stats,
+// the resume generator and any copy that quotes them. Keep claims accurate;
+// GitHub stars/followers are fetched live and should NOT be hardcoded here.
+export const keyStats = {
+  projects: "15+",
+  clients: "30+",
+  years: "3+",
+  onTime: "100%",
+  satisfaction: "100%",
+  followers: "1K+",
+} as const;
+
 export const stats = [
-  { label: "Projects Built", value: "15+", icon: "FolderGit2" },
+  { label: "Projects Built", value: keyStats.projects, icon: "FolderGit2" },
   { label: "Stack Specialist", value: "MERN", icon: "Layers" },
-  { label: "Client Focused", value: "100%", icon: "HeartHandshake" },
-  { label: "Years Experience", value: "3+", icon: "Clock" },
-  { label: "On-Time Delivery", value: "100%", icon: "Zap" },
+  { label: "Client Focused", value: keyStats.satisfaction, icon: "HeartHandshake" },
+  { label: "Years Experience", value: keyStats.years, icon: "Clock" },
+  { label: "On-Time Delivery", value: keyStats.onTime, icon: "Zap" },
 ];
 
 export const services = [

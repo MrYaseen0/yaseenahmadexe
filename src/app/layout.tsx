@@ -1,34 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/portfolio/theme-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+const SITE_URL = "https://yaseenahmadexe.vercel.app";
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-// Desktop mirror (Option B): force a fixed 1280px layout viewport on mobile so
-// phones render the exact desktop layout, zoomed out to fit. `initialScale:
-// undefined` is required — Next.js merges the viewport export per-key over its
-// default { width: "device-width", initialScale: 1 }, so without this the tag
-// would emit `initial-scale=1` and render 1:1 (horizontal scroll) instead of
-// scaling to fit. Desktop browsers ignore this meta, so the desktop view is
-// unchanged. Pinch-zoom stays enabled (no user-scalable / maximum-scale set).
 export const viewport: Viewport = {
-  width: 1280,
-  initialScale: undefined,
+  width: "device-width",
+  initialScale: 1,
 };
 
 export const metadata: Metadata = {
-  title: "Yaseen Ahmad — Full-Stack Developer | MERN & SaaS Specialist",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Yaseen Ahmad — Full-Stack Developer | MERN & SaaS Specialist",
+    template: "%s | Yaseen Ahmad",
+  },
   description:
     "I'm Yaseen Ahmad, a Full-Stack Developer from Peshawar, Pakistan specializing in MERN stack, SaaS architecture, and modern cloud solutions. View my projects, hire me, or chat in real-time.",
   keywords: [
@@ -39,12 +29,16 @@ export const metadata: Metadata = {
     "Next.js",
     "React",
     "TypeScript",
+    "3D portfolio",
     "Peshawar",
     "Pakistan",
     "Freelance Developer",
   ],
-  authors: [{ name: "Yaseen Ahmad" }],
+  authors: [{ name: "Yaseen Ahmad", url: SITE_URL }],
   creator: "Yaseen Ahmad",
+  alternates: {
+    canonical: "/",
+  },
   icons: {
     icon: "/assets/logo.png",
     apple: "/assets/logo.png",
@@ -52,16 +46,25 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Yaseen Ahmad — Full-Stack Developer",
     description:
-      "Full-Stack Developer building production-grade SaaS applications with modern web technologies. View projects, hire me, or chat in real-time.",
-    url: "https://yaseenahmadexe.vercel.app",
+      "3D animated portfolio of Yaseen Ahmad — Full-Stack Developer building production-grade SaaS applications with modern web technologies.",
+    url: SITE_URL,
     siteName: "Yaseen Ahmad",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/assets/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Yaseen Ahmad — Full-Stack Developer",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Yaseen Ahmad — Full-Stack Developer",
-    description: "Full-Stack Developer building production-grade SaaS applications.",
+    description: "3D animated portfolio — projects, hire me, real-time chat.",
+    images: ["/assets/og.png"],
   },
 };
 
@@ -72,12 +75,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen overflow-x-hidden`}
+        className={`${GeistSans.variable} ${GeistMono.variable} antialiased bg-background text-foreground min-h-screen overflow-x-hidden`}
       >
         <ThemeProvider
           attribute="class"

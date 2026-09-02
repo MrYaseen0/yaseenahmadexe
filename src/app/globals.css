@@ -295,6 +295,11 @@
   to { transform: scaleX(1); }
 }
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+
 /* CSS entrance animations — reliable, GPU-accelerated, no JS dependency */
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(24px); }

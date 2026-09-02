@@ -36,6 +36,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
 import { TechBadge } from "../tech-icons";
+import { Markdown } from "@/components/portfolio/markdown";
 import { developer, socials, getProjectPreview } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
@@ -77,6 +78,8 @@ export function Projects() {
   const [readmeRepo, setReadmeRepo] = useState<Repo | null>(null);
   const [detailRepo, setDetailRepo] = useState<Repo | null>(null);
 
+  // Manual refresh (event handlers only). Initial load is in the effect below
+  // with .then callbacks so no setState runs synchronously in the effect.
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -94,8 +97,25 @@ export function Projects() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    fetch("/api/github", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        setRepos(data.repos || []);
+        setSource(data.source || "unknown");
+        if (data.error) setError(data.error);
+        setLoading(false);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setError(e instanceof Error ? e.message : "Failed to load projects");
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filtered = repos.filter((r) => {
     const matchCat = active === "All" || r.category === active;
@@ -479,9 +499,8 @@ function ReadmeModal({
       return;
     }
     let cancelled = false;
-    // Loading state set synchronously to show spinner during async fetch
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
+    // The spinner state flips back to false when the fetch settles; the
+    // initial "loading" value is already true when a modal is opened.
     fetch(`/api/github/readme?repo=${encodeURIComponent(repo.name)}`)
       .then((r) => r.json())
       .then((data) => {
@@ -539,7 +558,7 @@ function ReadmeModal({
               </div>
             ) : content ? (
               <article className="prose prose-sm max-w-none prose-headings:scroll-mt-20 prose-headings:text-sky-700 prose-a:text-pink-600 prose-code:rounded prose-code:bg-sky-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-pink-600 prose-code:before:hidden prose-code:after:hidden prose-pre:bg-slate-900 prose-pre:text-slate-100 dark:prose-headings:text-sky-300 dark:prose-a:text-pink-400 dark:prose-code:text-pink-400">
-                <MarkdownLite content={content} />
+                <Markdown content={content} />
               </article>
             ) : (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-center text-muted-foreground">
@@ -588,111 +607,6 @@ function ReadmeModal({
       </DialogContent>
     </Dialog>
   );
-}
-
-// Lightweight markdown renderer (headings, bold, code, links, lists)
-function MarkdownLite({ content }: { content: string }) {
-  const lines = content.split("\n");
-  const out: React.ReactNode[] = [];
-  let inCode = false;
-  let codeBuf: string[] = [];
-  let inList = false;
-
-  lines.forEach((line, i) => {
-    if (line.trim().startsWith("```")) {
-      if (inCode) {
-        out.push(
-          <pre key={`code-${i}`} className="rounded-lg bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto">
-            <code>{codeBuf.join("\n")}</code>
-          </pre>
-        );
-        codeBuf = [];
-        inCode = false;
-      } else {
-        inCode = true;
-      }
-      return;
-    }
-    if (inCode) {
-      codeBuf.push(line);
-      return;
-    }
-
-    // headings
-    const h = line.match(/^(#{1,6})\s+(.*)$/);
-    if (h) {
-      if (inList) { inList = false; }
-      const level = h[1].length;
-      const text = inline(h[2]);
-      if (level === 1) out.push(<h1 key={i} className="mb-3 mt-4 text-2xl font-bold">{text}</h1>);
-      else if (level === 2) out.push(<h2 key={i} className="mb-2 mt-4 text-xl font-bold">{text}</h2>);
-      else if (level === 3) out.push(<h3 key={i} className="mb-2 mt-3 text-lg font-semibold">{text}</h3>);
-      else out.push(<h4 key={i} className="mb-1 mt-3 text-base font-semibold">{text}</h4>);
-      return;
-    }
-
-    // list items
-    if (/^\s*[-*]\s+/.test(line)) {
-      if (!inList) { out.push(<ul key={`ul-${i}`} className="my-2 list-disc space-y-1 pl-6">{[]}</ul>); inList = true; }
-      const last = out[out.length - 1] as React.ReactElement;
-      const item = <li key={i}>{inline(line.replace(/^\s*[-*]\s+/, ""))}</li>;
-      // append item to last ul
-      const children = (last.props as any).children;
-      (last.props as any).children = Array.isArray(children)
-        ? [...children, item]
-        : [children, item].filter(Boolean);
-      return;
-    }
-
-    if (inList) { inList = false; }
-
-    // horizontal rule
-    if (/^---+$/.test(line.trim())) {
-      out.push(<hr key={i} className="my-4 border-sky-500/20" />);
-      return;
-    }
-
-    if (line.trim() === "") {
-      out.push(<div key={i} className="h-2" />);
-      return;
-    }
-
-    out.push(<p key={i} className="my-1.5 leading-relaxed">{inline(line)}</p>);
-  });
-
-  if (inCode && codeBuf.length) {
-    out.push(
-      <pre key="code-final" className="rounded-lg bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto">
-        <code>{codeBuf.join("\n")}</code>
-      </pre>
-    );
-  }
-
-  return <>{out}</>;
-}
-
-function inline(text: string): React.ReactNode[] {
-  // handle **bold**, `code`, [link](url)
-  const parts: React.ReactNode[] = [];
-  const regex = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let key = 0;
-  while ((m = regex.exec(text)) !== null) {
-    if (m.index > last) parts.push(text.slice(last, m.index));
-    const tok = m[0];
-    if (tok.startsWith("**")) {
-      parts.push(<strong key={key++} className="font-bold text-foreground">{tok.slice(2, -2)}</strong>);
-    } else if (tok.startsWith("`")) {
-      parts.push(<code key={key++} className="rounded bg-sky-500/10 px-1.5 py-0.5 text-pink-600 dark:text-pink-400">{tok.slice(1, -1)}</code>);
-    } else if (tok.startsWith("[")) {
-      const lm = tok.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if (lm) parts.push(<a key={key++} href={lm[2]} target="_blank" rel="noopener noreferrer" className="font-medium text-pink-600 underline dark:text-pink-400">{lm[1]}</a>);
-    }
-    last = m.index + tok.length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return parts;
 }
 
 // ===== Project Detail Modal — rich visual showcase =====

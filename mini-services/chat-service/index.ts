@@ -1,4 +1,5 @@
 import { createServer, IncomingMessage, ServerResponse } from "http";
+import crypto from "crypto";
 import { Server } from "socket.io";
 
 // In-memory message store (per session) for the live chat widget.
@@ -15,7 +16,22 @@ interface LiveMessage {
   timestamp: string;
 }
 
-const PORT = 3003;
+const PORT = Number(process.env.CHAT_PORT || 3003);
+// Owner key is env-driven. In production the service refuses to boot without
+// it, so a committed default (or the old hardcoded secret) can never enable
+// owner access.
+const OWNER_KEY = process.env.CHAT_OWNER_KEY || "";
+if (process.env.NODE_ENV === "production" && !OWNER_KEY) {
+  console.error(
+    "❌ CHAT_OWNER_KEY is required in production — refusing to start. Set it to a long random string."
+  );
+  process.exit(1);
+}
+// Base URL the chat service uses to persist messages into the Next.js API.
+const APP_URL = (
+  process.env.APP_URL ||
+  "http://localhost:3000"
+).replace(/\/$/, "");
 
 // Simple in-memory recent message buffer (last 50 per session)
 const sessionMessages = new Map<string, LiveMessage[]>();
@@ -64,7 +80,7 @@ function persistMessage(msg: LiveMessage) {
       name: msg.name,
       content: msg.content,
     });
-    fetch("http://localhost:3000/api/chat-history", {
+    fetch(`${APP_URL}/api/chat-history`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body,
@@ -110,8 +126,16 @@ io.on("connection", (socket) => {
 
   // Owner joins as the developer (opens owner dashboard)
   socket.on("join-owner", (data: { key?: string }) => {
-    // Simple shared-secret. In real life, hook this to auth.
-    if (data?.key !== "yaseen-owner-2026") {
+    // Env-driven shared secret (CHAT_OWNER_KEY). Constant-time compare to
+    // avoid trivial timing side-channels; fails closed if unset.
+    const presented = String(data?.key || "");
+    const expected = Buffer.from(OWNER_KEY);
+    const actual = Buffer.from(presented);
+    const valid =
+      OWNER_KEY.length > 0 &&
+      expected.length === actual.length &&
+      crypto.timingSafeEqual(expected, actual);
+    if (!valid) {
       socket.emit("error-msg", { content: "Invalid owner key" });
       return;
     }

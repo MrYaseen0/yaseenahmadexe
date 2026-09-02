@@ -44,10 +44,7 @@ export function CommandPalette() {
   // Hide the floating Quick search button after scrolling past the hero
   // (it overlaps content below; navbar search button remains available)
   useEffect(() => {
-    const onScroll = () => {
-      setShowQuickSearch(window.scrollY < 400);
-    };
-    onScroll();
+    const onScroll = () => setShowQuickSearch(window.scrollY < 400);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -69,13 +66,15 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handler);
   }, [open]);
 
-  // Reset state when opening/closing
+  // Reset state when opening
+  const wasOpenRef = useRef(false);
   useEffect(() => {
-    if (open) {
+    if (open && !wasOpenRef.current) {
       setQuery("");
       setActiveIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
+    wasOpenRef.current = open;
   }, [open]);
 
   // Build the command list
@@ -176,8 +175,12 @@ export function CommandPalette() {
   }, [allCommands, query]);
 
   // Reset active index when filtered list changes
+  const lastQueryRef = useRef("");
   useEffect(() => {
-    setActiveIndex(0);
+    if (query !== lastQueryRef.current) {
+      lastQueryRef.current = query;
+      setActiveIndex(0);
+    }
   }, [query]);
 
   // Keyboard navigation within the palette
