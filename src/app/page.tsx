@@ -1,4 +1,5 @@
 import { AnimatedBackground } from "@/components/portfolio/animated-background";
+import { Ambient3DBackground } from "@/components/portfolio/ambient3d-client";
 import { ScrollProgress } from "@/components/portfolio/scroll-progress";
 import { Navbar } from "@/components/portfolio/navbar";
 import { Hero } from "@/components/portfolio/sections/hero";
@@ -28,6 +29,8 @@ export default function Home() {
   return (
     <>
       <AnimatedBackground />
+      {/* Full-page ambient WebGL 3D scene — client-only, desktop, zero SSR risk */}
+      <Ambient3DBackground />
       <ScrollProgress />
       <Navbar />
       <SectionTracker />

@@ -64,12 +64,18 @@ export function Navbar() {
           className="group flex items-center gap-3"
           aria-label="Go to top"
         >
-          <div className="relative h-11 w-11 overflow-hidden rounded-xl ring-2 ring-sky-500/30 transition-all group-hover:ring-pink-500/50 group-hover:shadow-glow-sky">
-            <img
-              src="/assets/logo-animated.gif"
-              alt={`${developer.name} logo`}
-              className="h-full w-full object-cover"
-            />
+          <div
+            className="perspective-1000 relative h-11 w-11 rounded-xl ring-2 ring-sky-500/30 transition-all group-hover:ring-pink-500/50 group-hover:shadow-glow-sky"
+            style={{ transformStyle: "preserve-3d" }}
+          >
+            <div className="transform-3d h-full w-full overflow-hidden rounded-xl transition-transform duration-500 group-hover:[transform:rotateY(14deg)_rotateX(6deg)_scale(1.06)]">
+              <img
+                src="/assets/logo-animated.gif"
+                alt={`${developer.name} logo`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-sky-500/0 via-transparent to-pink-500/0 transition-all duration-300 group-hover:from-sky-500/15 group-hover:to-pink-500/15" />
           </div>
           <div className="hidden flex-col items-start leading-none sm:flex">
             <span className="text-base font-bold tracking-tight">

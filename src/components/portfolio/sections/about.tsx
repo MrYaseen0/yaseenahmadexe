@@ -6,13 +6,24 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
+import dynamic from "next/dynamic";
 import { developer } from "@/lib/portfolio-data";
+
+// Decorative 3D scene floating behind the About content (desktop, client-only).
+const Cube3D = dynamic(() => import("@/components/portfolio/three/cube3d"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const skillChips = developer.skills;
 
 export function About() {
   return (
     <section id="about" className="relative py-20 sm:py-28">
+      {/* 3D accent */}
+      <div className="absolute -right-24 top-10 hidden h-64 w-64 lg:block">
+        <Cube3D />
+      </div>
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
           emoji="👋"
