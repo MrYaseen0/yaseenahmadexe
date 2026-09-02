@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
+import { TiltCard } from "../tilt-card";
 import { Reveal, Stagger } from "../reveal";
 
 // No hardcoded testimonials — only real visitor submissions are shown
@@ -89,11 +90,12 @@ export function Testimonials() {
         ) : (
           <Stagger className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {allTestimonials.map((t, i) => (
-            <Reveal
-              asChild
-              key={t.name + i}
-              className="group relative overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
-            >
+            <Reveal asChild key={t.name + i} className="perspective-1200">
+              <TiltCard
+                max={9}
+                scale={1.03}
+                className="group relative overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft transition-shadow hover:shadow-card-hover"
+              >
               <Quote className="absolute right-4 top-4 h-10 w-10 text-sky-500/10 transition-colors group-hover:text-pink-500/20" />
 
               <div className="mb-3 flex items-center justify-between">
@@ -135,6 +137,7 @@ export function Testimonials() {
                   </div>
                 </div>
               </div>
+              </TiltCard>
             </Reveal>
           ))}
           </Stagger>

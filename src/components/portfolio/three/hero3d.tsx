@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, MeshDistortMaterial, Sparkles, Stars } from "@react-three/drei";
 import * as THREE from "three";
@@ -36,6 +36,12 @@ function attachMouseListener() {
 
 function Scene() {
   const group = useRef<THREE.Group>(null);
+  const knot = useRef<THREE.Mesh>(null);
+  const matRef = useRef<any>(null);
+  const ringA = useRef<THREE.Mesh>(null);
+  const ringB = useRef<THREE.Mesh>(null);
+  const cA = useMemo(() => new THREE.Color("#38bdf8"), []);
+  const cB = useMemo(() => new THREE.Color("#ec4899"), []);
 
   useFrame((state, delta) => {
     if (!group.current) return;
@@ -53,15 +59,38 @@ function Scene() {
       3,
       delta
     );
+
+    // Scroll reaction: the knot scales & rises as you scroll the hero away
+    if (typeof window !== "undefined" && knot.current) {
+      const s = Math.min(window.scrollY / 900, 1);
+      const sc = 1 - s * 0.45;
+      knot.current.scale.setScalar(sc);
+      knot.current.position.y = s * 1.1;
+    }
+
+    // Crazy color pulse between sky and pink
+    if (matRef.current) {
+      const k = (Math.sin(t * 0.9) + 1) / 2;
+      matRef.current.color.lerpColors(cA, cB, k);
+    }
+    if (ringA.current) {
+      ringA.current.rotation.y = t * 0.6;
+      ringA.current.rotation.z = t * 0.25;
+    }
+    if (ringB.current) {
+      ringB.current.rotation.x = t * 0.5;
+      ringB.current.rotation.z = -t * 0.3;
+    }
   });
 
   return (
     <group ref={group}>
-      {/* Main distorted knot */}
+      {/* Main distorted knot (refs drive scroll + color pulse) */}
       <Float speed={2} rotationIntensity={0.6} floatIntensity={1.1}>
-        <mesh>
+        <mesh ref={knot}>
           <torusKnotGeometry args={[1, 0.3, 200, 32]} />
           <MeshDistortMaterial
+            ref={matRef}
             color="#38bdf8"
             emissive="#0c4a6e"
             emissiveIntensity={0.45}
@@ -72,6 +101,16 @@ function Scene() {
           />
         </mesh>
       </Float>
+
+      {/* Crazy spinning orbit rings */}
+      <mesh ref={ringA} rotation={[0.4, 0, 0]}>
+        <torusGeometry args={[1.85, 0.02, 8, 120]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.55} />
+      </mesh>
+      <mesh ref={ringB} rotation={[-0.5, 0.3, 0]}>
+        <torusGeometry args={[2.2, 0.015, 8, 120]} />
+        <meshBasicMaterial color="#ec4899" transparent opacity={0.45} />
+      </mesh>
 
       {/* Orbiting gems */}
       <Float speed={3} rotationIntensity={1} floatIntensity={1.6}>

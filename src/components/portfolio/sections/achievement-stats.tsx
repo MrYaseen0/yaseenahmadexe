@@ -9,6 +9,7 @@ import {
   Heart,
   Code,
 } from "lucide-react";
+import { TiltCard } from "../tilt-card";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Rocket,
@@ -115,9 +116,10 @@ function StatCard({
   const Icon = iconMap[stat.icon] || Rocket;
 
   return (
-    <div
-      className="group relative flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1"
-      style={{ animationDelay: `${delay}ms` }}
+    <TiltCard
+      max={12}
+      scale={1.05}
+      className="group relative flex flex-col items-center text-center"
     >
       <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-soft ring-1 ring-sky-500/10 transition-all group-hover:ring-pink-500/30 dark:bg-slate-800 ${stat.color}`}>
         <Icon className="h-5 w-5" />
@@ -129,6 +131,6 @@ function StatCard({
       <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
         {stat.label}
       </div>
-    </div>
+    </TiltCard>
   );
 }

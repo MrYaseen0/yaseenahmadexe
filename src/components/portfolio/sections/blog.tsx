@@ -30,6 +30,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
 import { Markdown } from "@/components/portfolio/markdown";
+import { TiltCard } from "../tilt-card";
 import { developer } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
@@ -314,6 +315,7 @@ function FeaturedArticleCard({
   });
 
   return (
+    <TiltCard max={7} scale={1.02}>
     <motion.button
       onClick={onRead}
       initial={{ opacity: 0, y: 30 }}
@@ -374,6 +376,7 @@ function FeaturedArticleCard({
         </span>
       </div>
     </motion.button>
+    </TiltCard>
   );
 }
 
@@ -395,6 +398,7 @@ function ArticleCard({
   });
 
   return (
+    <TiltCard max={9} scale={1.03} className="h-full">
     <motion.button
       onClick={onRead}
       initial={{ opacity: 0, y: 30 }}
@@ -438,6 +442,7 @@ function ArticleCard({
         </span>
       </div>
     </motion.button>
+    </TiltCard>
   );
 }
 
