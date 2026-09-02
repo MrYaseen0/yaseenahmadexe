@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
+import { Markdown } from "@/components/portfolio/markdown";
+import { TiltCard } from "../tilt-card";
 import { developer } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
 
@@ -77,22 +79,24 @@ export function Blog() {
   const [query, setQuery] = useState("");
   const [activeTag, setActiveTag] = useState("All");
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/blog", { cache: "no-store" });
-      const data = await res.json();
-      setArticles(data.articles || []);
-    } catch {
-      setArticles([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    fetch("/api/blog", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        setArticles(data.articles || []);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setArticles([]);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Collect all unique tags
   const allTags = useMemo(() => {
@@ -283,6 +287,7 @@ export function Blog() {
 
       {/* Article detail modal */}
       <ArticleModal
+        key={selectedSlug ?? "closed"}
         slug={selectedSlug}
         allArticles={articles}
         onClose={() => setSelectedSlug(null)}
@@ -310,6 +315,7 @@ function FeaturedArticleCard({
   });
 
   return (
+    <TiltCard max={7} scale={1.02}>
     <motion.button
       onClick={onRead}
       initial={{ opacity: 0, y: 30 }}
@@ -370,6 +376,7 @@ function FeaturedArticleCard({
         </span>
       </div>
     </motion.button>
+    </TiltCard>
   );
 }
 
@@ -391,6 +398,7 @@ function ArticleCard({
   });
 
   return (
+    <TiltCard max={9} scale={1.03} className="h-full">
     <motion.button
       onClick={onRead}
       initial={{ opacity: 0, y: 30 }}
@@ -434,6 +442,7 @@ function ArticleCard({
         </span>
       </div>
     </motion.button>
+    </TiltCard>
   );
 }
 
@@ -449,7 +458,9 @@ function ArticleModal({
   onSelectArticle: (slug: string) => void;
 }) {
   const [article, setArticle] = useState<FullArticle | null>(null);
-  const [loading, setLoading] = useState(false);
+  // Starts true: the modal is only mounted when a slug is selected, so the
+  // spinner is correct for the initial fetch without setState-in-effect.
+  const [loading, setLoading] = useState(true);
   const [readingProgress, setReadingProgress] = useState(0);
   const [shareCopied, setShareCopied] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
@@ -478,10 +489,9 @@ function ArticleModal({
       return;
     }
     let cancelled = false;
-    // Loading state set synchronously to show spinner during async fetch
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLoading(true);
-    setReadingProgress(0);
+    // No synchronous setState here; the loading state starts true when the
+    // article modal opens (remounted per slug via key) and flips false when
+    // the fetch settles.
     fetch(`/api/blog/${slug}`)
       .then((r) => r.json())
       .then((data) => {
@@ -582,7 +592,7 @@ function ArticleModal({
 
                 {/* Content (markdown) */}
                 <article className="prose prose-sm max-w-none dark:prose-invert">
-                  <MarkdownRenderer content={article.content} />
+                  <Markdown content={article.content} prose />
                 </article>
 
                 {/* Tags */}
@@ -846,143 +856,4 @@ function TableOfContents({ content }: { content: string }) {
       )}
     </div>
   );
-}
-
-// Lightweight markdown renderer
-function MarkdownRenderer({ content }: { content: string }) {
-  const lines = content.split("\n");
-  const out: React.ReactNode[] = [];
-  let inCode = false;
-  let codeBuf: string[] = [];
-
-  lines.forEach((line, i) => {
-    if (line.trim().startsWith("```")) {
-      if (inCode) {
-        out.push(
-          <pre key={`code-${i}`} className="my-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100">
-            <code>{codeBuf.join("\n")}</code>
-          </pre>
-        );
-        codeBuf = [];
-        inCode = false;
-      } else {
-        inCode = true;
-      }
-      return;
-    }
-    if (inCode) {
-      codeBuf.push(line);
-      return;
-    }
-
-    const h = line.match(/^(#{1,4})\s+(.*)$/);
-    if (h) {
-      const level = h[1].length;
-      const headingText = h[2];
-      const text = renderInline(headingText);
-      const slug = headingText
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, "")
-        .trim()
-        .replace(/\s+/g, "-");
-      if (level === 1)
-        out.push(<h1 key={i} id={slug} className="mb-3 mt-6 scroll-mt-4 text-2xl font-bold text-foreground">{text}</h1>);
-      else if (level === 2)
-        out.push(<h2 key={i} id={slug} className="mb-2 mt-5 scroll-mt-4 text-xl font-bold text-foreground">{text}</h2>);
-      else if (level === 3)
-        out.push(<h3 key={i} id={slug} className="mb-2 mt-4 scroll-mt-4 text-lg font-semibold text-foreground">{text}</h3>);
-      else
-        out.push(<h4 key={i} id={slug} className="mb-1 mt-3 scroll-mt-4 text-base font-semibold text-foreground">{text}</h4>);
-      return;
-    }
-
-    if (/^\s*[-*]\s+/.test(line)) {
-      out.push(
-        <li key={i} className="ml-6 list-disc text-sm leading-relaxed text-foreground/80">
-          {renderInline(line.replace(/^\s*[-*]\s+/, ""))}
-        </li>
-      );
-      return;
-    }
-
-    if (/^\s*\d+\.\s+/.test(line)) {
-      out.push(
-        <li key={i} className="ml-6 list-decimal text-sm leading-relaxed text-foreground/80">
-          {renderInline(line.replace(/^\s*\d+\.\s+/, ""))}
-        </li>
-      );
-      return;
-    }
-
-    if (/^---+$/.test(line.trim())) {
-      out.push(<hr key={i} className="my-4 border-sky-500/20" />);
-      return;
-    }
-
-    if (line.trim() === "") {
-      out.push(<div key={i} className="h-2" />);
-      return;
-    }
-
-    out.push(
-      <p key={i} className="my-2 text-sm leading-relaxed text-foreground/80">
-        {renderInline(line)}
-      </p>
-    );
-  });
-
-  if (inCode && codeBuf.length) {
-    out.push(
-      <pre key="code-final" className="my-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100">
-        <code>{codeBuf.join("\n")}</code>
-      </pre>
-    );
-  }
-
-  return <div className="space-y-1">{out}</div>;
-}
-
-function renderInline(text: string): React.ReactNode[] {
-  const parts: React.ReactNode[] = [];
-  const regex = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let key = 0;
-  while ((m = regex.exec(text)) !== null) {
-    if (m.index > last) parts.push(text.slice(last, m.index));
-    const tok = m[0];
-    if (tok.startsWith("**")) {
-      parts.push(
-        <strong key={key++} className="font-bold text-foreground">
-          {tok.slice(2, -2)}
-        </strong>
-      );
-    } else if (tok.startsWith("`")) {
-      parts.push(
-        <code
-          key={key++}
-          className="rounded bg-sky-500/10 px-1.5 py-0.5 text-[0.85em] text-pink-600 dark:text-pink-400"
-        >
-          {tok.slice(1, -1)}
-        </code>
-      );
-    } else if (tok.startsWith("[")) {
-      const lm = tok.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if (lm)
-        parts.push(
-          <a
-            key={key++}
-            href={lm[2]}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-pink-600 underline dark:text-pink-400"
-          >
-            {lm[1]}
-          </a>
-        );
-    }
-    last = m.index + tok.length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return parts;
 }

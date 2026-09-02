@@ -95,6 +95,9 @@ function Carousel({
 
   React.useEffect(() => {
     if (!api) return
+    // Initial selection callback: upstream shadcn code (metrics are derived
+    // from the carousel instance, not from React state).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api)
     api.on("reInit", onSelect)
     api.on("select", onSelect)

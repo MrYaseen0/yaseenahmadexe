@@ -115,6 +115,30 @@ export function AnimatedBackground() {
         />
       ))}
 
+      {/* Crazy 3D wireframe shapes — perspective + preserve-3d, pure CSS */}
+      <div className="perspective-800 absolute inset-0" style={{ transformStyle: "preserve-3d" }}>
+        <div
+          className="bg-3d-square"
+          style={{ left: "8%", top: "18%", ["--size" as any]: "110px", ["--spin" as any]: "22s", ["--face" as any]: "rgba(56,189,248,0.45)", ["--glow" as any]: "rgba(56,189,248,0.45)" }}
+        />
+        <div
+          className="bg-3d-ring"
+          style={{ right: "10%", top: "12%", ["--size" as any]: "150px", ["--spin" as any]: "16s", ["--face" as any]: "rgba(236,72,153,0.4)" }}
+        />
+        <div
+          className="bg-3d-coin"
+          style={{ right: "22%", bottom: "16%", ["--size" as any]: "90px", ["--spin" as any]: "8s", ["--face" as any]: "rgba(176,137,104,0.5)" }}
+        />
+        <div
+          className="bg-3d-square"
+          style={{ left: "16%", bottom: "10%", ["--size" as any]: "74px", ["--spin" as any]: "30s", ["--face" as any]: "rgba(236,72,153,0.4)", ["--glow" as any]: "rgba(236,72,153,0.4)" }}
+        />
+        <div
+          className="bg-3d-ring"
+          style={{ left: "45%", top: "6%", ["--size" as any]: "64px", ["--spin" as any]: "12s", ["--face" as any]: "rgba(56,189,248,0.35)" }}
+        />
+      </div>
+
       {/* Vignette */}
       <div className="absolute inset-0 bg-gradient-to-t from-white/40 via-transparent to-white/20 dark:from-black/30 dark:to-black/10" />
     </div>

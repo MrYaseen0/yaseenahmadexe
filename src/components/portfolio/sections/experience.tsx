@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
+import { TiltCard } from "../tilt-card";
 import { experiences } from "@/lib/portfolio-data";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -129,9 +130,10 @@ function TimelineItem({
           isLeft ? "sm:pr-12" : "sm:pl-12"
         )}
       >
+        <TiltCard max={7} scale={1.03}>
         <div
           className={cn(
-            "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover sm:p-6",
+            "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-soft transition-shadow duration-300 hover:shadow-card-hover sm:p-6",
             "border-sky-500/15",
             colors.bg
           )}
@@ -208,6 +210,7 @@ function TimelineItem({
             ))}
           </div>
         </div>
+        </TiltCard>
       </Reveal>
     </div>
   );

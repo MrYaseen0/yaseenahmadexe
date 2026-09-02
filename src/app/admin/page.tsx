@@ -89,14 +89,37 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Lazy init from localStorage — no setState inside the effect body
+  // (react-hooks/set-state-in-effect). Only trusts the token after the
+  // backend confirms it is still valid (do not trust format alone).
+  const [stored] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(TOKEN_STORAGE);
+  });
+
   useEffect(() => {
-    const stored = localStorage.getItem(TOKEN_STORAGE);
-    // A valid token is a signed JWT: header.payload.signature
-    if (stored && stored.split(".").length === 3) {
-      setToken(stored);
-      setAuthed(true);
-    }
-  }, []);
+    if (!stored || stored.split(".").length !== 3) return;
+    let cancelled = false;
+    fetch("/api/admin/auth", {
+      headers: { Authorization: `Bearer ${stored}` },
+    })
+      .then((res) => {
+        if (cancelled) return;
+        if (res.ok) {
+          setToken(stored);
+          setAuthed(true);
+        } else {
+          localStorage.removeItem(TOKEN_STORAGE);
+        }
+      })
+      .catch(() => {
+        // Backend unreachable — keep the user logged out; no silent trust.
+        if (!cancelled) localStorage.removeItem(TOKEN_STORAGE);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [stored]);
 
   const authenticate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -214,36 +237,77 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
     "Content-Type": "application/json",
   };
 
+  interface DashboardData {
+    bookings: Booking[];
+    testimonials: Testimonial[];
+    subscribers: Subscriber[];
+    analytics: Analytics;
+    content: ContentMap;
+  }
+
+  const fetchDashboard = useCallback(async (): Promise<DashboardData> => {
+    const [bookingRes, testRes, subRes, analyticsRes, contentRes] = await Promise.all([
+      fetch("/api/booking", { headers: authHeaders }),
+      fetch("/api/admin/testimonials", { headers: authHeaders }),
+      fetch("/api/admin/subscribers", { headers: authHeaders }),
+      fetch("/api/admin/analytics", { headers: authHeaders }),
+      fetch("/api/admin/content"),
+    ]);
+    const [bookingData, testData, subData, analyticsData, contentData] =
+      await Promise.all([
+        bookingRes.json(),
+        testRes.json(),
+        subRes.json(),
+        analyticsRes.json(),
+        contentRes.json(),
+      ]);
+    return {
+      bookings: bookingData.bookings || [],
+      testimonials: testData.testimonials || [],
+      subscribers: subData.subscribers || [],
+      analytics: analyticsData,
+      content: contentData.contents || {},
+    };
+  }, [authHeaders]);
+
+  const applyDashboard = useCallback((d: DashboardData) => {
+    setBookings(d.bookings);
+    setTestimonials(d.testimonials);
+    setSubscribers(d.subscribers);
+    setAnalytics(d.analytics);
+    setContent(d.content);
+  }, []);
+
+  // Manual refresh (event handlers only): shows the spinner right away.
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [bookingRes, testRes, subRes, analyticsRes, contentRes] = await Promise.all([
-        fetch("/api/booking", { headers: authHeaders }),
-        fetch("/api/admin/testimonials", { headers: authHeaders }),
-        fetch("/api/admin/subscribers", { headers: authHeaders }),
-        fetch("/api/admin/analytics", { headers: authHeaders }),
-        fetch("/api/admin/content"),
-      ]);
-      const bookingData = await bookingRes.json();
-      const testData = await testRes.json();
-      const subData = await subRes.json();
-      const analyticsData = await analyticsRes.json();
-      const contentData = await contentRes.json();
-      setBookings(bookingData.bookings || []);
-      setTestimonials(testData.testimonials || []);
-      setSubscribers(subData.subscribers || []);
-      setAnalytics(analyticsData);
-      setContent(contentData.contents || {});
+      applyDashboard(await fetchDashboard());
     } catch {
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [fetchDashboard, applyDashboard]);
 
+  // Initial load: fetch + commit happen in promise callbacks only, so no
+  // setState runs synchronously inside the effect (React 19 lint rule).
   useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+    let cancelled = false;
+    fetchDashboard()
+      .then((d) => {
+        if (!cancelled) applyDashboard(d);
+      })
+      .catch(() => {
+        if (!cancelled) toast.error("Failed to load data");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchDashboard, applyDashboard]);
 
   const approveTestimonial = async (id: string) => {
     try {
@@ -290,7 +354,16 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={loadAll} disabled={loading} className="rounded-full">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setLoading(true);
+                void loadAll();
+              }}
+              disabled={loading}
+              className="rounded-full"
+            >
               <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
               <span className="hidden sm:inline ml-1">Refresh</span>
             </Button>

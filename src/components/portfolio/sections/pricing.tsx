@@ -4,6 +4,7 @@ import { Check, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "../section-heading";
 import { Reveal, Stagger } from "../reveal";
+import { TiltCard } from "../tilt-card";
 import { cn } from "@/lib/utils";
 
 const plans = [
@@ -104,16 +105,17 @@ export function Pricing() {
           {plans.map((plan) => {
             const colors = colorMap[plan.color];
             return (
-              <Reveal
-                asChild
-                key={plan.name}
-                className={cn(
-                  "relative overflow-hidden rounded-2xl border bg-gradient-to-b p-6 shadow-soft transition-shadow hover:-translate-y-2 hover:shadow-card-hover",
-                  colors.border,
-                  colors.bg,
-                  plan.popular && "lg:scale-105"
-                )}
-              >
+              <Reveal asChild key={plan.name} className="perspective-1200">
+                <TiltCard
+                  max={9}
+                  scale={1.04}
+                  className={cn(
+                    "relative overflow-hidden rounded-2xl border bg-gradient-to-b p-6 shadow-soft transition-shadow hover:shadow-card-hover",
+                    colors.border,
+                    colors.bg,
+                    plan.popular && "lg:scale-105"
+                  )}
+                >
                 {plan.popular && (
                   <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] font-bold text-white">
                     <Sparkles className="h-3 w-3" />
@@ -155,6 +157,7 @@ export function Pricing() {
                 >
                   Get Started
                 </Button>
+                </TiltCard>
               </Reveal>
             );
           })}

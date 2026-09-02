@@ -14,8 +14,15 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { developer, socials } from "@/lib/portfolio-data";
+import { developer, socials, keyStats } from "@/lib/portfolio-data";
 import { PuzzlePhoto } from "@/components/portfolio/puzzle-photo";
+import dynamic from "next/dynamic";
+
+// Real WebGL 3D scene — loaded client-side only (no SSR, no hydration risk).
+const Hero3D = dynamic(() => import("@/components/portfolio/three/hero3d"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -56,7 +63,7 @@ export function Hero() {
               </Badge>
             </div>
 
-            <h1 className="animate-fade-in-up delay-100 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="animate-fade-in-up delay-100 text-4xl font-bold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl">
               <span className="block text-muted-foreground">Hi, I&apos;m</span>
               <span className="mt-2 block text-gradient-sky-pink">
                 {developer.name}
@@ -149,9 +156,9 @@ export function Hero() {
             {/* Quick stats */}
             <div className="animate-fade-in-up delay-500 mt-10 grid grid-cols-3 gap-3">
               {[
-                { v: "15+", l: "Projects Built" },
+                { v: keyStats.projects, l: "Projects Built" },
                 { v: "MERN", l: "Stack Specialist" },
-                { v: "100%", l: "Client Focused" },
+                { v: keyStats.satisfaction, l: "Client Focused" },
               ].map((s) => (
                 <div
                   key={s.l}
@@ -171,9 +178,15 @@ export function Hero() {
           {/* Right: 3D photo card */}
           <motion.div
             style={{ y: yPhoto }}
-            className="md:col-span-1 lg:col-span-5"
+            className="relative md:col-span-1 lg:col-span-5"
           >
-            <HeroPhotoCard />
+            {/* Real WebGL 3D scene behind the photo card (desktop only) */}
+            <div className="pointer-events-none absolute inset-0 hidden sm:block">
+              <Hero3D />
+            </div>
+            <div className="relative z-10">
+              <HeroPhotoCard />
+            </div>
           </motion.div>
         </div>
       </div>
@@ -247,10 +260,29 @@ function HeroPhotoCard() {
           animate={{ rotate: -360 }}
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
         />
+        {/* Dimensional dashed ring spinning around the card */}
+        <div
+          aria-hidden
+          className="absolute -inset-5 rounded-[2.5rem] border-2 border-dashed border-sky-500/30"
+          style={{ animation: "spin-3d-y 18s linear infinite", transformStyle: "preserve-3d" }}
+        />
         <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl" />
+
+        {/* Crazy flipping chips orbiting the card */}
+        <FloatingChip className="-left-10 top-8" delay="0s">
+          ⚛️ React &amp; Next.js
+        </FloatingChip>
+        <FloatingChip className="-right-8 top-1/3" delay="1.2s">
+          🚀 SaaS Expert
+        </FloatingChip>
+        <FloatingChip className="-bottom-6 left-8" delay="2.4s">
+          ☁️ Cloud Native
+        </FloatingChip>
+
         <motion.div
           whileHover={{ rotateY: 8, rotateX: -4, scale: 1.02 }}
           transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          style={{ transformStyle: "preserve-3d" }}
           className="transform-3d relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-glow-sky"
         >
           <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
@@ -271,11 +303,22 @@ function HeroPhotoCard() {
               className="h-full w-full"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
-            <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
-              ⚛️ React & Next.js
+            {/* Depth layers: badges flip above the photo plane */}
+            <div
+              className="absolute left-3 top-3"
+              style={{ animation: "flutter-3d 9s ease-in-out infinite" }}
+            >
+              <div className="glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300" style={{ transform: "perspective(400px) rotateY(-10deg)" }}>
+                ⚛️ React &amp; Next.js
+              </div>
             </div>
-            <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
-              Full-Stack Dev
+            <div
+              className="absolute bottom-3 right-3"
+              style={{ animation: "flutter-3d 11s ease-in-out infinite", animationDelay: "1.4s" }}
+            >
+              <div className="glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300" style={{ transform: "perspective(400px) rotateY(12deg)" }}>
+                Full-Stack Dev
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
@@ -286,6 +329,32 @@ function HeroPhotoCard() {
         </motion.div>
       </div>
     </>
+  );
+}
+
+/** Flipping 3D chip that floats around the photo card. */
+function FloatingChip({
+  children,
+  className,
+  delay,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay: string;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={`absolute z-20 ${className || ""}`}
+      style={{ animation: `flutter-3d 8s ease-in-out infinite`, animationDelay: delay }}
+    >
+      <div
+        className="glass rounded-xl px-3 py-1.5 text-xs font-semibold shadow-soft"
+        style={{ transform: "perspective(500px) rotateY(-12deg)" }}
+      >
+        {children}
+      </div>
+    </div>
   );
 }
 

@@ -6,8 +6,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Crazy type: Space Grotesk body + Unbounded display, self-hosted */
+  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  --font-display: "Unbounded", "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -295,6 +297,38 @@
   to { transform: scaleX(1); }
 }
 
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+
+@keyframes spin-3d-y {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes spin-3d-x {
+  from { transform: rotateX(0deg) rotateY(24deg); }
+  to { transform: rotateX(360deg) rotateY(24deg); }
+}
+
+@keyframes flutter-3d {
+  0%, 100% { transform: translateY(0) rotateY(0deg) rotateX(0deg); }
+  25% { transform: translateY(-14px) rotateY(180deg) rotateX(8deg); }
+  50% { transform: translateY(6px) rotateY(360deg) rotateX(-6deg); }
+  75% { transform: translateY(-8px) rotateY(540deg) rotateX(4deg); }
+}
+
+@keyframes orbit-3d {
+  from { transform: rotateX(74deg) rotateZ(0deg); }
+  to { transform: rotateX(74deg) rotateZ(360deg); }
+}
+
+@keyframes bounce-3d {
+  0%, 100% { transform: translateZ(0) rotateY(0deg); }
+  50% { transform: translateZ(28px) rotateY(180deg); }
+}
+
 /* CSS entrance animations — reliable, GPU-accelerated, no JS dependency */
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(24px); }
@@ -430,6 +464,79 @@ button[class*="rounded-full"]:not(:disabled):active {
 /* Refined text balance for hero name */
 .text-balance {
   text-wrap: balance;
+}
+
+/* ===== 3D type & shape toolkit ===== */
+@layer base {
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .gradient-anim {
+    background-size: 200% auto;
+    animation: gradient-shift 6s ease infinite;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.perspective-800 { perspective: 800px; }
+.perspective-1200 { perspective: 1200px; }
+.perspective-1600 { perspective: 1600px; }
+
+/* Crazy 3D wireframe shapes for the ambient background */
+.bg-3d-shape {
+  position: absolute;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  will-change: transform;
+  opacity: 0.5;
+}
+.bg-3d-square {
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  border: 1.5px solid var(--face, rgba(56,189,248,0.5));
+  border-radius: calc(var(--size) * 0.12);
+  background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(236,72,153,0.06));
+  box-shadow: 0 0 24px -6px var(--glow, rgba(56,189,248,0.5));
+  animation: spin-3d-x var(--spin, 26s) linear infinite;
+}
+.bg-3d-ring {
+  width: var(--size);
+  height: var(--size);
+  border: 2px dashed var(--face, rgba(236,72,153,0.45));
+  border-radius: 9999px;
+  animation: spin-3d-y var(--spin, 18s) linear infinite;
+}
+.bg-3d-coin {
+  width: var(--size);
+  height: var(--size);
+  border: 3px solid var(--face, rgba(176,137,104,0.5));
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 35%, rgba(56,189,248,0.25), rgba(236,72,153,0.12) 55%, transparent 75%);
+  animation: bounce-3d var(--spin, 9s) ease-in-out infinite;
+}
+
+/* Orbit ring used for hero badges / decorations */
+.orbit-3d {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: orbit-3d var(--orbit, 20s) linear infinite;
+}
+.orbit-3d > * {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) translateZ(var(--z, 180px));
 }
 
 /* Glass card with refined border */

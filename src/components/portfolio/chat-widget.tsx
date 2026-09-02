@@ -44,8 +44,12 @@ export function ChatWidget() {
   // Connect when first opened
   useEffect(() => {
     if (!open || socketRef.current) return;
-    const s = io("/?XTransformPort=3003", {
-      transports: ["websocket", "polling"],
+    // When NEXT_PUBLIC_CHAT_URL is set (standalone deployment), connect to it
+    // directly. Otherwise keep the legacy Caddy-based path (on-prem gateway
+    // proxies /?XTransformPort=3003 to the chat service) so local/FC deploys
+    // keep working without changes.
+    const url = process.env.NEXT_PUBLIC_CHAT_URL || "/?XTransformPort=3003";
+    const s = io(url, {      transports: ["websocket", "polling"],
       reconnection: true,
       reconnectionAttempts: 5,
     });
