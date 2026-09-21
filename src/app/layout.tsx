@@ -27,24 +27,50 @@ export const viewport: Viewport = {
   initialScale: undefined,
 };
 
+const SITE_URL = "https://yaseenahmadexe.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Yaseen Ahmad — Full-Stack Developer | MERN & SaaS Specialist",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "Yaseen Ahmad — Full-Stack Developer | MERN & SaaS Specialist",
+    template: "%s | Yaseen Ahmad",
+  },
   description:
     "I'm Yaseen Ahmad, a Full-Stack Developer from Peshawar, Pakistan specializing in MERN stack, SaaS architecture, and modern cloud solutions. View my projects, hire me, or chat in real-time.",
   keywords: [
     "Yaseen Ahmad",
+    "yaseenahmadexe",
     "Full-Stack Developer",
     "MERN stack",
     "SaaS",
     "Next.js",
     "React",
     "TypeScript",
+    "Node.js",
+    "Python",
+    "Flask",
     "Peshawar",
     "Pakistan",
     "Freelance Developer",
+    "Software Engineer",
   ],
-  authors: [{ name: "Yaseen Ahmad" }],
+  authors: [{ name: "Yaseen Ahmad", url: SITE_URL }],
   creator: "Yaseen Ahmad",
+  publisher: "Yaseen Ahmad",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: "/assets/logo.png",
     apple: "/assets/logo.png",
@@ -53,16 +79,62 @@ export const metadata: Metadata = {
     title: "Yaseen Ahmad — Full-Stack Developer",
     description:
       "Full-Stack Developer building production-grade SaaS applications with modern web technologies. View projects, hire me, or chat in real-time.",
-    url: "https://yaseenahmadexe.vercel.app",
+    url: SITE_URL,
     siteName: "Yaseen Ahmad",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/assets/dev-photo.jpg",
+        width: 600,
+        height: 720,
+        alt: "Yaseen Ahmad — Full-Stack Developer",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Yaseen Ahmad — Full-Stack Developer",
     description: "Full-Stack Developer building production-grade SaaS applications.",
+    creator: "@yaseencecosian",
+    images: ["/assets/dev-photo.jpg"],
   },
+};
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Yaseen Ahmad",
+  alternateName: "yaseenahmadexe",
+  url: SITE_URL,
+  image: `${SITE_URL}/assets/dev-photo.jpg`,
+  jobTitle: "Full-Stack Developer",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Peshawar",
+    addressCountry: "PK",
+  },
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: "CECOS University of IT and Emerging Sciences",
+  },
+  sameAs: [
+    "https://github.com/MrYaseen0",
+    "https://www.instagram.com/yaseenahmadexe/",
+    "https://www.linkedin.com/in/yaseen-ahmad-489967280",
+    "https://x.com/yaseencecosian",
+    "https://www.tiktok.com/@mryaseen.exe",
+  ],
+  knowsAbout: [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Node.js",
+    "MERN stack",
+    "Python",
+    "Flask",
+    "SaaS architecture",
+  ],
 };
 
 export default function RootLayout({
@@ -75,6 +147,10 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen overflow-x-hidden`}
