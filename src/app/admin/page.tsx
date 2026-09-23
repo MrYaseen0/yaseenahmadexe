@@ -12,15 +12,10 @@ import {
   Calendar,
   MessageSquare,
   Mail as MailIcon,
-  Activity,
   RefreshCw,
   ExternalLink,
   Save,
   Edit3,
-  TrendingUp,
-  Users,
-  Star,
-  PieChart,
   BarChart3,
   Database,
   Plus,
@@ -33,6 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { TrafficDashboard } from "@/components/admin/traffic-dashboard";
+import { SecurityDashboard } from "@/components/admin/security-dashboard";
 
 const TOKEN_STORAGE = "ya-admin-token";
 
@@ -76,6 +73,15 @@ interface Analytics {
   bookingPurposes: { purpose: string; count: number }[];
   ratingDistribution: { rating: number; count: number }[];
   totals: { visits: number; bookings: number; testimonials: number; pendingBookings: number };
+  visitors7d?: { date: string; label: string; visitors: number }[];
+  pageviews7d?: { date: string; label: string; count: number }[];
+  bounceRate?: number | null;
+  topPages?: { path: string; count: number }[];
+  referrers?: { referrer: string; count: number }[];
+  countries?: { name: string; count: number }[];
+  devices?: { name: string; count: number }[];
+  browsers?: { name: string; count: number }[];
+  operatingSystems?: { name: string; count: number }[];
 }
 
 interface ContentMap {
@@ -309,7 +315,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
 
       <main className="container mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-6">
             <TabsTrigger value="analytics" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <BarChart3 className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -333,12 +339,16 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
               <MailIcon className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Emails</span>
             </TabsTrigger>
+            <TabsTrigger value="security" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Shield className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
           </TabsList>
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="mt-6">
             {analytics ? (
-              <AnalyticsView analytics={analytics} subscriberCount={subscribers.length} />
+              <TrafficDashboard analytics={analytics} />
             ) : (
               <div className="text-center text-muted-foreground">Loading analytics...</div>
             )}
@@ -367,195 +377,13 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
           <TabsContent value="subscribers" className="mt-6">
             <SubscribersView subscribers={subscribers} />
           </TabsContent>
+
+          {/* Security Tab */}
+          <TabsContent value="security" className="mt-6">
+            <SecurityDashboard authHeaders={authHeaders} />
+          </TabsContent>
         </Tabs>
       </main>
-    </div>
-  );
-}
-
-// ===== Analytics View with Charts =====
-function AnalyticsView({ analytics, subscriberCount }: { analytics: Analytics; subscriberCount: number }) {
-  const maxVisits7 = Math.max(...analytics.visits7d.map((d) => d.count), 1);
-  const maxBookings7 = Math.max(...analytics.bookings7d.map((d) => d.count), 1);
-  const maxSections = Math.max(...analytics.sections.map((s) => s.count), 1);
-  const max30 = Math.max(...analytics.visits30d.map((d) => d.count), 1);
-  const totalPurposes = analytics.bookingPurposes.reduce((s, p) => s + p.count, 0) || 1;
-
-  const purposeColors = ["#38bdf8", "#ec4899", "#b08968", "#10b981", "#f59e0b", "#8b5cf6"];
-
-  return (
-    <div className="space-y-6">
-      {/* KPI cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard icon={TrendingUp} label="Total Visits (30d)" value={analytics.totals.visits} color="text-sky-500" />
-        <KpiCard icon={Calendar} label="Total Bookings" value={analytics.totals.bookings} color="text-pink-500" sub={`${analytics.totals.pendingBookings} pending`} />
-        <KpiCard icon={MessageSquare} label="Testimonials" value={analytics.totals.testimonials} color="text-wood" />
-        <KpiCard icon={Users} label="Subscribers" value={subscriberCount} color="text-green-500" />
-      </div>
-
-      {/* Visits last 7 days - bar chart */}
-      <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-        <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          <BarChart3 className="h-4 w-4 text-sky-500" />
-          Visits — Last 7 Days
-        </h3>
-        <div className="flex h-40 items-end justify-between gap-2">
-          {analytics.visits7d.map((d, i) => (
-            <div key={i} className="flex flex-1 flex-col items-center gap-2">
-              <div className="flex w-full flex-1 items-end justify-center">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: `${(d.count / maxVisits7) * 100}%` }}
-                  transition={{ duration: 0.6, delay: i * 0.05 }}
-                  className="w-full max-w-[40px] rounded-t-lg bg-gradient-to-t from-sky-500 to-pink-400"
-                  title={`${d.count} visits`}
-                />
-              </div>
-              <span className="text-[10px] font-medium text-muted-foreground">{d.label}</span>
-              <span className="text-[11px] font-bold text-foreground">{d.count}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Visits last 30 days - line/area chart */}
-        <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-            <TrendingUp className="h-4 w-4 text-pink-500" />
-            Visits — Last 30 Days
-          </h3>
-          <div className="flex h-32 items-end gap-0.5">
-            {analytics.visits30d.map((d, i) => (
-              <motion.div
-                key={i}
-                initial={{ height: 0 }}
-                animate={{ height: `${(d.count / max30) * 100}%` }}
-                transition={{ duration: 0.4, delay: i * 0.02 }}
-                className="flex-1 rounded-t bg-gradient-to-t from-sky-400/60 to-pink-400/60"
-                style={{ minHeight: d.count > 0 ? "4px" : "2px" }}
-                title={`${d.date}: ${d.count}`}
-              />
-            ))}
-          </div>
-          <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
-            <span>30 days ago</span>
-            <span>Today</span>
-          </div>
-        </div>
-
-        {/* Booking purposes - pie/donut */}
-        <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-            <PieChart className="h-4 w-4 text-wood" />
-            Booking Purposes
-          </h3>
-          {analytics.bookingPurposes.length > 0 ? (
-            <div className="space-y-3">
-              {analytics.bookingPurposes.map((p, i) => {
-                const pct = (p.count / totalPurposes) * 100;
-                return (
-                  <div key={p.purpose}>
-                    <div className="mb-1 flex items-center justify-between text-xs">
-                      <span className="flex items-center gap-1.5 font-medium">
-                        <span className="h-2.5 w-2.5 rounded-full" style={{ background: purposeColors[i % purposeColors.length] }} />
-                        {p.purpose}
-                      </span>
-                      <span className="font-bold">{p.count} ({pct.toFixed(0)}%)</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-muted">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ duration: 0.6, delay: i * 0.1 }}
-                        className="h-full rounded-full"
-                        style={{ background: purposeColors[i % purposeColors.length] }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No bookings yet</p>
-          )}
-        </div>
-      </div>
-
-      {/* Top sections + rating distribution */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-            <Activity className="h-4 w-4 text-sky-500" />
-            Top Viewed Sections
-          </h3>
-          {analytics.sections.length > 0 ? (
-            <div className="space-y-2">
-              {analytics.sections.slice(0, 8).map((s) => (
-                <div key={s.section} className="flex items-center gap-3">
-                  <span className="w-20 shrink-0 text-xs font-medium capitalize">{s.section}</span>
-                  <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-gradient-to-r from-sky-400 to-pink-400" style={{ width: `${(s.count / maxSections) * 100}%` }} />
-                  </div>
-                  <span className="w-10 shrink-0 text-right text-xs font-mono font-bold">{s.count}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">No data yet</p>
-          )}
-        </div>
-
-        <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-            <Star className="h-4 w-4 text-amber-500" />
-            Testimonial Ratings
-          </h3>
-          <div className="space-y-2">
-            {[5, 4, 3, 2, 1].map((r) => {
-              const data = analytics.ratingDistribution.find((d) => d.rating === r);
-              const count = data?.count || 0;
-              const max = Math.max(...analytics.ratingDistribution.map((d) => d.count), 1);
-              return (
-                <div key={r} className="flex items-center gap-3">
-                  <span className="flex w-16 shrink-0 items-center gap-0.5 text-xs">
-                    {r}<Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                  </span>
-                  <div className="h-3 flex-1 overflow-hidden rounded-full bg-muted">
-                    <div className="h-full rounded-full bg-amber-400" style={{ width: `${(count / max) * 100}%` }} />
-                  </div>
-                  <span className="w-8 shrink-0 text-right text-xs font-bold">{count}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function KpiCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  color,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  value: number;
-  sub?: string;
-  color: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-      <div className={cn("mb-2 flex items-center gap-2", color)}>
-        <Icon className="h-5 w-5" />
-        <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
-      </div>
-      <div className="text-3xl font-bold text-gradient-sky-pink">{value.toLocaleString()}</div>
-      {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
     </div>
   );
 }
