@@ -1,27 +1,39 @@
 # Yaseen Ahmad — Full-Stack Developer
 
-> Portfolio of Yaseen Ahmad, Full-Stack Developer (MERN stack, Next.js, SaaS)
-> based in Peshawar, Pakistan. Available for freelance work worldwide.
+> Portfolio of Yaseen Ahmad (yaseenahmadexe), a Full-Stack Developer from Peshawar, Pakistan specializing in MERN stack, Next.js, and SaaS architecture. Available for freelance projects and full-time roles worldwide.
 
-## Key facts
+## About
+
+- [Portfolio home](https://yaseenahmadexe.vercel.app/): Full portfolio — hero, projects, services, pricing, blog, testimonials, booking, and contact.
+- [GitHub](https://github.com/MrYaseen0): Open-source projects and contributions.
+- [LinkedIn](https://www.linkedin.com/in/yaseen-ahmad-489967280): Professional background and experience.
+- [X (Twitter)](https://x.com/yaseencecosian): Updates and tech posts.
+- [Instagram](https://www.instagram.com/yaseenahmadexe/): Behind-the-scenes and short-form content.
+
+## Background
+
 - Name: Yaseen Ahmad (online as yaseenahmadexe)
-- Role: Full-Stack Developer, MERN stack & SaaS specialist
+- Role: Full-Stack Developer — MERN stack & SaaS specialist
 - Location: Peshawar, Pakistan; works with clients worldwide
 - Education: BS Software Engineering, CECOS University (final year)
 - Experience: 15+ projects built; freelance web development
-- Stack: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Supabase, PostgreSQL, MongoDB
+- Stack: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Flask, Supabase, PostgreSQL, MongoDB
 
 ## Services
-- Full-stack web application development
-- SaaS architecture and builds
-- React / Next.js frontends, Node.js APIs
+
+- [Services](https://yaseenahmadexe.vercel.app/#services): Full-stack web application development, SaaS architecture and builds, React/Next.js frontends, Node.js APIs.
+- [Pricing](https://yaseenahmadexe.vercel.app/#pricing): Engagement models and starting rates.
+- [Book a call](https://yaseenahmadexe.vercel.app/#booking): Schedule a discovery call.
+- [Hire / Contact](https://yaseenahmadexe.vercel.app/#contact): Contact form, email, and WhatsApp.
+
+## Work
+
+- [Projects](https://yaseenahmadexe.vercel.app/#projects): Selected production work with case-study detail.
+- [Experience](https://yaseenahmadexe.vercel.app/#experience): Work history and roles.
+- [Testimonials](https://yaseenahmadexe.vercel.app/#testimonials): Client feedback.
+- [Blog](https://yaseenahmadexe.vercel.app/#blog): Technical articles and notes.
 
 ## Contact
-- Use the contact form or WhatsApp link on https://yaseenahmadexe.vercel.app/
 
-## Links
-- Portfolio: https://yaseenahmadexe.vercel.app/
-- GitHub: https://github.com/MrYaseen0
-- LinkedIn: https://www.linkedin.com/in/yaseen-ahmad-489967280
-- Instagram: https://www.instagram.com/yaseenahmadexe/
-- X: https://x.com/yaseencecosian
+- [Contact form](https://yaseenahmadexe.vercel.app/#contact): Fastest way to reach out for project inquiries.
+- [WhatsApp](https://wa.me/923189370042): Direct chat for quick questions.

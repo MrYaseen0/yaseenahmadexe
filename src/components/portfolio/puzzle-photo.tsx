@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 /**
@@ -69,17 +70,26 @@ export function PuzzlePhoto({
 
   return (
     <div className={`relative overflow-hidden ${className}`}>
-      {/* The full image (visible when not animating) */}
-      <motion.img
-        src={src}
-        alt={alt}
-        className="h-full w-full object-cover"
+      {/* The full image (visible when not animating) — next/image with
+          priority + high fetch priority so the hero LCP image loads ASAP */}
+      <motion.div
+        className="absolute inset-0"
         initial={{ opacity: 1 }}
         animate={{
           opacity: phase === "scattered" || phase === "reassembling" ? 0 : 1,
         }}
         transition={{ duration: 0.2 }}
-      />
+      >
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 640px) 100vw, 420px"
+          className="object-cover"
+        />
+      </motion.div>
 
       {/* Puzzle pieces overlay (visible during scatter + reassemble) */}
       <AnimatePresence>

@@ -12,6 +12,10 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#home");
+  // Logo: serve the tiny static PNG by default; swap in the 1.8MB animated
+  // GIF only while hovered (desktop). Mobile never triggers hover, so the
+  // GIF is never downloaded on phones — big LCP/bytes win.
+  const [logoHover, setLogoHover] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -63,12 +67,15 @@ export function Navbar() {
           onClick={() => go("#home")}
           className="group flex items-center gap-3"
           aria-label="Go to top"
+          onMouseEnter={() => setLogoHover(true)}
+          onMouseLeave={() => setLogoHover(false)}
         >
           <div className="relative h-11 w-11 overflow-hidden rounded-xl ring-2 ring-sky-500/30 transition-all group-hover:ring-pink-500/50 group-hover:shadow-glow-sky">
             <img
-              src="/assets/logo-animated.gif"
+              src={logoHover ? "/assets/logo-animated.gif" : "/assets/logo.png"}
               alt={`${developer.name} logo`}
               className="h-full w-full object-cover"
+              loading="eager"
             />
           </div>
           <div className="hidden flex-col items-start leading-none sm:flex">

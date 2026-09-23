@@ -139,6 +139,7 @@ export function GithubProfile() {
                       src={profile?.avatar_url}
                       alt={developer.name}
                       className="h-full w-full object-cover"
+                      loading="lazy"
                     />
                   )}
                 </div>

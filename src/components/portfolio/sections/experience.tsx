@@ -176,7 +176,7 @@ function TimelineItem({
               <MapPin className="h-3 w-3" />
               {exp.location}
             </span>
-            <Badge variant="secondary" className="rounded-full px-2 py-0.5 text-[10px]">
+            <Badge variant="secondary" className="rounded-full border border-pink-500/20 bg-pink-500/10 px-2 py-0.5 text-[10px] text-pink-700 dark:text-pink-300">
               {exp.type}
             </Badge>
           </div>

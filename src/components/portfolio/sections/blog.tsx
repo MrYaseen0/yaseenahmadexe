@@ -608,6 +608,7 @@ function ArticleModal({
                     src="/assets/dev-avatar.png"
                     alt={developer.name}
                     className="h-12 w-12 rounded-full border-2 border-white shadow-soft"
+                    loading="lazy"
                   />
                   <div>
                     <div className="text-sm font-bold">{developer.name}</div>
@@ -811,7 +812,7 @@ function TableOfContents({ content }: { content: string }) {
         <span className="flex items-center gap-2 text-sm font-bold text-foreground">
           <List className="h-4 w-4 text-sky-500" />
           Table of Contents
-          <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[10px]">
+          <Badge variant="secondary" className="rounded-full border border-pink-500/20 bg-pink-500/10 px-1.5 py-0 text-[10px] text-pink-700 dark:text-pink-300">
             {headings.length}
           </Badge>
         </span>

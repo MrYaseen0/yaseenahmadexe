@@ -38,6 +38,7 @@ export function About() {
                   src="/assets/dev-photo.jpg"
                   alt={developer.name}
                   className="aspect-[4/5] w-full object-cover"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-sky-900/60 via-transparent to-pink-500/10" />
 

@@ -165,6 +165,7 @@ export function ChatWidget() {
                   src="/assets/dev-avatar.png"
                   alt={developer.name}
                   className="h-10 w-10 rounded-full border-2 border-white/50 object-cover"
+                  loading="lazy"
                 />
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-400" />
               </div>
@@ -238,6 +239,7 @@ export function ChatWidget() {
                 onClick={send}
                 disabled={!connected || !input.trim()}
                 className="shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                aria-label="Send message"
               >
                 <Send className="h-4 w-4" />
               </Button>
