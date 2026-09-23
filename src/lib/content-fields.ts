@@ -35,11 +35,68 @@ const J = (v: unknown) => JSON.stringify(v);
 
 /**
  * Validate a JSON field value before saving.
- * Checks syntax AND that the top-level shape (array vs object vs primitive)
- * matches the registered default — a mismatched shape would crash the
- * section that reads the field via tj(). Returns the normalized (compact)
- * JSON string on success.
+ * Checks syntax AND recursively checks that the value matches the structure
+ * of the registered default — every nested type, every object key, and every
+ * array item shape. A mismatched shape would crash the section that reads
+ * the field via tj(). Returns the normalized (compact) JSON string on
+ * success, with the offending path in the error message on failure.
  */
+type JsonShape = "array" | "object" | "null" | "string" | "number" | "boolean";
+
+function shapeOf(v: unknown): JsonShape {
+  if (Array.isArray(v)) return "array";
+  if (v === null) return "null";
+  const t = typeof v;
+  return t === "object" ? "object" : (t as JsonShape);
+}
+
+/**
+ * Recursively verify `value` matches the structure of the default `def`.
+ * Returns a human-readable error naming the offending path, or null when the
+ * value is structurally compatible. A null default means "no contract" for
+ * that branch and accepts anything.
+ */
+function checkShape(def: unknown, value: unknown, path: string): string | null {
+  const want = shapeOf(def);
+  const got = shapeOf(value);
+  const where = path || "value";
+  if (want === "null") return null;
+  if (want !== got) {
+    return `${where} must be a JSON ${want}, but the value is a JSON ${got}.`;
+  }
+  if (want === "array") {
+    const d = def as unknown[];
+    const v = value as unknown[];
+    // Non-empty default array defines the item contract; an empty default
+    // array accepts any array contents.
+    if (d.length > 0) {
+      for (let i = 0; i < v.length; i++) {
+        const err = checkShape(d[0], v[i], `${where}[${i}]`);
+        if (err) return err;
+      }
+    }
+    return null;
+  }
+  if (want === "object") {
+    const d = def as Record<string, unknown>;
+    const v = value as Record<string, unknown>;
+    for (const k of Object.keys(v)) {
+      if (!(k in d)) {
+        return `${where} has unknown key "${k}" — allowed keys: ${Object.keys(d).join(", ")}.`;
+      }
+    }
+    for (const k of Object.keys(d)) {
+      if (!(k in v)) {
+        return `${where} is missing required key "${k}".`;
+      }
+      const err = checkShape(d[k], v[k], `${where}.${k}`);
+      if (err) return err;
+    }
+    return null;
+  }
+  return null;
+}
+
 export function validateJsonField(
   key: string,
   raw: string
@@ -54,18 +111,19 @@ export function validateJsonField(
   if (defRaw !== undefined) {
     try {
       const defParsed: unknown = JSON.parse(defRaw);
-      const shape = (v: unknown) =>
-        Array.isArray(v) ? "array" : v === null ? "null" : typeof v;
-      const want = shape(defParsed);
-      const got = shape(parsed);
-      if (want !== got) {
-        return {
-          ok: false,
-          error: `Shape mismatch: this field must be a JSON ${want}, but the value is a JSON ${got}.`,
-        };
+      const shapeError = checkShape(defParsed, parsed, "");
+      if (shapeError) {
+        return { ok: false, error: `Shape mismatch: ${shapeError}` };
       }
-    } catch {
-      /* default itself is not JSON — syntax check is enough */
+    } catch (e) {
+      // The default itself is not JSON — syntax check is enough. (A
+      // checkShape error is returned above, not thrown, so reaching here
+      // means JSON.parse(defRaw) failed.)
+      if (e instanceof SyntaxError) {
+        /* syntax-only validation stands */
+      } else {
+        throw e;
+      }
     }
   }
   return { ok: true, normalized: JSON.stringify(parsed) };
