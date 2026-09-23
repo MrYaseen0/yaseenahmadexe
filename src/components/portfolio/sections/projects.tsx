@@ -78,25 +78,52 @@ export function Projects() {
   const [readmeRepo, setReadmeRepo] = useState<Repo | null>(null);
   const [detailRepo, setDetailRepo] = useState<Repo | null>(null);
 
+  const fetchRepos = useCallback(async () => {
+    const res = await fetch("/api/github", { cache: "no-store" });
+    const data = await res.json();
+    return {
+      repos: (data.repos || []) as Repo[],
+      source: (data.source || "unknown") as string,
+      error: (data.error || null) as string | null,
+    };
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/github", { cache: "no-store" });
-      const data = await res.json();
-      setRepos(data.repos || []);
-      setSource(data.source || "unknown");
-      if (data.error) setError(data.error);
+      const { repos, source, error } = await fetchRepos();
+      setRepos(repos);
+      setSource(source);
+      if (error) setError(error);
     } catch (e: any) {
       setError(e?.message || "Failed to load projects");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchRepos]);
 
+  // Initial fetch. All state updates happen after `await`, never
+  // synchronously inside the effect. Cancelled on unmount.
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const { repos, source, error } = await fetchRepos();
+        if (cancelled) return;
+        setRepos(repos);
+        setSource(source);
+        if (error) setError(error);
+      } catch (e: any) {
+        if (!cancelled) setError(e?.message || "Failed to load projects");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchRepos]);
 
   const filtered = repos.filter((r) => {
     const matchCat = active === "All" || r.category === active;

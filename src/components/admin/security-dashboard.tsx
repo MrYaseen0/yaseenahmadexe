@@ -96,25 +96,46 @@ export function SecurityDashboard({
   const [blockIpInput, setBlockIpInput] = useState("");
   const [blocking, setBlocking] = useState(false);
 
+  const fetchSecurity = useCallback(async () => {
+    const res = await fetch("/api/admin/security", { headers: authHeaders });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || "Failed to load");
+    return json as SecurityData;
+  }, [authHeaders]);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/security", { headers: authHeaders });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || "Failed to load");
-      setData(json);
+      setData(await fetchSecurity());
     } catch (e: any) {
       toast.error("Security feed failed", { description: e?.message });
     } finally {
       setLoading(false);
     }
-  }, [authHeaders]);
+  }, [fetchSecurity]);
 
+  // Initial load + 30s auto-refresh. All state updates happen after `await`,
+  // never synchronously inside the effect. Cancelled on unmount.
   useEffect(() => {
-    load();
-    const t = setInterval(load, 30000); // auto-refresh every 30s
-    return () => clearInterval(t);
-  }, [load]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const json = await fetchSecurity();
+        if (!cancelled) setData(json);
+      } catch (e: any) {
+        if (!cancelled) toast.error("Security feed failed", { description: e?.message });
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    const t = setInterval(() => {
+      void load();
+    }, 30000); // auto-refresh every 30s
+    return () => {
+      cancelled = true;
+      clearInterval(t);
+    };
+  }, [fetchSecurity, load]);
 
   const blockIp = async () => {
     const ip = blockIpInput.trim();

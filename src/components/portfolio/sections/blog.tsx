@@ -78,22 +78,41 @@ export function Blog() {
   const [query, setQuery] = useState("");
   const [activeTag, setActiveTag] = useState("All");
 
+  const fetchArticles = useCallback(async () => {
+    const res = await fetch("/api/blog", { cache: "no-store" });
+    const data = await res.json();
+    return (data.articles || []) as Article[];
+  }, []);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/blog", { cache: "no-store" });
-      const data = await res.json();
-      setArticles(data.articles || []);
+      setArticles(await fetchArticles());
     } catch {
       setArticles([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchArticles]);
 
+  // Initial fetch. All state updates happen after `await`, never
+  // synchronously inside the effect. Cancelled on unmount.
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const articles = await fetchArticles();
+        if (!cancelled) setArticles(articles);
+      } catch {
+        if (!cancelled) setArticles([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchArticles]);
 
   // Collect all unique tags
   const allTags = useMemo(() => {

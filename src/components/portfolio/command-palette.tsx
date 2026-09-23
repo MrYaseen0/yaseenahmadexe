@@ -91,13 +91,22 @@ export function CommandPalette() {
     return () => window.removeEventListener("keydown", handler);
   }, [open]);
 
-  // Reset state when opening/closing
-  useEffect(() => {
+  // Reset query/selection when the palette opens. Done during render
+  // (adjusting state when props change) instead of in an effect.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) {
       setQuery("");
       setActiveIndex(0);
-      setTimeout(() => inputRef.current?.focus(), 50);
     }
+  }
+
+  // Focus the input when the palette opens (DOM side effect, no state).
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
   }, [open]);
 
   // Build the command list
@@ -197,10 +206,13 @@ export function CommandPalette() {
     );
   }, [allCommands, query]);
 
-  // Reset active index when filtered list changes
-  useEffect(() => {
+  // Reset active index when the query changes. Done during render
+  // (adjusting state when other state changes) instead of in an effect.
+  const [prevQuery, setPrevQuery] = useState(query);
+  if (query !== prevQuery) {
+    setPrevQuery(query);
     setActiveIndex(0);
-  }, [query]);
+  }
 
   // Keyboard navigation within the palette
   const handleKeyDown = (e: React.KeyboardEvent) => {

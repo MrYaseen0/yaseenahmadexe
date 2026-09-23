@@ -29,9 +29,18 @@ interface CounterProps {
 function useCountUp(target: number, duration = 2000, start: boolean) {
   const [count, setCount] = useState(target);
 
+  // Restart the counter from 0 whenever the animation (re)starts or the
+  // target changes. Done during render (adjusting state when props change)
+  // instead of synchronously inside the effect below.
+  const animKey = `${start}:${target}:${duration}`;
+  const [prevAnimKey, setPrevAnimKey] = useState(animKey);
+  if (animKey !== prevAnimKey) {
+    setPrevAnimKey(animKey);
+    if (start) setCount(0);
+  }
+
   useEffect(() => {
     if (!start) return;
-    setCount(0);
     let raf = 0;
     const startTime = performance.now();
     const animate = (now: number) => {

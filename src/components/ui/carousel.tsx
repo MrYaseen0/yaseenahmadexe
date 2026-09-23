@@ -63,8 +63,13 @@ function Carousel({
 
   const onSelect = React.useCallback((api: CarouselApi) => {
     if (!api) return
-    setCanScrollPrev(api.canScrollPrev())
-    setCanScrollNext(api.canScrollNext())
+    // Defer the state sync out of the synchronous effect body below.
+    // (Embla events already fire asynchronously; only the initial
+    // onSelect(api) call needed this.)
+    queueMicrotask(() => {
+      setCanScrollPrev(api.canScrollPrev())
+      setCanScrollNext(api.canScrollNext())
+    })
   }, [])
 
   const scrollPrev = React.useCallback(() => {

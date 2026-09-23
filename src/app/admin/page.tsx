@@ -43,6 +43,14 @@ import {
 
 const TOKEN_STORAGE = "ya-admin-token";
 
+// Returns the stored admin token if it looks like a signed JWT
+// (header.payload.signature), otherwise "". Safe to call during SSR.
+function readStoredToken(): string {
+  if (typeof window === "undefined") return "";
+  const stored = window.localStorage.getItem(TOKEN_STORAGE);
+  return stored && stored.split(".").length === 3 ? stored : "";
+}
+
 interface Booking {
   id: string;
   name: string;
@@ -99,20 +107,14 @@ interface ContentMap {
 }
 
 export default function AdminPage() {
-  const [authed, setAuthed] = useState(false);
-  const [token, setToken] = useState("");
+  // A valid token is a signed JWT: header.payload.signature.
+  // Restored via lazy state initializers (read once) instead of a mount
+  // effect that sets state synchronously.
+  const [token, setToken] = useState<string>(() => readStoredToken());
+  const [authed, setAuthed] = useState<boolean>(() => readStoredToken() !== "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(TOKEN_STORAGE);
-    // A valid token is a signed JWT: header.payload.signature
-    if (stored && stored.split(".").length === 3) {
-      setToken(stored);
-      setAuthed(true);
-    }
-  }, []);
 
   const authenticate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -826,26 +828,34 @@ function AuditLogView({ authHeaders }: { authHeaders: Record<string, string> }) 
   const [actionFilter, setActionFilter] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
 
+  const fetchPage = useCallback(
+    async (cursor?: string | null) => {
+      const params = new URLSearchParams({ limit: "50" });
+      if (appliedQuery) params.set("search", appliedQuery);
+      if (actionFilter) params.set("action", actionFilter);
+      if (cursor) params.set("cursor", cursor);
+      const res = await fetch(`/api/admin/audit?${params.toString()}`, {
+        headers: authHeaders,
+      });
+      const data = await res.json();
+      const page: ParsedAudit[] = (data.entries || []).map((e: ParsedAudit) => ({
+        ...e,
+        oldValue: e.oldValue == null ? null : String(e.oldValue),
+        newValue: e.newValue == null ? null : String(e.newValue),
+      }));
+      return { page, nextCursor: (data.nextCursor as string | null) || null };
+    },
+    [authHeaders, appliedQuery, actionFilter]
+  );
+
   const load = useCallback(
     async (cursor?: string | null) => {
       if (cursor) setLoadingMore(true);
       else setLoading(true);
       try {
-        const params = new URLSearchParams({ limit: "50" });
-        if (appliedQuery) params.set("search", appliedQuery);
-        if (actionFilter) params.set("action", actionFilter);
-        if (cursor) params.set("cursor", cursor);
-        const res = await fetch(`/api/admin/audit?${params.toString()}`, {
-          headers: authHeaders,
-        });
-        const data = await res.json();
-        const page: ParsedAudit[] = (data.entries || []).map((e: ParsedAudit) => ({
-          ...e,
-          oldValue: e.oldValue == null ? null : String(e.oldValue),
-          newValue: e.newValue == null ? null : String(e.newValue),
-        }));
+        const { page, nextCursor } = await fetchPage(cursor);
         setEntries((prev) => (cursor ? [...prev, ...page] : page));
-        setNextCursor(data.nextCursor || null);
+        setNextCursor(nextCursor);
       } catch {
         toast.error("Failed to load audit log");
       } finally {
@@ -853,12 +863,29 @@ function AuditLogView({ authHeaders }: { authHeaders: Record<string, string> }) 
         setLoadingMore(false);
       }
     },
-    [authHeaders, appliedQuery, actionFilter]
+    [fetchPage]
   );
 
+  // Initial fetch. All state updates happen after `await`, never
+  // synchronously inside the effect. Cancelled on unmount / refetch.
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    (async () => {
+      try {
+        const { page, nextCursor } = await fetchPage(null);
+        if (cancelled) return;
+        setEntries(page);
+        setNextCursor(nextCursor);
+      } catch {
+        if (!cancelled) toast.error("Failed to load audit log");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [fetchPage]);
 
   const applyFilters = () => {
     setNextCursor(null);
