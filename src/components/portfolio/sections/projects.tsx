@@ -443,7 +443,7 @@ function ProjectCard({
               asChild
               className="rounded-lg bg-gradient-to-r from-sky-500 to-pink-500 text-white"
             >
-              <a href={repo.html_url} target="_blank" rel="noopener noreferrer" aria-label="View source code on GitHub">
+              <a href={repo.html_url} target="_blank" rel="noopener noreferrer" aria-label={`View ${repo.name} source code on GitHub`}>
                 <Github className="h-3.5 w-3.5" />
               </a>
             </Button>
