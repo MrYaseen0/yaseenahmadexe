@@ -257,6 +257,26 @@ export const achievements = [
 // FAQ — common client questions
 export const faqs = [
   {
+    q: "Who is Yaseen Ahmad (yaseenahmadexe)?",
+    a: "Yaseen Ahmad — online as yaseenahmadexe — is a full-stack web developer and software engineer based in Peshawar, Khyber Pakhtunkhwa, Pakistan. A final-year BS Software Engineering student at CECOS University, he builds production-grade web applications, SaaS products, and APIs for clients across Pakistan and worldwide.",
+    icon: "Users",
+  },
+  {
+    q: "Do you offer software house services in Peshawar, Pakistan?",
+    a: "Yes. Based in Peshawar, I deliver software-house-grade services — custom web development, SaaS builds, REST APIs, and UI/UX — to startups and businesses in Peshawar, across KPK and Pakistan, and remotely worldwide. You get a dedicated engineer, transparent pricing, and direct communication without agency overhead.",
+    icon: "ShieldCheck",
+  },
+  {
+    q: "Are you available for freelance work or hiring?",
+    a: "Yes — I'm currently available for freelance projects, contract work, and remote software engineering roles. Send a message through the contact form, book a discovery call, or reach me instantly on WhatsApp. I typically respond within a few hours during business hours (9 AM – 9 PM PKT).",
+    icon: "Calendar",
+  },
+  {
+    q: "What programming skills and fundamentals do you cover?",
+    a: "A to Z of modern web development: HTML, CSS, JavaScript, TypeScript, React, Next.js, Node.js, Express, REST APIs, and SQL/NoSQL databases — plus core software engineering fundamentals like OOP (object-oriented programming), data structures, and clean architecture. If it runs on the web, I can build it.",
+    icon: "Code",
+  },
+  {
     q: "What's your typical response time?",
     a: "I usually respond to emails and form submissions within 2-4 hours during business hours (9 AM – 9 PM PKT). For urgent matters, WhatsApp is the fastest — I reply within minutes. The live chat widget on this site connects you to me in real-time.",
     icon: "Clock",

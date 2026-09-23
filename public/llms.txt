@@ -1,6 +1,6 @@
-# Yaseen Ahmad — Full-Stack Developer
+# Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer, Peshawar, Pakistan
 
-> Portfolio of Yaseen Ahmad (yaseenahmadexe), a Full-Stack Developer from Peshawar, Pakistan specializing in MERN stack, Next.js, and SaaS architecture. Available for freelance projects and full-time roles worldwide.
+> Portfolio of Yaseen Ahmad (yaseenahmadexe), a full-stack web developer and software engineer in Peshawar, Khyber Pakhtunkhwa, Pakistan. Software-house-grade services: custom web apps, SaaS products, REST APIs, UI/UX. Available for freelance hire and remote roles worldwide. Also found under: web developer Peshawar, software engineer Pakistan, software house Peshawar, software house KPK.
 
 ## About
 
@@ -14,7 +14,8 @@
 
 - Name: Yaseen Ahmad (online as yaseenahmadexe)
 - Role: Full-Stack Developer — MERN stack & SaaS specialist
-- Location: Peshawar, Pakistan; works with clients worldwide
+- Location: Peshawar, Khyber Pakhtunkhwa, Pakistan (34.0151, 71.5249); works with clients worldwide
+- Availability: **currently available for freelance projects, contract work, and remote roles**
 - Education: BS Software Engineering, CECOS University (final year)
 - Experience: 15+ projects built; freelance web development
 - Stack: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Flask, Supabase, PostgreSQL, MongoDB
