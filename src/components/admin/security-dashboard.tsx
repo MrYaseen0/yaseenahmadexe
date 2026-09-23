@@ -49,6 +49,7 @@ const TYPE_STYLE: Record<string, string> = {
   BURST: "bg-purple-500/10 text-purple-500 border-purple-500/30",
   BLOCKED_HIT: "bg-slate-500/10 text-slate-500 border-slate-500/30",
   SUSPICIOUS: "bg-orange-500/10 text-orange-500 border-orange-500/30",
+  CONTENT_EDIT: "bg-sky-500/10 text-sky-600 border-sky-500/30",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -57,7 +58,25 @@ const TYPE_LABEL: Record<string, string> = {
   BURST: "Burst / DDoS",
   BLOCKED_HIT: "Blocked IP hit",
   SUSPICIOUS: "Suspicious",
+  CONTENT_EDIT: "Content edit",
 };
+
+/**
+ * CONTENT_EDIT audit events store their structured payload as JSON in
+ * `detail` (see /api/admin/content). The attack feed shows the readable
+ * summary line; the full Audit Log tab shows the structured fields.
+ */
+function prettyDetail(e: SecurityEvent): string | null {
+  if (!e.detail) return null;
+  if (e.type !== "CONTENT_EDIT") return e.detail;
+  try {
+    const d = JSON.parse(e.detail);
+    if (d && typeof d === "object" && d.summary) return String(d.summary);
+  } catch {
+    /* legacy free-text detail */
+  }
+  return e.detail;
+}
 
 function timeAgo(iso: string): string {
   const s = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -202,9 +221,9 @@ export function SecurityDashboard({
                   </Badge>
                   <code className="font-mono font-bold">{e.ip}</code>
                   <span className="text-muted-foreground">{timeAgo(e.createdAt)}</span>
-                  {e.detail && (
-                    <span className="w-full truncate text-muted-foreground" title={e.detail}>
-                      {e.detail}
+                  {prettyDetail(e) && (
+                    <span className="w-full truncate text-muted-foreground" title={prettyDetail(e) ?? undefined}>
+                      {prettyDetail(e)}
                     </span>
                   )}
                 </div>

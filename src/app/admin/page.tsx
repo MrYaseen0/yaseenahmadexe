@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useCallback, useMemo } from "react";
+import { motion } from "framer-motion";
 import {
   Shield,
   Lock,
@@ -17,8 +17,12 @@ import {
   Save,
   Edit3,
   BarChart3,
-  Database,
-  Plus,
+  Eye,
+  History,
+  RotateCcw,
+  Search,
+  FileJson,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +34,12 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { TrafficDashboard } from "@/components/admin/traffic-dashboard";
 import { SecurityDashboard } from "@/components/admin/security-dashboard";
+import {
+  CONTENT_FIELDS,
+  CONTENT_DEFAULTS,
+  CONTENT_CATEGORIES,
+  validateJsonField,
+} from "@/lib/content-fields";
 
 const TOKEN_STORAGE = "ya-admin-token";
 
@@ -215,41 +225,76 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("analytics");
 
-  const authHeaders = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
+  // Memoized: children use this as an effect dependency, so a stable
+  // identity prevents refetch loops on every parent render.
+  const authHeaders = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }),
+    [token]
+  );
+
+  // Pure fetch: no setState inside, so effects can await it without
+  // synchronously triggering renders.
+  const fetchAllData = useCallback(async () => {
+    const [bookingRes, testRes, subRes, analyticsRes, contentRes] = await Promise.all([
+      fetch("/api/booking", { headers: authHeaders }),
+      fetch("/api/admin/testimonials", { headers: authHeaders }),
+      fetch("/api/admin/subscribers", { headers: authHeaders }),
+      fetch("/api/admin/analytics", { headers: authHeaders }),
+      fetch("/api/admin/content"),
+    ]);
+    const bookingData = await bookingRes.json();
+    const testData = await testRes.json();
+    const subData = await subRes.json();
+    const analyticsData = await analyticsRes.json();
+    const contentData = await contentRes.json();
+    return {
+      bookings: bookingData.bookings || [],
+      testimonials: testData.testimonials || [],
+      subscribers: subData.subscribers || [],
+      analytics: analyticsData,
+      content: contentData.contents || {},
+    };
+  }, [token]);
+
+  const applyAllData = useCallback(
+    (d: Awaited<ReturnType<typeof fetchAllData>>) => {
+      setBookings(d.bookings);
+      setTestimonials(d.testimonials);
+      setSubscribers(d.subscribers);
+      setAnalytics(d.analytics);
+      setContent(d.content);
+    },
+    []
+  );
 
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [bookingRes, testRes, subRes, analyticsRes, contentRes] = await Promise.all([
-        fetch("/api/booking", { headers: authHeaders }),
-        fetch("/api/admin/testimonials", { headers: authHeaders }),
-        fetch("/api/admin/subscribers", { headers: authHeaders }),
-        fetch("/api/admin/analytics", { headers: authHeaders }),
-        fetch("/api/admin/content"),
-      ]);
-      const bookingData = await bookingRes.json();
-      const testData = await testRes.json();
-      const subData = await subRes.json();
-      const analyticsData = await analyticsRes.json();
-      const contentData = await contentRes.json();
-      setBookings(bookingData.bookings || []);
-      setTestimonials(testData.testimonials || []);
-      setSubscribers(subData.subscribers || []);
-      setAnalytics(analyticsData);
-      setContent(contentData.contents || {});
+      applyAllData(await fetchAllData());
     } catch {
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [fetchAllData, applyAllData]);
 
   useEffect(() => {
-    loadAll();
-  }, [loadAll]);
+    let dead = false;
+    (async () => {
+      try {
+        const d = await fetchAllData();
+        if (!dead) applyAllData(d);
+      } catch {
+        if (!dead) toast.error("Failed to load data");
+      }
+    })();
+    return () => {
+      dead = true;
+    };
+  }, [fetchAllData, applyAllData]);
 
   const approveTestimonial = async (id: string) => {
     try {
@@ -315,7 +360,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
 
       <main className="container mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-8">
             <TabsTrigger value="analytics" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <BarChart3 className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -323,6 +368,10 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <TabsTrigger value="content" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Edit3 className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Content</span>
+            </TabsTrigger>
+            <TabsTrigger value="visual" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Eye className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Visual</span>
             </TabsTrigger>
             <TabsTrigger value="bookings" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Calendar className="mr-1.5 h-4 w-4" />
@@ -338,6 +387,10 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <TabsTrigger value="subscribers" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <MailIcon className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Emails</span>
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <History className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Audit Log</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Shield className="mr-1.5 h-4 w-4" />
@@ -359,6 +412,11 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <ContentEditor content={content} setContent={setContent} authHeaders={authHeaders} />
           </TabsContent>
 
+          {/* Visual Editor Tab — the public page with inline pencils */}
+          <TabsContent value="visual" className="mt-6">
+            <VisualEditorView />
+          </TabsContent>
+
           {/* Bookings Tab */}
           <TabsContent value="bookings" className="mt-6">
             <BookingsView bookings={bookings} />
@@ -378,6 +436,11 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <SubscribersView subscribers={subscribers} />
           </TabsContent>
 
+          {/* Audit Log Tab — every content change, who / when / what */}
+          <TabsContent value="audit" className="mt-6">
+            <AuditLogView authHeaders={authHeaders} />
+          </TabsContent>
+
           {/* Security Tab */}
           <TabsContent value="security" className="mt-6">
             <SecurityDashboard authHeaders={authHeaders} />
@@ -388,7 +451,11 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   );
 }
 
-// ===== Content Editor =====
+// ===== Content Editor (registry-driven) =====
+// Every registered field (see src/lib/content-fields.ts) is listed here,
+// grouped by category, with its registry default. Keys that have a saved
+// database override show the override plus a "Customized" badge and a
+// reset button (restores the default by deleting the override).
 function ContentEditor({
   content,
   setContent,
@@ -398,20 +465,22 @@ function ContentEditor({
   setContent: (c: ContentMap) => void;
   authHeaders: Record<string, string>;
 }) {
-  const [newKey, setNewKey] = useState("");
-  const [newValue, setNewValue] = useState("");
-  const [newCategory, setNewCategory] = useState("general");
+  const [query, setQuery] = useState("");
   const [saving, setSaving] = useState<string | null>(null);
 
-  const editableFields = [
-    { key: "hero_name", label: "Hero Name", category: "hero", type: "text" },
-    { key: "hero_tagline", label: "Hero Tagline", category: "hero", type: "text" },
-    { key: "hero_status", label: "Availability Status", category: "hero", type: "text" },
-    { key: "about_text", label: "About Text", category: "about", type: "textarea" },
-    { key: "contact_email", label: "Contact Email", category: "contact", type: "text" },
-    { key: "contact_phone", label: "Contact Phone", category: "contact", type: "text" },
-    { key: "footer_text", label: "Footer Text", category: "footer", type: "text" },
-  ];
+  const q = query.trim().toLowerCase();
+  const fields = CONTENT_FIELDS.filter(
+    (f) =>
+      !q ||
+      f.key.toLowerCase().includes(q) ||
+      f.label.toLowerCase().includes(q) ||
+      f.category.toLowerCase().includes(q)
+  );
+
+  const groups = CONTENT_CATEGORIES.map((c) => ({
+    ...c,
+    fields: fields.filter((f) => f.category === c.id),
+  })).filter((g) => g.fields.length > 0);
 
   const save = async (key: string, value: string, category: string) => {
     setSaving(key);
@@ -432,18 +501,8 @@ function ContentEditor({
     }
   };
 
-  const addNew = async () => {
-    if (!newKey || !newValue) {
-      toast.error("Key and value are required");
-      return;
-    }
-    await save(newKey, newValue, newCategory);
-    setNewKey("");
-    setNewValue("");
-  };
-
-  const remove = async (key: string) => {
-    if (!confirm(`Delete "${key}"?`)) return;
+  const reset = async (key: string) => {
+    if (!confirm(`Reset "${key}" to its default value?`)) return;
     try {
       await fetch(`/api/admin/content?key=${encodeURIComponent(key)}`, {
         method: "DELETE",
@@ -452,115 +511,173 @@ function ContentEditor({
       const next = { ...content };
       delete next[key];
       setContent(next);
-      toast.success("Deleted");
+      toast.success(`"${key}" reset to default`);
     } catch {
-      toast.error("Delete failed");
+      toast.error("Reset failed");
     }
   };
 
+  const customizedCount = CONTENT_FIELDS.filter((f) => content[f.key]).length;
+
   return (
     <div className="space-y-6">
-      {/* Predefined editable fields */}
-      <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-        <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Edit3 className="h-4 w-4 text-sky-500" />
-          Edit Website Content
-        </h3>
-        <div className="space-y-4">
-          {editableFields.map((field) => (
-            <EditableField
-              key={field.key}
-              field={field}
-              initialValue={content[field.key]?.value || ""}
-              saving={saving === field.key}
-              onSave={(val) => save(field.key, val, field.category)}
-            />
-          ))}
+          {CONTENT_FIELDS.length} editable fields · {customizedCount} customized
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search fields..."
+            className="rounded-full pl-9"
+          />
         </div>
       </div>
 
-      {/* Add new content */}
-      <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-        <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          <Plus className="h-4 w-4 text-pink-500" />
-          Add Custom Content
-        </h3>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Input value={newKey} onChange={(e) => setNewKey(e.target.value)} placeholder="key (e.g. hero_subtitle)" />
-          <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="category" />
-          <Button onClick={addNew} className="rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white">
-            <Plus className="mr-1 h-4 w-4" /> Add
-          </Button>
-        </div>
-        <Textarea
-          value={newValue}
-          onChange={(e) => setNewValue(e.target.value)}
-          placeholder="Value..."
-          className="mt-3 resize-none"
-          rows={2}
-        />
-      </div>
-
-      {/* All custom content list */}
-      <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
-        <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          <Database className="h-4 w-4 text-wood" />
-          All Content ({Object.keys(content).length})
-        </h3>
-        {Object.keys(content).length === 0 ? (
-          <p className="text-sm text-muted-foreground">No custom content yet. Add some above!</p>
-        ) : (
-          <div className="space-y-2">
-            {Object.entries(content).map(([key, data]) => (
-              <div key={key} className="flex items-start justify-between gap-3 rounded-lg border border-sky-500/10 bg-muted/20 p-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-sky-600">{key}</span>
-                    <Badge variant="secondary" className="rounded-full px-1.5 py-0 text-[9px]">{data.category}</Badge>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{data.value}</p>
-                </div>
-                <button
-                  onClick={() => remove(key)}
-                  className="shrink-0 rounded-md p-1 text-red-500 transition-colors hover:bg-red-500/10"
-                  aria-label="Delete"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
+      {groups.map((g) => (
+        <div
+          key={g.id}
+          className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft"
+        >
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-[10px] font-bold text-white">
+              {g.fields.length}
+            </span>
+            {g.label}
+          </h3>
+          <div className="space-y-5">
+            {g.fields.map((f) => {
+              const override = content[f.key];
+              const current = override?.value ?? CONTENT_DEFAULTS[f.key] ?? "";
+              return (
+                <RegistryField
+                  key={f.key}
+                  fieldKey={f.key}
+                  label={f.label}
+                  category={f.category}
+                  json={f.json}
+                  multiline={f.multiline}
+                  defaultValue={CONTENT_DEFAULTS[f.key] ?? ""}
+                  value={current}
+                  customized={!!override}
+                  saving={saving === f.key}
+                  onSave={(val) => save(f.key, val, f.category)}
+                  onReset={() => reset(f.key)}
+                />
+              );
+            })}
           </div>
-        )}
-      </div>
+        </div>
+      ))}
+
+      {groups.length === 0 && (
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          No fields match "{query}"
+        </div>
+      )}
     </div>
   );
 }
 
-// ===== Editable Field =====
-function EditableField({
-  field,
-  initialValue,
+// ===== Registry Field (single row: default + override aware) =====
+function RegistryField({
+  fieldKey,
+  label,
+  category,
+  json,
+  multiline,
+  defaultValue,
+  value,
+  customized,
   saving,
   onSave,
+  onReset,
 }: {
-  field: { key: string; label: string; category: string; type: string };
-  initialValue: string;
+  fieldKey: string;
+  label: string;
+  category: string;
+  json?: boolean;
+  multiline?: boolean;
+  defaultValue: string;
+  value: string;
+  customized: boolean;
   saving: boolean;
   onSave: (val: string) => void;
+  onReset: () => void;
 }) {
-  const [val, setVal] = useState(initialValue);
+  const [val, setVal] = useState(value);
+  const [showDefault, setShowDefault] = useState(false);
+  const [jsonError, setJsonError] = useState("");
+  const trySave = () => {
+    if (json) {
+      const check = validateJsonField(fieldKey, val);
+      if (!check.ok) {
+        setJsonError(check.error);
+        return;
+      }
+      setJsonError("");
+      onSave(check.normalized);
+      return;
+    }
+    setJsonError("");
+    onSave(val);
+  };
+  // keep the input in sync when the saved value changes elsewhere
+  // (render-phase adjustment: the React-endorsed alternative to setState-in-effect)
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setVal(value);
+  }
+
+  const long = json || multiline || val.length > 90 || val.includes("\n");
+
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-semibold">
-        {field.label} <span className="text-muted-foreground">({field.key})</span>
-      </Label>
+      <div className="flex flex-wrap items-center gap-2">
+        <Label className="text-xs font-semibold">
+          {label} <span className="font-mono text-muted-foreground">({fieldKey})</span>
+        </Label>
+        {customized ? (
+          <Badge className="rounded-full bg-pink-500/15 px-2 py-0 text-[9px] font-semibold text-pink-600">
+            Customized
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="rounded-full px-2 py-0 text-[9px]">
+            Default
+          </Badge>
+        )}
+        <button
+          onClick={() => setShowDefault((v) => !v)}
+          className="text-[11px] text-sky-600 underline-offset-2 hover:underline"
+        >
+          {showDefault ? "Hide default" : "Show default"}
+        </button>
+        {customized && (
+          <button
+            onClick={onReset}
+            className="ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-500"
+          >
+            <RotateCcw className="h-3 w-3" /> Reset to default
+          </button>
+        )}
+      </div>
+      {showDefault && (
+        <pre className="max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-muted/40 p-2 font-mono text-[11px] text-muted-foreground">
+          {defaultValue}
+        </pre>
+      )}
       <div className="flex gap-2">
-        {field.type === "textarea" ? (
+        {long ? (
           <Textarea
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            className="flex-1 resize-none"
-            rows={3}
+            className="flex-1 font-mono text-xs"
+            rows={json ? 6 : 3}
+            spellCheck={false}
           />
         ) : (
           <Input
@@ -571,18 +688,291 @@ function EditableField({
         )}
         <Button
           size="sm"
-          onClick={() => onSave(val)}
+          onClick={trySave}
           disabled={saving}
           className="shrink-0 rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
         >
           {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
         </Button>
       </div>
+      {jsonError && (
+        <p className="text-xs font-medium text-red-500">{jsonError}</p>
+      )}
     </div>
   );
 }
 
-// ===== Bookings View =====
+// ===== Visual Editor =====
+// Opens the public portfolio itself in edit mode (?edit=1). The page reads
+// the same admin token from localStorage, so no second login is needed.
+function VisualEditorView() {
+  const [embedded, setEmbedded] = useState(false);
+  const openVisual = () => {
+    window.open("/?edit=1", "_blank", "noopener");
+  };
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft sm:p-8">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-pink-500 shadow-glow-sky">
+            <Pencil className="h-7 w-7 text-white" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold">Visual Editor</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Edit the portfolio exactly as visitors see it. Open the live page
+              in edit mode — every headline, button, card, label, and list shows
+              a <Pencil className="inline h-3 w-3" /> pencil. Changes save
+              instantly to the live site and every change is recorded in the
+              Audit Log with your account and IP.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button
+            onClick={openVisual}
+            className="rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+          >
+            <Eye className="mr-2 h-4 w-4" /> Open Visual Editor
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setEmbedded((v) => !v)}
+            className="rounded-xl"
+          >
+            <FileJson className="mr-2 h-4 w-4" />
+            {embedded ? "Hide embedded preview" : "Embed preview here"}
+          </Button>
+        </div>
+        <ul className="mt-6 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+          <li>Edit mode only activates with a valid admin session — visitors never see pencils.</li>
+          <li>Text fields open a quick dialog; lists (navigation, services, FAQs, plans…) open a JSON editor.</li>
+          <li>To undo a change, edit the field back or reset it to its default in the Content tab.</li>
+        </ul>
+      </div>
+
+      {embedded && (
+        <div className="overflow-hidden rounded-2xl border border-sky-500/20 shadow-soft">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-muted/40 px-4 py-2">
+            <span className="font-mono text-xs text-muted-foreground">/?edit=1</span>
+            <Button size="sm" variant="ghost" onClick={openVisual} className="h-7 text-xs">
+              Open in new tab <ExternalLink className="ml-1 h-3 w-3" />
+            </Button>
+          </div>
+          <iframe
+            src="/?edit=1"
+            title="Visual editor preview"
+            className="h-[80vh] w-full bg-white"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Audit Log =====
+// Shows CONTENT_EDIT security events: when, who (admin email), source IP,
+// action, content key, and previous → new value. Kept separate from the
+// Security tab's attack feed.
+interface ParsedAudit {
+  id: string;
+  createdAt: string;
+  ip: string;
+  actor: string;
+  action: string;
+  key: string;
+  oldValue: string | null;
+  newValue: string | null;
+  summary: string;
+}
+
+function AuditLogView({ authHeaders }: { authHeaders: Record<string, string> }) {
+  const [entries, setEntries] = useState<ParsedAudit[]>([]);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [query, setQuery] = useState("");
+  const [appliedQuery, setAppliedQuery] = useState("");
+  const [actionFilter, setActionFilter] = useState("");
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  const load = useCallback(
+    async (cursor?: string | null) => {
+      if (cursor) setLoadingMore(true);
+      else setLoading(true);
+      try {
+        const params = new URLSearchParams({ limit: "50" });
+        if (appliedQuery) params.set("search", appliedQuery);
+        if (actionFilter) params.set("action", actionFilter);
+        if (cursor) params.set("cursor", cursor);
+        const res = await fetch(`/api/admin/audit?${params.toString()}`, {
+          headers: authHeaders,
+        });
+        const data = await res.json();
+        const page: ParsedAudit[] = (data.entries || []).map((e: ParsedAudit) => ({
+          ...e,
+          oldValue: e.oldValue == null ? null : String(e.oldValue),
+          newValue: e.newValue == null ? null : String(e.newValue),
+        }));
+        setEntries((prev) => (cursor ? [...prev, ...page] : page));
+        setNextCursor(data.nextCursor || null);
+      } catch {
+        toast.error("Failed to load audit log");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [authHeaders, appliedQuery, actionFilter]
+  );
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const applyFilters = () => {
+    setNextCursor(null);
+    setAppliedQuery(query);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <History className="h-4 w-4 text-sky-500" />
+          {entries.length} recorded content change{entries.length === 1 ? "" : "s"}
+          {nextCursor && " — more available"}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <div className="relative flex-1 sm:w-56">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+              placeholder="Search by key, editor, IP..."
+              className="rounded-full pl-9"
+            />
+          </div>
+          <select
+            value={actionFilter}
+            onChange={(e) => {
+              setActionFilter(e.target.value);
+              setNextCursor(null);
+            }}
+            className="rounded-full border border-input bg-background px-3 py-2 text-sm"
+            aria-label="Filter by action"
+          >
+            <option value="">All actions</option>
+            <option value="updated">Updated</option>
+            <option value="created">Created</option>
+            <option value="deleted">Deleted (reset to default)</option>
+          </select>
+          <Button variant="outline" size="sm" onClick={applyFilters} className="rounded-full">
+            Apply
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => load()} className="rounded-full">
+            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
+          </Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          Loading audit log...
+        </div>
+      ) : entries.length === 0 ? (
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          <History className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+          {appliedQuery || actionFilter
+            ? "No entries match your filters."
+            : "No content changes recorded yet. Edits made through the Visual Editor or Content tab appear here."}
+        </div>
+      ) : (
+        <>
+          <div className="space-y-2">
+            {entries.map((e) => {
+              const isOpen = expanded === e.id;
+              const when = new Date(e.createdAt).toLocaleString("en-PK", {
+                timeZone: "Asia/Karachi",
+                day: "2-digit",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              });
+              return (
+                <div
+                  key={e.id}
+                  className="rounded-xl border border-sky-500/10 bg-card p-4 shadow-soft"
+                >
+                  <button
+                    onClick={() => setExpanded(isOpen ? null : e.id)}
+                    className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left"
+                  >
+                    <Badge
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                        e.action === "deleted"
+                          ? "bg-red-500/15 text-red-600"
+                          : e.action === "created"
+                            ? "bg-green-500/15 text-green-600"
+                            : "bg-sky-500/15 text-sky-600"
+                      )}
+                    >
+                      {e.action === "deleted" ? "reset to default" : e.action}
+                    </Badge>
+                    <span className="font-mono text-xs font-bold text-foreground">{e.key}</span>
+                    <span className="text-xs text-muted-foreground">{e.actor}</span>
+                    <span className="ml-auto text-xs text-muted-foreground">{when} PKT</span>
+                  </button>
+                  {isOpen && (
+                    <div className="mt-3 space-y-2 border-t border-sky-500/10 pt-3 text-xs">
+                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-muted-foreground">
+                        <span>IP: <span className="font-mono text-foreground">{e.ip}</span></span>
+                        <span>Editor: <span className="font-medium text-foreground">{e.actor}</span></span>
+                      </div>
+                      {e.summary && <p className="text-muted-foreground">{e.summary}</p>}
+                      {e.oldValue !== null && (
+                        <div>
+                          <div className="mb-1 font-semibold text-muted-foreground">Previous value</div>
+                          <pre className="max-h-24 overflow-auto whitespace-pre-wrap rounded-lg bg-red-500/5 p-2 font-mono text-[11px] text-foreground/80">
+                            {e.oldValue}
+                          </pre>
+                        </div>
+                      )}
+                      {e.newValue !== null && (
+                        <div>
+                          <div className="mb-1 font-semibold text-muted-foreground">New value</div>
+                          <pre className="max-h-24 overflow-auto whitespace-pre-wrap rounded-lg bg-green-500/5 p-2 font-mono text-[11px] text-foreground/80">
+                            {e.newValue}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          {nextCursor && (
+            <div className="text-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => load(nextCursor)}
+                disabled={loadingMore}
+                className="rounded-full"
+              >
+                {loadingMore ? "Loading..." : "Load older entries"}
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 function BookingsView({ bookings }: { bookings: Booking[] }) {
   if (bookings.length === 0) {
     return (

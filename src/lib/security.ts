@@ -62,7 +62,8 @@ export type SecurityEventType =
   | "RATE_LIMIT"
   | "BURST"
   | "BLOCKED_HIT"
-  | "SUSPICIOUS";
+  | "SUSPICIOUS"
+  | "CONTENT_EDIT";
 
 /** Best-effort insert — must never break the request it instruments. */
 export async function logSecurityEvent(
