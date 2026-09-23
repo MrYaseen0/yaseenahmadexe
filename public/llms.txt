@@ -1,0 +1,27 @@
+# Yaseen Ahmad — Full-Stack Developer
+
+> Portfolio of Yaseen Ahmad, Full-Stack Developer (MERN stack, Next.js, SaaS)
+> based in Peshawar, Pakistan. Available for freelance work worldwide.
+
+## Key facts
+- Name: Yaseen Ahmad (online as yaseenahmadexe)
+- Role: Full-Stack Developer, MERN stack & SaaS specialist
+- Location: Peshawar, Pakistan; works with clients worldwide
+- Education: BS Software Engineering, CECOS University (final year)
+- Experience: 15+ projects built; freelance web development
+- Stack: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Supabase, PostgreSQL, MongoDB
+
+## Services
+- Full-stack web application development
+- SaaS architecture and builds
+- React / Next.js frontends, Node.js APIs
+
+## Contact
+- Use the contact form or WhatsApp link on https://yaseenahmadexe.vercel.app/
+
+## Links
+- Portfolio: https://yaseenahmadexe.vercel.app/
+- GitHub: https://github.com/MrYaseen0
+- LinkedIn: https://www.linkedin.com/in/yaseen-ahmad-489967280
+- Instagram: https://www.instagram.com/yaseenahmadexe/
+- X: https://x.com/yaseencecosian
