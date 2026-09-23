@@ -2,7 +2,20 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin, verifyToken } from "@/lib/auth";
 import { getClientIp } from "@/lib/rate-limit";
-import { CONTENT_DEFAULTS } from "@/lib/content-fields";
+import {
+  CONTENT_DEFAULTS,
+  CONTENT_FIELDS,
+  validateJsonField,
+} from "@/lib/content-fields";
+
+// Never statically cache this route: the public page merges these overrides
+// client-side, and a cached GET would serve stale values after a save.
+export const dynamic = "force-dynamic";
+
+/** Keys registered as JSON fields — only these get server-side JSON validation. */
+const JSON_FIELD_KEYS = new Set(
+  CONTENT_FIELDS.filter((f) => f.json).map((f) => f.key)
+);
 
 /** Admin email from the Bearer token (for the audit trail). */
 function adminEmailFrom(request: Request): string {
@@ -33,7 +46,14 @@ export async function GET() {
     });
     return NextResponse.json({ contents: map });
   } catch (error) {
-    return NextResponse.json({ contents: {} });
+    // A database failure must NOT look like "no overrides": the client falls
+    // back to defaults on any shape, but operators can tell the difference
+    // via the 503 status and the error field.
+    console.error("Content read error:", error);
+    return NextResponse.json(
+      { contents: {}, error: "unavailable" },
+      { status: 503 }
+    );
   }
 }
 
@@ -64,6 +84,17 @@ export async function PUT(request: Request) {
         { status: 400 }
       );
     }
+    // Server-side JSON validation for JSON-registered keys (mirrors the
+    // client check): a raw API call must not corrupt a JSON field with bad
+    // syntax or a wrong top-level shape. Stores the normalized compact JSON.
+    let finalValue = cleanValue;
+    if (JSON_FIELD_KEYS.has(cleanKey)) {
+      const check = validateJsonField(cleanKey, cleanValue);
+      if (!check.ok) {
+        return NextResponse.json({ error: check.error }, { status: 400 });
+      }
+      finalValue = check.normalized;
+    }
     const email = adminEmailFrom(request);
     const ip = getClientIp(request);
 
@@ -71,18 +102,20 @@ export async function PUT(request: Request) {
     // audit detail is written directly (not through logSecurityEvent, whose
     // 500-char cap would corrupt the structured audit JSON).
     const updated = await db.$transaction(async (tx) => {
-      const prev = await tx.siteContent
-        .findUnique({ where: { key: cleanKey } })
-        .catch(() => null);
+      // No .catch(() => null) here: a real database error must surface as a
+      // 500, never be misread as "this key has no override".
+      const prev = await tx.siteContent.findUnique({
+        where: { key: cleanKey },
+      });
       const row = await tx.siteContent.upsert({
         where: { key: cleanKey },
         update: {
-          value: cleanValue,
+          value: finalValue,
           category: category ? String(category).slice(0, 50) : undefined,
         },
         create: {
           key: cleanKey,
-          value: cleanValue,
+          value: finalValue,
           category: category ? String(category).slice(0, 50) : "general",
         },
       });
@@ -95,12 +128,12 @@ export async function PUT(request: Request) {
           detail: JSON.stringify({
             summary: `content ${isNew ? "created" : "updated"} key="${cleanKey}" by ${email} | "${trunc(
               prev?.value
-            )}" → "${trunc(cleanValue)}"`,
+            )}" → "${trunc(finalValue)}"`,
             actor: email,
             action: isNew ? "created" : "updated",
             key: cleanKey,
             oldValue: prev?.value ?? null,
-            newValue: cleanValue,
+            newValue: finalValue,
             ip,
             at: new Date().toISOString(),
           }),
@@ -144,9 +177,12 @@ export async function DELETE(request: Request) {
     const email = adminEmailFrom(request);
     const ip = getClientIp(request);
 
-    const prev = await db.siteContent
-      .findUnique({ where: { key: cleanKey } })
-      .catch(() => null);
+    // No .catch(() => null) here: only a genuinely missing row means
+    // "already at default". A database failure must surface as a 500,
+    // never be masked as a successful no-op.
+    const prev = await db.siteContent.findUnique({
+      where: { key: cleanKey },
+    });
     if (!prev) {
       return NextResponse.json({ success: true, note: "already at default" });
     }

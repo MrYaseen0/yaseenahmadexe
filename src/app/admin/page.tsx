@@ -502,18 +502,28 @@ function ContentEditor({
   };
 
   const reset = async (key: string) => {
-    if (!confirm(`Reset "${key}" to its default value?`)) return;
+    // No native confirm() here on purpose: headless/automated browsers dismiss
+    // it silently, which made the button look dead. Confirmation is a two-step
+    // inline button in RegistryField instead.
+    setSaving(key);
     try {
-      await fetch(`/api/admin/content?key=${encodeURIComponent(key)}`, {
-        method: "DELETE",
-        headers: authHeaders,
-      });
+      const res = await fetch(
+        `/api/admin/content?key=${encodeURIComponent(key)}`,
+        {
+          method: "DELETE",
+          headers: authHeaders,
+        }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Reset failed (${res.status})`);
       const next = { ...content };
       delete next[key];
       setContent(next);
       toast.success(`"${key}" reset to default`);
-    } catch {
-      toast.error("Reset failed");
+    } catch (err: any) {
+      toast.error("Reset failed", { description: err?.message });
+    } finally {
+      setSaving(null);
     }
   };
 
@@ -611,6 +621,14 @@ function RegistryField({
   const [val, setVal] = useState(value);
   const [showDefault, setShowDefault] = useState(false);
   const [jsonError, setJsonError] = useState("");
+  // Two-step inline reset confirmation (no native confirm() — headless
+  // browsers auto-dismiss it, which made the button look dead).
+  const [confirmReset, setConfirmReset] = useState(false);
+  useEffect(() => {
+    if (!confirmReset) return;
+    const t = setTimeout(() => setConfirmReset(false), 5000);
+    return () => clearTimeout(t);
+  }, [confirmReset]);
   const trySave = () => {
     if (json) {
       const check = validateJsonField(fieldKey, val);
@@ -658,10 +676,22 @@ function RegistryField({
         </button>
         {customized && (
           <button
-            onClick={onReset}
-            className="ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-500"
+            onClick={() => {
+              if (confirmReset) {
+                setConfirmReset(false);
+                onReset();
+              } else {
+                setConfirmReset(true);
+              }
+            }}
+            className={
+              confirmReset
+                ? "ml-auto flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-600"
+                : "ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-500"
+            }
           >
-            <RotateCcw className="h-3 w-3" /> Reset to default
+            <RotateCcw className="h-3 w-3" />{" "}
+            {confirmReset ? "Click again to confirm reset" : "Reset to default"}
           </button>
         )}
       </div>
