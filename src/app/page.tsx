@@ -2,6 +2,7 @@ import dynamic from "next/dynamic";
 import { AnimatedBackground } from "@/components/portfolio/animated-background";
 import { ScrollProgress } from "@/components/portfolio/scroll-progress";
 import { Navbar } from "@/components/portfolio/navbar";
+import { ContentProvider } from "@/components/portfolio/content-editor";
 import { Hero } from "@/components/portfolio/sections/hero";
 import { Marquee } from "@/components/portfolio/sections/marquee";
 import { AchievementStats } from "@/components/portfolio/sections/achievement-stats";
@@ -51,7 +52,7 @@ const Faq = dynamic(
 
 export default function Home() {
   return (
-    <>
+    <ContentProvider>
       <AnimatedBackground />
       <ScrollProgress />
       <Navbar />
@@ -75,6 +76,6 @@ export default function Home() {
         <Footer />
       </main>
       <HomeWidgets />
-    </>
+    </ContentProvider>
   );
 }

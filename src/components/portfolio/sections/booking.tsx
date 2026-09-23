@@ -23,30 +23,21 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
-import { developer } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
-const purposes = [
-  { id: "consultation", label: "Project Consultation", icon: "💬", desc: "Discuss your project idea" },
-  { id: "code-review", label: "Code Review", icon: "🔍", desc: "Get feedback on your codebase" },
-  { id: "hiring", label: "Hire Me", icon: "🚀", desc: "Start a development project" },
-  { id: "mentorship", label: "Mentorship", icon: "🎓", desc: "Career guidance & advice" },
-];
+interface Purpose { id: string; label: string; icon: string; desc: string }
 
-const timeSlots = [
-  "10:00 AM", "11:00 AM", "12:00 PM",
-  "2:00 PM", "3:00 PM", "4:00 PM",
-  "6:00 PM", "7:00 PM", "8:00 PM",
-];
-
-const purposesMap: Record<string, string> = {
-  consultation: "Project Consultation",
-  "code-review": "Code Review",
-  hiring: "Hire Me",
-  mentorship: "Mentorship",
-};
+const badgeIcons = [Video, Clock, Globe, CheckCircle2];
 
 export function Booking() {
+  const { t, tj } = useContent();
+  const purposes = tj<Purpose[]>("booking.purposes");
+  const purposesMap = useMemo(
+    () => Object.fromEntries(purposes.map((p) => [p.id, p.label])),
+    [purposes]
+  );
+  const badges = tj<string[]>("booking.badges");
   const [step, setStep] = useState(1);
   const [purpose, setPurpose] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
@@ -85,12 +76,12 @@ export function Booking() {
 
   const submit = async () => {
     if (!form.name || !form.email) {
-      toast.error("Please enter your name and email.");
+      toast.error(t("booking.nameEmailError"));
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(form.email)) {
-      toast.error("Please enter a valid email address.");
+      toast.error(t("booking.invalidEmail"));
       return;
     }
     setLoading(true);
@@ -111,12 +102,12 @@ export function Booking() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
       setBooked(true);
-      toast.success("📅 Booking request submitted!", {
-        description: "I'll confirm the time via email within a few hours.",
+      toast.success(t("booking.submitOk"), {
+        description: t("booking.submitOkSub"),
       });
     } catch (err: any) {
-      toast.error("Booking failed", {
-        description: err?.message || "Please try again.",
+      toast.error(t("booking.submitFail"), {
+        description: err?.message || t("booking.submitFailSub"),
       });
     } finally {
       setLoading(false);
@@ -135,12 +126,7 @@ export function Booking() {
   return (
     <section id="booking" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-5xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="📅"
-          title="Book a"
-          highlight="Call"
-          subtitle="Skip the back-and-forth emails. Pick a time that works for you and let's talk about your project."
-        />
+        <SectionHeading ek="booking" />
 
         <Reveal className="mt-12 overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover">
           {/* Status bar */}
@@ -151,14 +137,14 @@ export function Booking() {
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
               </span>
               <span className="text-sm font-semibold text-foreground">
-                Available this week
+                <Editable id="booking.available" />
               </span>
             </div>
             <div className="flex items-center gap-2">
               {[
-                { n: 1, label: "Purpose" },
-                { n: 2, label: "Date & Time" },
-                { n: 3, label: "Details" },
+                { n: 1, label: t("booking.step1") },
+                { n: 2, label: t("booking.step2") },
+                { n: 3, label: t("booking.step3") },
               ].map((s, i) => (
                 <div key={s.n} className="flex items-center gap-2">
                   {i > 0 && <div className="h-px w-6 bg-sky-500/30" />}
@@ -232,22 +218,17 @@ export function Booking() {
 
         {/* Trust badges */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Video className="h-3.5 w-3.5 text-sky-500" />
-            Google Meet / Zoom
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5 text-pink-500" />
-            30-45 min sessions
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Globe className="h-3.5 w-3.5 text-wood" />
-            All timezones welcome
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-            Free consultation
-          </span>
+          {badges.map((b, i) => {
+            const Icon = badgeIcons[i % badgeIcons.length];
+            const colors = ["text-sky-500", "text-pink-500", "text-wood", "text-green-500"];
+            return (
+              <span key={i} className="flex items-center gap-1.5">
+                <Icon className={cn("h-3.5 w-3.5", colors[i % colors.length])} />
+                {b}
+              </span>
+            );
+          })}
+          <Editable id="booking.badges" json buttonOnly label="Trust badges (list)" />
         </div>
       </div>
     </section>
@@ -261,12 +242,17 @@ function Step1Purpose({
   purpose: string;
   setPurpose: (p: string) => void;
 }) {
+  const { tj } = useContent();
+  const purposes = tj<Purpose[]>("booking.purposes");
   return (
     <div>
-      <h3 className="mb-1 text-lg font-bold">What would you like to discuss?</h3>
+      <h3 className="mb-1 text-lg font-bold"><Editable id="booking.step1Title" /></h3>
       <p className="mb-5 text-sm text-muted-foreground">
-        Choose the type of call that fits your needs.
+        <Editable id="booking.step1Sub" />
       </p>
+      <div className="mb-2">
+        <Editable id="booking.purposes" json buttonOnly label="Call purposes (list)" />
+      </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {purposes.map((p) => (
           <button
@@ -308,11 +294,14 @@ function Step2DateTime({
   setSelectedTime: (t: string) => void;
   onBack: () => void;
 }) {
+  const { t, tj } = useContent();
+  const timeSlots = tj<string[]>("booking.timeSlots");
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return (
     <div>
-      <h3 className="mb-1 text-lg font-bold">Pick a date & time</h3>
+      <h3 className="mb-1 text-lg font-bold"><Editable id="booking.step2Title" /></h3>
       <p className="mb-5 text-sm text-muted-foreground">
-        All times shown in your local timezone ({Intl.DateTimeFormat().resolvedOptions().timeZone}).
+        <Editable id="booking.step2Sub" /> ({tz}).
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -320,7 +309,7 @@ function Step2DateTime({
         <div>
           <Label className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
             <Calendar className="h-3.5 w-3.5 text-sky-500" />
-            Select Date
+            <Editable id="booking.selectDate" />
           </Label>
           <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-7">
             {availableDates.map((d) => (
@@ -345,7 +334,7 @@ function Step2DateTime({
             ))}
           </div>
           <p className="mt-2 text-[11px] text-muted-foreground">
-            Fridays excluded (weekend in Pakistan). Times in PKT (UTC+5).
+            <Editable id="booking.fridayNote" />
           </p>
         </div>
 
@@ -353,7 +342,7 @@ function Step2DateTime({
         <div>
           <Label className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
             <Clock className="h-3.5 w-3.5 text-pink-500" />
-            Select Time
+            <Editable id="booking.selectTime" />
           </Label>
           {selectedDate ? (
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -374,7 +363,7 @@ function Step2DateTime({
             </div>
           ) : (
             <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-sky-500/20 p-4 text-center text-sm text-muted-foreground">
-              Select a date first
+              <Editable id="booking.dateFirst" />
             </div>
           )}
         </div>
@@ -383,7 +372,7 @@ function Step2DateTime({
       <div className="mt-6 flex justify-between">
         <Button variant="ghost" onClick={onBack} className="rounded-full">
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back
+          <Editable id="booking.backBtn" />
         </Button>
       </div>
     </div>
@@ -409,6 +398,10 @@ function Step3Details({
   onSubmit: () => void;
   loading: boolean;
 }) {
+  const { t, tj } = useContent();
+  const purposesMap: Record<string, string> = Object.fromEntries(
+    tj<Purpose[]>("booking.purposes").map((p) => [p.id, p.label])
+  );
   const dateLabel = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -417,9 +410,9 @@ function Step3Details({
 
   return (
     <div>
-      <h3 className="mb-1 text-lg font-bold">Your details</h3>
+      <h3 className="mb-1 text-lg font-bold"><Editable id="booking.step3Title" /></h3>
       <p className="mb-5 text-sm text-muted-foreground">
-        Confirm your booking and I&apos;ll send a calendar invite.
+        <Editable id="booking.step3Sub" />
       </p>
 
       {/* Summary card */}
@@ -438,38 +431,38 @@ function Step3Details({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Name" required>
+        <Field labelId="booking.fName" required>
           <div className="relative">
             <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={form.name}
               onChange={(e) => set("name")(e.target.value)}
-              placeholder="Your Name"
+              placeholder={t("booking.pName")}
               className="rounded-xl pl-9"
             />
           </div>
         </Field>
-        <Field label="Email" required>
+        <Field labelId="booking.fEmail" required>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="email"
               value={form.email}
               onChange={(e) => set("email")(e.target.value)}
-              placeholder="you@example.com"
+              placeholder={t("booking.pEmail")}
               className="rounded-xl pl-9"
             />
           </div>
         </Field>
       </div>
 
-      <Field label="Notes (optional)" className="mt-4">
+      <Field labelId="booking.fNotes" className="mt-4">
         <div className="relative">
           <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Textarea
             value={form.notes}
             onChange={(e) => set("notes")(e.target.value)}
-            placeholder="Anything you'd like me to know before the call?"
+            placeholder={t("booking.pNotes")}
             className="min-h-[80px] rounded-xl pl-9 resize-none"
           />
         </div>
@@ -478,7 +471,7 @@ function Step3Details({
       <div className="mt-6 flex justify-between">
         <Button variant="ghost" onClick={onBack} className="rounded-full">
           <ChevronLeft className="mr-1 h-4 w-4" />
-          Back
+          <Editable id="booking.backBtn" />
         </Button>
         <Button
           onClick={onSubmit}
@@ -488,12 +481,12 @@ function Step3Details({
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Booking...
+              <Editable id="booking.bookingNow" />
             </>
           ) : (
             <>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Confirm Booking
+              <Editable id="booking.confirmBtn" />
             </>
           )}
         </Button>
@@ -517,6 +510,10 @@ function SuccessView({
   name: string;
   email: string;
 }) {
+  const { t, tj } = useContent();
+  const purposesMap: Record<string, string> = Object.fromEntries(
+    tj<Purpose[]>("booking.purposes").map((p) => [p.id, p.label])
+  );
   const dateLabel = new Date(date + "T00:00:00").toLocaleDateString("en-US", {
     weekday: "long",
     month: "long",
@@ -542,11 +539,13 @@ function SuccessView({
         <CheckCircle2 className="h-8 w-8 text-green-500" />
       </div>
       <div>
-        <h3 className="text-xl font-bold text-foreground">Booking Request Sent! 🎉</h3>
+        <h3 className="text-xl font-bold text-foreground"><Editable id="booking.successTitle" /></h3>
         <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-          Your <strong>{purposeLabel}</strong> call for{" "}
-          <strong>{dateLabel}</strong> at <strong>{time}</strong> has been requested.
-          I&apos;ll send a calendar invite to your email within a few hours to confirm.
+          <Editable id="booking.successPre" /> <strong>{purposeLabel}</strong>{" "}
+          <Editable id="booking.successMid1" />{" "}
+          <strong>{dateLabel}</strong> <Editable id="booking.successMid2" /> <strong>{time}</strong>{" "}
+          <Editable id="booking.successPost" />{" "}
+          <Editable id="booking.successSub" />
         </p>
       </div>
 
@@ -558,20 +557,20 @@ function SuccessView({
           className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
         >
           <CalendarPlus className="h-4 w-4" />
-          Add to Calendar
+          <Editable id="booking.addCalendar" />
         </a>
         <Button
           onClick={onReset}
           variant="outline"
           className="rounded-full border-sky-500/30"
         >
-          Book another call
+          <Editable id="booking.bookAnother" />
         </Button>
       </div>
 
       <div className="mt-2 flex items-center gap-2 rounded-full border border-sky-500/20 bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
         <Mail className="h-3.5 w-3.5 text-sky-500" />
-        {developer.email}
+        <Editable id="brand.email" />
       </div>
     </motion.div>
   );
@@ -579,11 +578,13 @@ function SuccessView({
 
 function Field({
   label,
+  labelId,
   required,
   className,
   children,
 }: {
-  label: string;
+  label?: string;
+  labelId?: string;
   required?: boolean;
   className?: string;
   children: React.ReactNode;
@@ -591,7 +592,7 @@ function Field({
   return (
     <div className={cn("space-y-1.5", className)}>
       <Label className="text-xs font-semibold">
-        {label}
+        {labelId ? <Editable id={labelId} /> : label}
         {required && <span className="ml-1 text-pink-500">*</span>}
       </Label>
       {children}

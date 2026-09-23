@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
-import { experiences } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -41,17 +41,28 @@ const colorMap: Record<
   },
 };
 
+interface ExperienceEntry {
+  role: string;
+  company: string;
+  location: string;
+  period: string;
+  type: string;
+  description: string;
+  achievements: string[];
+  tech: string[];
+  color: string;
+  current: boolean;
+}
+
 export function Experience() {
+  const { tj } = useContent();
+  const experiences = tj<ExperienceEntry[]>("experience.items");
   return (
     <section id="experience" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-5xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="📈"
-          title="Career"
-          highlight="Timeline"
-          subtitle="My professional journey building products, leading teams, and growing as a developer."
-        />
+        <SectionHeading ek="experience" />
 
+        <Editable id="experience.items" json label="Timeline entries" />
         {/* Timeline */}
         <div className="relative mt-16">
           {/* Vertical line */}
@@ -67,7 +78,7 @@ export function Experience() {
         {/* CTA */}
         <div className="mt-14 text-center">
           <p className="text-sm text-muted-foreground">
-            Want to know more about my journey?{" "}
+            <Editable id="experience.ctaText" />{" "}
             <button
               onClick={() =>
                 document
@@ -76,7 +87,7 @@ export function Experience() {
               }
               className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
             >
-              Let&apos;s connect →
+              <Editable id="experience.ctaLink" />
             </button>
           </p>
         </div>
@@ -89,7 +100,7 @@ function TimelineItem({
   exp,
   index,
 }: {
-  exp: (typeof experiences)[number];
+  exp: ExperienceEntry;
   index: number;
 }) {
   const colors = colorMap[exp.color];

@@ -30,66 +30,62 @@ import {
 import { toast } from "sonner";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
-import { developer, socials } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function Contact() {
+  const { t, tj } = useContent();
+  const socials = tj<Record<string, string>>("socials.links");
   return (
     <section id="contact" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="💬"
-          title="Let's Work"
-          highlight="Together"
-          subtitle="Have a project in mind? Let's discuss how I can help bring your ideas to life."
-        />
+        <SectionHeading ek="contact" />
 
         <div className="mt-14 grid gap-6 md:gap-8 lg:grid-cols-5">
           {/* Contact info */}
           <Reveal direction="right" className="lg:col-span-2">
             <div className="glass rounded-3xl border border-sky-500/15 p-6 shadow-soft sm:p-8">
               <div className="mb-3 flex flex-wrap items-center gap-3">
-                <h3 className="text-2xl font-bold">Get in Touch</h3>
+                <Editable id="contact.title2" as="h3" className="text-2xl font-bold" />
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-600 dark:text-green-400">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                   </span>
-                  Avg. reply: 2-4 hrs
+                  <Editable id="contact.reply" />
                 </span>
               </div>
               <p className="mb-6 text-sm text-muted-foreground">
-                I usually respond within a few hours. For urgent matters, use
-                WhatsApp for instant communication.
+                <Editable id="contact.infoNote" />
               </p>
 
               <div className="space-y-4">
                 <ContactItem
                   icon={<Mail className="h-5 w-5" />}
                   label="Email"
-                  value={developer.email}
+                  value={t("brand.email")}
                   href={socials.email}
                   color="sky"
                 />
                 <ContactItem
                   icon={<Phone className="h-5 w-5" />}
                   label="Phone / WhatsApp"
-                  value={developer.phone}
+                  value={t("brand.phone")}
                   href={socials.whatsapp}
                   color="pink"
                 />
                 <ContactItem
                   icon={<MapPin className="h-5 w-5" />}
                   label="Location"
-                  value={developer.location}
+                  value={t("brand.location")}
                   href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                    developer.location
+                    t("brand.location")
                   )}`}
                   color="wood"
                 />
               </div>
 
               <div className="mt-6 border-t border-sky-500/10 pt-6">
-                <p className="mb-3 text-sm font-semibold">Follow Me</p>
+                <p className="mb-3 text-sm font-semibold"><Editable id="contact.follow" /></p>
                 <div className="flex flex-wrap gap-2">
                   <SocialButton href={socials.github} label="GitHub" />
                   <SocialButton href={socials.linkedin} label="LinkedIn" />
@@ -105,7 +101,7 @@ export function Contact() {
                 className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-glow-sky"
               >
                 <MessageCircle className="h-5 w-5" />
-                Chat on WhatsApp
+                <Editable id="contact.whatsapp" />
               </a>
             </div>
           </Reveal>
@@ -120,14 +116,14 @@ export function Contact() {
                     className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
                   >
                     <Briefcase className="mr-1.5 h-4 w-4" />
-                    Hire Me
+                    <Editable id="contact.tabHire" />
                   </TabsTrigger>
                   <TabsTrigger
                     value="message"
                     className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
                   >
                     <Mail className="mr-1.5 h-4 w-4" />
-                    Send a Message
+                    <Editable id="contact.tabMessage" />
                   </TabsTrigger>
                 </TabsList>
 
@@ -202,6 +198,10 @@ function SocialButton({ href, label }: { href: string; label: string }) {
 }
 
 function HireForm() {
+  const { t, tj } = useContent();
+  const projectTypes = tj<{ value: string; label: string }[]>("contact.projectTypes");
+  const budgetOptions = tj<{ value: string; label: string }[]>("contact.budgetOptions");
+  const timelineOptions = tj<{ value: string; label: string }[]>("contact.timelineOptions");
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -219,7 +219,7 @@ function HireForm() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.projectType || !form.description) {
-      toast.error("Please fill in all required fields.");
+      toast.error(t("contact.fillError"));
       return;
     }
     setLoading(true);
@@ -231,9 +231,8 @@ function HireForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
-      toast.success("🎉 Request submitted!", {
-        description:
-          "Thanks for reaching out. I'll review your project and respond within 24 hours.",
+      toast.success(t("contact.hireOk"), {
+        description: t("contact.hireOkSub"),
       });
       setForm({
         name: "",
@@ -245,8 +244,8 @@ function HireForm() {
         description: "",
       });
     } catch (err: any) {
-      toast.error("Something went wrong", {
-        description: err?.message || "Please try again later.",
+      toast.error(t("contact.submitFail"), {
+        description: err?.message || t("contact.submitFailSub"),
       });
     } finally {
       setLoading(false);
@@ -256,89 +255,80 @@ function HireForm() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Name" required>
+        <Field labelId="contact.fName" required>
           <Input
             value={form.name}
             onChange={(e) => set("name")(e.target.value)}
-            placeholder="Your Name"
+            placeholder={t("contact.pName")}
             className="rounded-xl"
           />
         </Field>
-        <Field label="Email" required>
+        <Field labelId="contact.fEmail" required>
           <Input
             type="email"
             value={form.email}
             onChange={(e) => set("email")(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("contact.pEmail")}
             className="rounded-xl"
           />
         </Field>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Company (optional)">
+        <Field labelId="contact.fCompany">
           <Input
             value={form.company}
             onChange={(e) => set("company")(e.target.value)}
-            placeholder="Company name"
+            placeholder={t("contact.pCompany")}
             className="rounded-xl"
           />
         </Field>
-        <Field label="Project Type" required>
+        <Field labelId="contact.fProjectType" required>
           <Select value={form.projectType} onValueChange={set("projectType")}>
-            <SelectTrigger aria-label="Project type" className="rounded-xl">
-              <SelectValue placeholder="Select type" />
+            <SelectTrigger aria-label={t("contact.fProjectType")} className="rounded-xl">
+              <SelectValue placeholder={t("contact.pProjectType")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Web App">Web Application</SelectItem>
-              <SelectItem value="SaaS Product">SaaS Product</SelectItem>
-              <SelectItem value="E-Commerce">E-Commerce</SelectItem>
-              <SelectItem value="Mobile App">Mobile App</SelectItem>
-              <SelectItem value="API / Backend">API / Backend</SelectItem>
-              <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
-              <SelectItem value="Other">Other</SelectItem>
+              {projectTypes.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Budget Range">
+        <Field labelId="contact.fBudget">
           <Select value={form.budget} onValueChange={set("budget")}>
-            <SelectTrigger aria-label="Budget range" className="rounded-xl">
-              <SelectValue placeholder="Select budget" />
+            <SelectTrigger aria-label={t("contact.fBudget")} className="rounded-xl">
+              <SelectValue placeholder={t("contact.pBudget")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="< $500">Less than $500</SelectItem>
-              <SelectItem value="$500 - $1,500">$500 – $1,500</SelectItem>
-              <SelectItem value="$1,500 - $5,000">$1,500 – $5,000</SelectItem>
-              <SelectItem value="$5,000 - $15,000">$5,000 – $15,000</SelectItem>
-              <SelectItem value="$15,000+">$15,000+</SelectItem>
-              <SelectItem value="Let's discuss">Let&apos;s discuss</SelectItem>
+              {budgetOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>
-        <Field label="Timeline">
+        <Field labelId="contact.fTimeline">
           <Select value={form.timeline} onValueChange={set("timeline")}>
-            <SelectTrigger aria-label="Timeline" className="rounded-xl">
-              <SelectValue placeholder="Select timeline" />
+            <SelectTrigger aria-label={t("contact.fTimeline")} className="rounded-xl">
+              <SelectValue placeholder={t("contact.pTimeline")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ASAP">ASAP (rush)</SelectItem>
-              <SelectItem value="1-2 weeks">1–2 weeks</SelectItem>
-              <SelectItem value="1 month">~1 month</SelectItem>
-              <SelectItem value="2-3 months">2–3 months</SelectItem>
-              <SelectItem value="Flexible">Flexible</SelectItem>
+              {timelineOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </Field>
       </div>
 
-      <Field label="Project Description" required>
+      <Field labelId="contact.fDesc" required>
         <Textarea
           value={form.description}
           onChange={(e) => set("description")(e.target.value)}
-          placeholder="Tell me about your project, goals, and any specific requirements..."
+          placeholder={t("contact.pDesc")}
           className="min-h-[120px] rounded-xl resize-none"
         />
       </Field>
@@ -351,12 +341,12 @@ function HireForm() {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Submitting...
+            <Editable id="contact.submitting" />
           </>
         ) : (
           <>
             <Send className="mr-2 h-4 w-4" />
-            Submit Hiring Request
+            <Editable id="contact.submitHire" />
           </>
         )}
       </Button>
@@ -365,6 +355,7 @@ function HireForm() {
 }
 
 function MessageForm() {
+  const { t } = useContent();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -380,7 +371,7 @@ function MessageForm() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.subject || !form.message) {
-      toast.error("Please fill in all required fields.");
+      toast.error(t("contact.fillError"));
       return;
     }
     setLoading(true);
@@ -392,13 +383,13 @@ function MessageForm() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
-      toast.success("✉️ Message sent!", {
-        description: "I'll get back to you soon. Thanks for reaching out!",
+      toast.success(t("contact.msgOk"), {
+        description: t("contact.msgOkSub"),
       });
       setForm({ name: "", email: "", subject: "", message: "", website: "" });
     } catch (err: any) {
-      toast.error("Something went wrong", {
-        description: err?.message || "Please try again later.",
+      toast.error(t("contact.submitFail"), {
+        description: err?.message || t("contact.submitFailSub"),
       });
     } finally {
       setLoading(false);
@@ -408,48 +399,48 @@ function MessageForm() {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Name" required>
+        <Field labelId="contact.fName" required>
           <Input
             value={form.name}
             onChange={(e) => set("name")(e.target.value)}
-            placeholder="Your Name"
+            placeholder={t("contact.pName")}
             className="rounded-xl"
           />
         </Field>
-        <Field label="Email" required>
+        <Field labelId="contact.fEmail" required>
           <Input
             type="email"
             value={form.email}
             onChange={(e) => set("email")(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t("contact.pEmail")}
             className="rounded-xl"
           />
         </Field>
       </div>
 
-      <Field label="Subject" required>
+      <Field labelId="contact.fSubject" required>
         <Input
           value={form.subject}
           onChange={(e) => set("subject")(e.target.value)}
-          placeholder="What's this about?"
+          placeholder={t("contact.pSubject")}
           className="rounded-xl"
         />
       </Field>
 
-      <Field label="Message" required>
+      <Field labelId="contact.fMessage" required>
         <Textarea
           value={form.message}
           onChange={(e) => set("message")(e.target.value)}
-          placeholder="Your message..."
+          placeholder={t("contact.pMessage")}
           className="min-h-[140px] rounded-xl resize-none"
         />
       </Field>
 
-      <Field label="Website (optional)">
+      <Field labelId="contact.fWebsite">
         <Input
           value={form.website}
           onChange={(e) => set("website")(e.target.value)}
-          placeholder="https://yoursite.com"
+          placeholder={t("contact.pWebsite")}
           className="rounded-xl"
         />
       </Field>
@@ -462,12 +453,12 @@ function MessageForm() {
         {loading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Sending...
+            <Editable id="contact.sending" />
           </>
         ) : (
           <>
             <Send className="mr-2 h-4 w-4" />
-            Send Message
+            <Editable id="contact.submitMessage" />
           </>
         )}
       </Button>
@@ -477,17 +468,19 @@ function MessageForm() {
 
 function Field({
   label,
+  labelId,
   required,
   children,
 }: {
-  label: string;
+  label?: string;
+  labelId?: string;
   required?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs font-semibold">
-        {label}
+        {labelId ? <Editable id={labelId} /> : label}
         {required && <span className="ml-1 text-pink-500">*</span>}
       </Label>
       {children}

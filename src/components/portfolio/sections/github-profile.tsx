@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
-import { developer, socials } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 interface Profile {
   login: string;
@@ -30,23 +30,24 @@ interface Profile {
   created_at: string;
 }
 
-const fallbackProfile: Profile = {
-  login: developer.githubUsername,
-  name: developer.name,
-  avatar_url: "/assets/dev-photo.jpg",
-  html_url: socials.github,
-  bio: "Full-Stack Developer building production-grade SaaS applications with modern web technologies.",
-  followers: 0,
-  following: 0,
-  public_repos: 0,
-  totalStars: 0,
-  company: "Freelance",
-  blog: developer.website,
-  location: developer.location,
-  created_at: "2024-01-01T00:00:00Z",
-};
-
 export function GithubProfile() {
+  const { t } = useContent();
+  const fallbackProfile: Profile = {
+    login: t("brand.githubUsername"),
+    name: t("brand.name"),
+    avatar_url: t("brand.avatar"),
+    html_url: t("socials.github"),
+    bio: t("github.fallbackBio"),
+    followers: 0,
+    following: 0,
+    public_repos: 0,
+    totalStars: 0,
+    company: t("github.fallbackCompany"),
+    blog: t("brand.website"),
+    location: t("brand.location"),
+    created_at: "2024-01-01T00:00:00Z",
+  };
+
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -106,17 +107,12 @@ export function GithubProfile() {
   return (
     <section id="github" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="🐙"
-          title="GitHub"
-          highlight="Profile"
-          subtitle="My open-source contributions and development activity, live from GitHub."
-        />
+        <SectionHeading ek="github" />
 
         <Reveal className="mt-14 mx-auto max-w-4xl">
           {error && (
             <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-center text-sm text-amber-700 dark:text-amber-300">
-              GitHub data could not be loaded. Showing fallback information.
+              <Editable id="github.loadError" />
             </div>
           )}
           <div className="overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 via-white to-pink-500/5 shadow-card-hover dark:from-sky-500/5 dark:via-slate-900 dark:to-pink-500/5">
@@ -137,7 +133,7 @@ export function GithubProfile() {
                   ) : (
                     <img
                       src={profile?.avatar_url}
-                      alt={developer.name}
+                      alt={t("brand.name")}
                       className="h-full w-full object-cover"
                       loading="lazy"
                     />
@@ -147,15 +143,15 @@ export function GithubProfile() {
                 <div className="flex-1 pb-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-2xl font-bold">
-                      {profile?.name || developer.name}
+                      {profile?.name || t("brand.name")}
                     </h3>
                     <a
-                      href={socials.github}
+                      href={t("socials.github")}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground hover:bg-sky-500/10 hover:text-sky-600"
                     >
-                      @{profile?.login || developer.githubUsername}
+                      @{profile?.login || t("brand.githubUsername")}
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   </div>
@@ -165,13 +161,13 @@ export function GithubProfile() {
                 </div>
 
                 <a
-                  href={socials.github}
+                  href={t("socials.github")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-shadow hover:shadow-glow-pink"
                 >
                   <Github className="h-4 w-4" />
-                  Follow
+                  <Editable id="github.followBtn" />
                 </a>
               </div>
 
@@ -180,22 +176,22 @@ export function GithubProfile() {
                 <StatBox
                   icon={<FolderGit2 className="h-5 w-5" />}
                   value={profile?.public_repos ?? 0}
-                  label="Repositories"
+                  label={t("github.statRepos")}
                 />
                 <StatBox
                   icon={<Star className="h-5 w-5" />}
                   value={profile?.totalStars ?? 0}
-                  label="Total Stars"
+                  label={t("github.statStars")}
                 />
                 <StatBox
                   icon={<Users className="h-5 w-5" />}
                   value={profile?.followers ?? 0}
-                  label="Followers"
+                  label={t("github.statFollowers")}
                 />
                 <StatBox
                   icon={<BookMarked className="h-5 w-5" />}
                   value={profile?.following ?? 0}
-                  label="Following"
+                  label={t("github.statFollowing")}
                 />
               </div>
 
@@ -223,7 +219,7 @@ export function GithubProfile() {
                 )}
                 {profile?.created_at && (
                   <span className="flex items-center gap-1">
-                    🗓️ Joined GitHub{" "}
+                    🗓️ <Editable id="github.joinedWord" />{" "}
                     {new Date(profile.created_at).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "short",

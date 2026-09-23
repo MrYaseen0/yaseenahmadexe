@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
-import { developer } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
 interface Article {
@@ -71,6 +71,7 @@ const colorMap: Record<string, { bg: string; ring: string; text: string; gradien
 };
 
 export function Blog() {
+  const { t } = useContent();
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
@@ -127,12 +128,7 @@ export function Blog() {
   return (
     <section id="blog" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="📝"
-          title="Latest"
-          highlight="Articles"
-          subtitle="Thoughts on web development, architecture, and the freelance journey — from my keyboard to your screen."
-        />
+        <SectionHeading ek="blog" />
 
         {loading ? (
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -145,7 +141,7 @@ export function Blog() {
           </div>
         ) : articles.length === 0 ? (
           <div className="mt-12 text-center text-muted-foreground">
-            No articles published yet. Check back soon!
+            <Editable id="blog.empty" />
           </div>
         ) : (
           <>
@@ -175,14 +171,14 @@ export function Blog() {
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search articles..."
+                  placeholder={t("blog.searchPlaceholder")}
                   className="rounded-full pl-9 pr-4"
                 />
                 {query && (
                   <button
                     onClick={() => setQuery("")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
-                    aria-label="Clear search"
+                    aria-label={t("a11y.clearSearch")}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -193,10 +189,10 @@ export function Blog() {
             {/* Results count when filtering */}
             {isFiltering && (
               <div className="mt-4 text-center text-xs text-muted-foreground">
-                Showing {filtered.length} of {articles.length} articles
+                {t("blog.showingPre")} {filtered.length} {t("blog.showingMid")} {articles.length} {t("blog.showingPost")}
                 {activeTag !== "All" && (
                   <>
-                    {" "}in <span className="font-semibold text-sky-600 dark:text-sky-400">{activeTag}</span>
+                    {" "}{t("blog.inWord")} <span className="font-semibold text-sky-600 dark:text-sky-400">{activeTag}</span>
                   </>
                 )}
               </div>
@@ -205,7 +201,7 @@ export function Blog() {
             {filtered.length === 0 ? (
               <div className="mt-12 flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
                 <Search className="h-10 w-10 text-muted-foreground/40" />
-                <p className="text-sm">No articles match your search.</p>
+                <p className="text-sm"><Editable id="blog.noMatch" /></p>
                 <Button
                   variant="outline"
                   size="sm"
@@ -215,7 +211,7 @@ export function Blog() {
                     setActiveTag("All");
                   }}
                 >
-                  Clear filters
+                  <Editable id="blog.clearFilters" />
                 </Button>
               </div>
             ) : (
@@ -251,7 +247,7 @@ export function Blog() {
                 {/* RSS / subscribe hint */}
                 <div className="mt-10 flex flex-col items-center gap-3 text-center">
                   <p className="text-sm text-muted-foreground">
-                    Want to read more?{" "}
+                    <Editable id="blog.moreText" />{" "}
                     <button
                       onClick={() =>
                         document
@@ -260,7 +256,7 @@ export function Blog() {
                       }
                       className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
                     >
-                      Let&apos;s connect →
+                      <Editable id="blog.connectBtn" />
                     </button>
                   </p>
                   <a
@@ -268,10 +264,10 @@ export function Blog() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/5 px-4 py-2 text-xs font-medium text-amber-600 transition-all hover:border-amber-500/50 hover:bg-amber-500/10 dark:text-amber-400"
-                    aria-label="Subscribe to RSS feed"
+                    aria-label={t("a11y.subscribeRss")}
                   >
                     <Rss className="h-3.5 w-3.5" />
-                    RSS Feed
+                    <Editable id="blog.rssFeed" />
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
@@ -301,6 +297,7 @@ function FeaturedArticleCard({
   index: number;
   onRead: () => void;
 }) {
+  const { t } = useContent();
   const colors = colorMap[article.coverColor] || colorMap.sky;
   const tags = article.tags.split(",").filter(Boolean);
   const date = new Date(article.createdAt).toLocaleDateString("en-US", {
@@ -324,7 +321,7 @@ function FeaturedArticleCard({
     >
       {/* Featured badge */}
       <Badge className="absolute right-4 top-4 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white">
-        ★ Featured
+        ★ <Editable id="blog.featuredBadge" />
       </Badge>
 
       {/* Gradient header bar */}
@@ -362,10 +359,10 @@ function FeaturedArticleCard({
         </span>
         <span className="flex items-center gap-1.5">
           <Clock className="h-3.5 w-3.5" />
-          {article.readTime} min read
+          {article.readTime} {t("blog.minRead")}
         </span>
         <span className={cn("flex items-center gap-1 font-semibold", colors.text)}>
-          Read
+          <Editable id="blog.readBtn" />
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
         </span>
       </div>
@@ -448,6 +445,7 @@ function ArticleModal({
   onClose: () => void;
   onSelectArticle: (slug: string) => void;
 }) {
+  const { t } = useContent();
   const [article, setArticle] = useState<FullArticle | null>(null);
   const [loading, setLoading] = useState(false);
   const [readingProgress, setReadingProgress] = useState(0);
@@ -542,11 +540,11 @@ function ArticleModal({
                 </span>
                 <span className="flex items-center gap-1">
                   <Clock className="h-3.5 w-3.5" />
-                  {article.readTime} min read
+                  {article.readTime} {t("blog.minRead")}
                 </span>
                 <span className="flex items-center gap-1">
                   <span className="text-base">✍️</span>
-                  {developer.name}
+                  {t("brand.name")}
                 </span>
               </div>
             )}
@@ -568,7 +566,7 @@ function ArticleModal({
             {loading ? (
               <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
                 <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
-                <p className="text-sm">Loading article...</p>
+                <p className="text-sm"><Editable id="blog.loadingArticle" /></p>
               </div>
             ) : article ? (
               <>
@@ -589,7 +587,7 @@ function ArticleModal({
                 <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-sky-500/10 pt-4">
                   <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                     <Tag className="h-3.5 w-3.5" />
-                    Tags:
+                    <Editable id="blog.tagsWord" />
                   </span>
                   {article.tags.split(",").filter(Boolean).map((t) => (
                     <Badge
@@ -606,14 +604,14 @@ function ArticleModal({
                 <div className="mt-6 flex items-center gap-3 rounded-xl border border-sky-500/15 bg-gradient-to-r from-sky-500/5 to-pink-500/5 p-4">
                   <img
                     src="/assets/dev-avatar.png"
-                    alt={developer.name}
+                    alt={t("brand.name")}
                     className="h-12 w-12 rounded-full border-2 border-white shadow-soft"
                     loading="lazy"
                   />
                   <div>
-                    <div className="text-sm font-bold">{developer.name}</div>
+                    <div className="text-sm font-bold">{t("brand.name")}</div>
                     <div className="text-xs text-muted-foreground">
-                      {developer.role} · {developer.location}
+                      {t("brand.role")} · {t("brand.location")}
                     </div>
                   </div>
                   <Button
@@ -628,14 +626,14 @@ function ArticleModal({
                     }}
                     className="ml-auto rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
                   >
-                    Hire Me
+                    <Editable id="blog.hireBtn" />
                   </Button>
                 </div>
 
                 {/* Social sharing */}
                 <div className="mt-4 flex items-center gap-2 border-t border-sky-500/10 pt-4">
                   <span className="text-xs font-semibold text-muted-foreground">
-                    Share:
+                    <Editable id="blog.shareWord" />
                   </span>
                   <ShareButton
                     label="Twitter"
@@ -675,12 +673,12 @@ function ArticleModal({
                     {shareCopied ? (
                       <>
                         <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                        Copied!
+                        {t("blog.copied")}
                       </>
                     ) : (
                       <>
                         <Link2 className="h-3.5 w-3.5" />
-                        Copy link
+                        {t("blog.copyLink")}
                       </>
                     )}
                   </button>
@@ -701,7 +699,7 @@ function ArticleModal({
                     <div className="mt-6 border-t border-sky-500/10 pt-5">
                       <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
                         <BookOpen className="h-4 w-4 text-sky-500" />
-                        Related Articles
+                        <Editable id="blog.relatedWord" />
                       </h4>
                       <div className="space-y-2">
                         {related.map((r) => {
@@ -722,7 +720,7 @@ function ArticleModal({
                                 </div>
                                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                                   <Clock className="h-3 w-3" />
-                                  {r.readTime} min read
+                                  {r.readTime} {t("blog.minRead")}
                                 </div>
                               </div>
                               <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-sky-500" />
@@ -737,7 +735,7 @@ function ArticleModal({
             ) : (
               <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
                 <BookOpen className="h-8 w-8 text-muted-foreground/50" />
-                <p className="text-sm">Article not found.</p>
+                <p className="text-sm"><Editable id="blog.notFound" /></p>
               </div>
             )}
           </div>
@@ -811,7 +809,7 @@ function TableOfContents({ content }: { content: string }) {
       >
         <span className="flex items-center gap-2 text-sm font-bold text-foreground">
           <List className="h-4 w-4 text-sky-500" />
-          Table of Contents
+          <Editable id="blog.tocTitle" />
           <Badge variant="secondary" className="rounded-full border border-pink-500/20 bg-pink-500/10 px-1.5 py-0 text-[10px] text-pink-700 dark:text-pink-300">
             {headings.length}
           </Badge>

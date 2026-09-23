@@ -5,65 +5,19 @@ import { Button } from "@/components/ui/button";
 import { SectionHeading } from "../section-heading";
 import { Reveal, Stagger } from "../reveal";
 import { cn } from "@/lib/utils";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
-const plans = [
-  {
-    name: "Starter",
-    emoji: "🌱",
-    price: "$499",
-    period: "/ project",
-    description: "Perfect for small websites & landing pages.",
-    features: [
-      "1-3 page website",
-      "Responsive design",
-      "Basic SEO setup",
-      "Contact form",
-      "1 round of revisions",
-      "7-day delivery",
-    ],
-    color: "sky",
-    popular: false,
-  },
-  {
-    name: "Professional",
-    emoji: "🚀",
-    price: "$1,499",
-    period: "/ project",
-    description: "Full-featured web app with backend & database.",
-    features: [
-      "Up to 10 pages / screens",
-      "Custom backend & API",
-      "Database design",
-      "Authentication system",
-      "Admin dashboard",
-      "3 rounds of revisions",
-      "30 days free support",
-      "14-day delivery",
-    ],
-    color: "pink",
-    popular: true,
-  },
-  {
-    name: "Enterprise",
-    emoji: "🏢",
-    price: "Custom",
-    period: "",
-    description: "SaaS products with scaling & ongoing support.",
-    features: [
-      "Unlimited pages / features",
-      "Microservices architecture",
-      "Payment integration (Stripe)",
-      "Real-time features",
-      "CI/CD pipeline",
-      "Unlimited revisions",
-      "90 days free support",
-      "Dedicated support channel",
-      "Flexible timeline",
-    ],
-    color: "wood",
-    popular: false,
-  },
-];
+interface Plan {
+  name: string;
+  emoji: string;
+  price: string;
+  period: string;
+  description: string;
+  features: string[];
+  color: string;
+  popular: boolean;
+}
+
 
 const colorMap: Record<string, { border: string; bg: string; btn: string; check: string }> = {
   sky: {
@@ -87,19 +41,17 @@ const colorMap: Record<string, { border: string; bg: string; btn: string; check:
 };
 
 export function Pricing() {
+  const { tj } = useContent();
+  const plans = tj<Plan[]>("pricing.plans");
   const scrollToContact = () =>
     document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
 
   return (
     <section id="pricing" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="💎"
-          title="Pricing"
-          highlight="Plans"
-          subtitle="Transparent pricing for every stage of your project. Custom quotes available on request."
-        />
+        <SectionHeading ek="pricing" />
 
+        <Editable id="pricing.plans" json label="Pricing plans" />
         <Stagger className="mt-14 grid gap-6 lg:grid-cols-3">
           {plans.map((plan) => {
             const colors = colorMap[plan.color];
@@ -117,7 +69,7 @@ export function Pricing() {
                 {plan.popular && (
                   <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] font-bold text-white">
                     <Sparkles className="h-3 w-3" />
-                    POPULAR
+                    <Editable id="pricing.popular" />
                   </div>
                 )}
 
@@ -153,7 +105,7 @@ export function Pricing() {
                   )}
                   variant={plan.popular ? "default" : "outline"}
                 >
-                  Get Started
+                  <Editable id="pricing.getStarted" />
                 </Button>
               </Reveal>
             );
@@ -161,12 +113,12 @@ export function Pricing() {
         </Stagger>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
-          Need something different?{" "}
+          <Editable id="pricing.footText" />{" "}
           <button
             onClick={scrollToContact}
             className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
           >
-            Let&apos;s discuss your project →
+            <Editable id="pricing.footLink" />
           </button>
         </p>
       </div>

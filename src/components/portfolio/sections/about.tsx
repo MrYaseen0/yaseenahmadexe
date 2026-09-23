@@ -6,20 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
-import { developer } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
-const skillChips = developer.skills;
+
 
 export function About() {
+  const { t, tj } = useContent();
+  const skillChips = tj<string[]>("about.skills");
+  const chips = tj<string[]>("about.chips");
+  const infoCards = tj<{ label: string; value: string }[]>("about.infoCards");
   return (
     <section id="about" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="👋"
-          title="About"
-          highlight="Me"
-          subtitle="Get to know the developer behind the code."
-        />
+        <SectionHeading ek="about" />
 
         <div className="mt-14 grid items-center gap-8 md:gap-10 lg:grid-cols-2">
           {/* Left: photo + floating tags */}
@@ -36,7 +35,7 @@ export function About() {
               >
                 <img
                   src="/assets/dev-photo.jpg"
-                  alt={developer.name}
+                  alt={t("brand.name")}
                   className="aspect-[4/5] w-full object-cover"
                   loading="lazy"
                 />
@@ -50,62 +49,46 @@ export function About() {
                       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
                     </span>
                     <span className="text-sm font-bold text-foreground">
-                      {developer.name}
+                      <Editable id="brand.name" />
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {developer.role} · Software Engineering Student
+                    <Editable id="about.nameplateRole" />
                   </p>
                 </div>
               </motion.div>
 
               {/* Floating skill badges */}
-              <FloatingChip
-                className="-left-6 top-10"
-                delay={0.4}
-                color="sky"
-              >
-                ⚛️ React
-              </FloatingChip>
-              <FloatingChip
-                className="-right-6 top-1/3"
-                delay={0.6}
-                color="pink"
-              >
-                🚀 Next.js
-              </FloatingChip>
-              <FloatingChip
-                className="-left-4 bottom-24"
-                delay={0.8}
-                color="wood"
-              >
-                📘 TypeScript
-              </FloatingChip>
-              <FloatingChip
-                className="-right-4 bottom-12"
-                delay={1}
-                color="sky"
-              >
-                ⚡ Node.js
-              </FloatingChip>
+              <Editable id="about.chips" json label="Floating chips" />
+              {[
+                { className: "-left-6 top-10", delay: 0.4, color: "sky" },
+                { className: "-right-6 top-1/3", delay: 0.6, color: "pink" },
+                { className: "-left-4 bottom-24", delay: 0.8, color: "wood" },
+                { className: "-right-4 bottom-12", delay: 1, color: "sky" },
+              ].map((c, i) => (
+                <FloatingChip key={i} className={c.className} delay={c.delay} color={c.color as "sky" | "pink" | "wood"}>
+                  {chips[i] ?? ""}
+                </FloatingChip>
+              ))}
             </div>
           </Reveal>
 
           {/* Right: text + code card */}
           <Reveal direction="left" delay={0.1} className="space-y-6">
             <h3 className="text-2xl font-bold sm:text-3xl md:text-4xl">
-              Turning Ideas Into{" "}
-              <span className="text-gradient-sky-pink">Digital Reality</span>
+              <Editable id="about.h1a" />{" "}
+              <span className="text-gradient-sky-pink"><Editable id="about.h1b" /></span>
             </h3>
 
             <p className="text-base text-muted-foreground sm:text-lg">
-              {developer.aboutText}
+              <Editable id="brand.aboutText1" />
             </p>
             <p className="text-base text-muted-foreground sm:text-lg">
-              {developer.aboutText2}
+              <Editable id="brand.aboutText2" />
             </p>
 
             {/* Skill chips */}
+            <Editable id="about.skills" json label="Skill chips" />
             <div className="flex flex-wrap gap-2">
               {skillChips.map((s, i) => (
                 <motion.div
@@ -135,33 +118,32 @@ export function About() {
                 className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
               >
                 <Briefcase className="mr-2 h-4 w-4" />
-                View Experience
+                <Editable id="about.cta" />
               </Button>
             </div>
 
             {/* Info cards */}
+            <Editable id="about.infoCards" json label="Info cards" />
             <div className="grid gap-3 sm:grid-cols-3">
-              <InfoCard
-                icon={<MapPin className="h-4 w-4" />}
-                label="Location"
-                value="Peshawar, PK"
-              />
-              <InfoCard
-                icon={<GraduationCap className="h-4 w-4" />}
-                label="Education"
-                value="Software Eng."
-              />
-              <InfoCard
-                icon={<Heart className="h-4 w-4" />}
-                label="Status"
-                value="Available"
-              />
+              {[
+                { icon: <MapPin className="h-4 w-4" /> },
+                { icon: <GraduationCap className="h-4 w-4" /> },
+                { icon: <Heart className="h-4 w-4" /> },
+              ].map((c, i) => (
+                <InfoCard
+                  key={infoCards[i]?.label ?? i}
+                  icon={c.icon}
+                  label={infoCards[i]?.label ?? ""}
+                  value={infoCards[i]?.value ?? ""}
+                />
+              ))}
             </div>
           </Reveal>
         </div>
 
         {/* Code snippet card (full width below) */}
         <Reveal className="mt-14">
+          <Editable id="about.code" buttonOnly label="Code snippet" />
           <CodeCard />
         </Reveal>
       </div>
@@ -218,6 +200,8 @@ function InfoCard({
 }
 
 function CodeCard() {
+  const { t } = useContent();
+  const codeLines = t("about.code").split("\n");
   return (
     <motion.div
       whileHover={{ rotateX: 1, rotateY: -1 }}
@@ -233,16 +217,16 @@ function CodeCard() {
             <span className="h-3 w-3 rounded-full bg-green-400" />
           </div>
           <span className="ml-2 font-mono text-xs text-slate-300">
-            developer.tsx
+            <Editable id="about.codeFile" />
           </span>
         </div>
-        <span className="font-mono text-[11px] text-slate-400">TypeScript</span>
+        <span className="font-mono text-[11px] text-slate-400"><Editable id="about.codeLang" /></span>
       </div>
 
       {/* Code */}
       <pre className="overflow-x-auto p-5 text-sm leading-relaxed">
         <code className="font-mono">
-          {developer.codeSnippet.split("\n").map((line, i) => (
+          {codeLines.map((line, i) => (
             <div key={i} className="flex">
               <span className="mr-4 inline-block w-6 select-none text-right text-slate-600">
                 {i + 1}

@@ -11,13 +11,16 @@ import {
   ArrowUp,
   MapPin,
 } from "lucide-react";
-import { developer, socials, quickLinks } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
 
 export function Footer() {
+  const { t, tj } = useContent();
+  const socials = tj<Record<string, string>>("socials.links");
+  const quickLinks = tj<{ label: string; href: string }[]>("footer.quickLinks");
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
 
@@ -33,12 +36,12 @@ export function Footer() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      toast.success("Subscribed!", {
-        description: "Thanks for following my work. I'll keep you updated.",
+      toast.success(t("footer.subscribed"), {
+        description: t("footer.subscribedSub"),
       });
       setEmail("");
     } catch (err: any) {
-      toast.error("Subscription failed", { description: err?.message });
+      toast.error(t("footer.subscribedFail"), { description: err?.message || t("footer.subscribedFailSub") });
     } finally {
       setSubscribing(false);
     }
@@ -65,23 +68,22 @@ export function Footer() {
               <div className="h-12 w-12 overflow-hidden rounded-xl ring-2 ring-sky-500/30">
                 <img
                   src="/assets/logo.png"
-                  alt={`${developer.name} logo`}
+                  alt={`${t("brand.name")} logo`}
                   className="h-full w-full object-cover"
                 />
               </div>
               <div>
                 <div className="text-lg font-bold">
-                  {developer.firstName}
+                  <Editable id="brand.firstName" />
                   <span className="text-gradient-sky-pink">.</span>
                 </div>
                 <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                  Full-Stack Developer
+                  <Editable id="footer.brandTag" />
                 </div>
               </div>
             </div>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground">
-              {developer.role} building production-grade SaaS applications with
-              modern web technologies.
+              <Editable id="footer.tagline" />
             </p>
 
             {/* Newsletter */}
@@ -90,7 +92,7 @@ export function Footer() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your email for updates"
+                placeholder={t("footer.newsPlaceholder")}
                 className="rounded-full"
               />
               <Button
@@ -99,7 +101,7 @@ export function Footer() {
                 size="sm"
                 className="shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
               >
-                Subscribe
+                <Editable id="footer.newsButton" />
               </Button>
             </form>
           </motion.div>
@@ -112,9 +114,11 @@ export function Footer() {
             transition={{ delay: 0.1 }}
             className="lg:col-span-3"
           >
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground">
-              Quick Links
-            </h4>
+            <Editable
+              id="footer.linksTitle"
+              as="h4"
+              className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground"
+            />
             <ul className="grid grid-cols-2 gap-2 text-sm">
               {quickLinks.map((l) => (
                 <li key={l.label}>
@@ -137,9 +141,11 @@ export function Footer() {
             transition={{ delay: 0.2 }}
             className="lg:col-span-3"
           >
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground">
-              Contact
-            </h4>
+            <Editable
+              id="footer.contactTitle"
+              as="h4"
+              className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground"
+            />
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <Mail className="mt-0.5 h-4 w-4 shrink-0 text-pink-500" />
@@ -147,12 +153,12 @@ export function Footer() {
                   href={socials.email}
                   className="break-all hover:text-sky-600"
                 >
-                  {developer.email}
+                  <Editable id="brand.email" />
                 </a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-pink-500" />
-                <span>{developer.location}</span>
+                <Editable id="brand.location" as="span" />
               </li>
             </ul>
           </motion.div>
@@ -165,9 +171,11 @@ export function Footer() {
             transition={{ delay: 0.3 }}
             className="lg:col-span-2"
           >
-            <h4 className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground">
-              Connect
-            </h4>
+            <Editable
+              id="footer.connectTitle"
+              as="h4"
+              className="mb-4 text-sm font-bold uppercase tracking-wider text-foreground"
+            />
             <div className="flex flex-wrap gap-2">
               <SocialIcon href={socials.github} label="GitHub">
                 <Github className="h-4 w-4" />
@@ -191,9 +199,9 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-sky-500/10 pt-6 sm:flex-row">
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            © {new Date().getFullYear()} {developer.name}. Built with
+            © {new Date().getFullYear()} <Editable id="brand.name" />. Built with
             <Heart className="h-3 w-3 fill-pink-500 text-pink-500" />
-            using React & Next.js
+            <Editable id="footer.copyrightB" />
           </p>
           <Button
             onClick={scrollTop}
@@ -202,7 +210,7 @@ export function Footer() {
             className="rounded-full border-sky-500/30 hover:bg-sky-500/5"
           >
             <ArrowUp className="mr-1.5 h-4 w-4" />
-            Back to top
+            <Editable id="footer.backToTop" />
           </Button>
         </div>
       </div>

@@ -6,8 +6,11 @@ import { Mail, Loader2, CheckCircle2, Sparkles, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function Newsletter() {
+  const { t, tj } = useContent();
+  const stats = tj<{icon: string; text: string}[]>("newsletter.stats");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
@@ -18,7 +21,7 @@ export function Newsletter() {
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast.error("Please enter a valid email address.");
+      toast.error(t("newsletter.invalidEmail"));
       return;
     }
 
@@ -33,14 +36,13 @@ export function Newsletter() {
       if (!res.ok) throw new Error(data.error || "Failed");
 
       setSubscribed(true);
-      toast.success("🎉 Subscribed successfully!", {
-        description:
-          "You'll get notified when I publish new articles on SaaS, TypeScript, and freelance dev life.",
+      toast.success(t("newsletter.subscribedOk"), {
+        description: t("newsletter.subscribedOkSub"),
       });
       setEmail("");
     } catch (err: any) {
-      toast.error("Subscription failed", {
-        description: err?.message || "Please try again later.",
+      toast.error(t("newsletter.subscribedFail"), {
+        description: err?.message || t("newsletter.subscribedFailSub"),
       });
     } finally {
       setLoading(false);
@@ -70,30 +72,26 @@ export function Newsletter() {
 
             <div>
               <h3 className="text-2xl font-bold sm:text-3xl">
-                Stay in the{" "}
-                <span className="text-gradient-sky-pink">Loop</span>
+                <Editable id="newsletter.titleA" />{" "}
+                <span className="text-gradient-sky-pink"><Editable id="newsletter.titleB" /></span>
               </h3>
               <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
-                Get notified when I publish new articles on SaaS architecture,
-                TypeScript patterns, and lessons from my freelance journey.
-                No spam — just quality content, occasionally.
+                <Editable id="newsletter.sub" />
               </p>
             </div>
 
+            <Editable id="newsletter.stats" json label="Stat badges" />
+
             {/* Stats badges */}
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <BookOpen className="h-3.5 w-3.5 text-sky-500" />
-                6+ articles published
-              </span>
-              <span className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-pink-500" />
-                Monthly digest
-              </span>
-              <span className="flex items-center gap-1.5">
-                <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                Unsubscribe anytime
-              </span>
+              {stats.map((st, i) => (
+                <span key={i} className="flex items-center gap-1.5">
+                  {i === 0 ? <BookOpen className="h-3.5 w-3.5 text-sky-500" />
+                   : i === 1 ? <Sparkles className="h-3.5 w-3.5 text-pink-500" />
+                   : <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />}
+                  {st.text}
+                </span>
+              ))}
             </div>
 
             {/* Form */}
@@ -106,10 +104,10 @@ export function Newsletter() {
                 <CheckCircle2 className="h-6 w-6 text-green-500" />
                 <div className="text-left">
                   <div className="font-semibold text-foreground">
-                    You&apos;re subscribed!
+                    <Editable id="newsletter.subscribedTitle" />
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Watch your inbox for the next article.
+                    <Editable id="newsletter.subscribedSub" />
                   </div>
                 </div>
               </motion.div>
@@ -122,7 +120,7 @@ export function Newsletter() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder={t("newsletter.emailPlaceholder")}
                   className="rounded-full border-sky-500/30 bg-white/80 px-5 py-3 text-sm shadow-soft dark:bg-slate-800/80"
                   disabled={loading}
                 />
@@ -134,12 +132,12 @@ export function Newsletter() {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Subscribing...
+                      <Editable id="newsletter.subscribing" />
                     </>
                   ) : (
                     <>
                       <Mail className="mr-2 h-4 w-4" />
-                      Subscribe
+                      <Editable id="newsletter.subscribe" />
                     </>
                   )}
                 </Button>
@@ -147,7 +145,7 @@ export function Newsletter() {
             )}
 
             <p className="text-[11px] text-muted-foreground">
-              Join 120+ developers and founders who trust my content.
+              <Editable id="newsletter.footNote" />
             </p>
           </div>
         </motion.div>

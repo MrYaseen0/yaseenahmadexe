@@ -3,7 +3,7 @@
 import { ArrowRight, Check } from "lucide-react";
 import { SectionHeading } from "../section-heading";
 import { Reveal, Stagger } from "../reveal";
-import { services } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { useTilt } from "../use-tilt";
 import { cn } from "@/lib/utils";
 
@@ -29,16 +29,14 @@ const colorMap: Record<string, { ring: string; bg: string; text: string; glow: s
 };
 
 export function Services() {
+  const { tj } = useContent();
+  const services = tj<Service[]> ("services.items");
   return (
     <section id="services" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="⚡"
-          title="What I"
-          highlight="Offer"
-          subtitle="Specialized services to bring your digital ideas to life with cutting-edge technology."
-        />
+        <SectionHeading ek="services" />
 
+        <Editable id="services.items" json label="Services" />
         <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {services.map((s) => (
             <ServiceCard key={s.title} service={s} />
@@ -49,10 +47,18 @@ export function Services() {
   );
 }
 
+interface Service {
+  title: string;
+  emoji: string;
+  description: string;
+  tags: string[];
+  color: string;
+}
+
 function ServiceCard({
   service,
 }: {
-  service: (typeof services)[number];
+  service: Service;
 }) {
   const { ref, style, glare, handleMove, handleLeave } = useTilt(8);
   const colors = colorMap[service.color];
@@ -131,7 +137,7 @@ function ServiceCard({
           )}
           style={{ transform: "translateZ(20px)" }}
         >
-          Learn More
+          <Editable id="services.cta" />
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>

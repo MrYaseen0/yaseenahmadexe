@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import {
   Rocket,
   Users,
@@ -72,6 +73,8 @@ function useInViewObserver<T extends HTMLElement>(threshold = 0.3) {
 
 export function AchievementStats() {
   const { ref, inView } = useInViewObserver<HTMLDivElement>(0.2);
+  const { tj } = useContent();
+  const stats = tj<{ value: number; suffix: string; label: string; icon: string; color: string }[]>("stats.items");
 
   return (
     <section className="relative py-16 sm:py-20">
@@ -85,13 +88,9 @@ export function AchievementStats() {
           <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-pink-500/10 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-sky-500/10 blur-3xl" />
 
+          <Editable id="stats.items" json label="Stat counters" />
           <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { value: 15, suffix: "+", label: "Projects Built", icon: "Rocket", color: "text-sky-500" },
-              { value: 3, suffix: "+", label: "Years Experience", icon: "Clock", color: "text-wood" },
-              { value: 100, suffix: "%", label: "Learning Focus", icon: "Heart", color: "text-pink-500" },
-              { value: 100, suffix: "%", label: "On-Time Delivery", icon: "Clock", color: "text-wood" },
-            ].map((stat, i) => (
+            {stats.map((stat, i) => (
               <StatCard key={stat.label} stat={stat} start={inView} delay={i * 100} />
             ))}
           </div>

@@ -6,9 +6,11 @@ import { Menu, X, Moon, Sun, MessageCircle, Search } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { developer, navLinks } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function Navbar() {
+  const { t, tj } = useContent();
+  const navLinks = tj<{ label: string; href: string }[]>("nav.links");
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#home");
@@ -66,25 +68,25 @@ export function Navbar() {
         <button
           onClick={() => go("#home")}
           className="group flex items-center gap-3"
-          aria-label="Go to top"
+          aria-label={t("a11y.goTop")}
           onMouseEnter={() => setLogoHover(true)}
           onMouseLeave={() => setLogoHover(false)}
         >
           <div className="relative h-11 w-11 overflow-hidden rounded-xl ring-2 ring-sky-500/30 transition-all group-hover:ring-pink-500/50 group-hover:shadow-glow-sky">
             <img
               src={logoHover ? "/assets/logo-animated.gif" : "/assets/logo.png"}
-              alt={`${developer.name} logo`}
+              alt={`${t("brand.name")} logo`}
               className="h-full w-full object-cover"
               loading="eager"
             />
           </div>
           <div className="hidden flex-col items-start leading-none sm:flex">
             <span className="text-base font-bold tracking-tight">
-              {developer.firstName}
+              <Editable id="brand.firstName" />
               <span className="text-gradient-sky-pink">.</span>
             </span>
             <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-              Full-Stack Dev
+              <Editable id="nav.brandTag" />
             </span>
           </div>
         </button>
@@ -121,8 +123,8 @@ export function Navbar() {
             size="icon"
             onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
             className="hidden rounded-full lg:inline-flex"
-            aria-label="Open command palette (Ctrl+K)"
-            title="Quick search (Ctrl+K)"
+            aria-label={t("palette.openAria")}
+            title={t("palette.quickSearch")}
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -132,7 +134,7 @@ export function Navbar() {
               size="icon"
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className="rounded-full"
-              aria-label="Toggle theme"
+              aria-label={t("a11y.toggleTheme")}
             >
               {theme === "dark" ? (
                 <Sun className="h-5 w-5" />
@@ -147,14 +149,14 @@ export function Navbar() {
             size="sm"
           >
             <MessageCircle className="mr-1.5 h-4 w-4" />
-            Hire Me
+            <Editable id="nav.hire" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             className="lg:hidden rounded-full"
             onClick={() => setOpen((o) => !o)}
-            aria-label="Menu"
+            aria-label={t("a11y.menu")}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
@@ -191,7 +193,7 @@ export function Navbar() {
                   onClick={() => go("#contact")}
                   className="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
                 >
-                  Hire Me
+                  <Editable id="nav.hire" />
                 </Button>
               </div>
             </div>

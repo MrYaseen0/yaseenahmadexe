@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUp } from "lucide-react";
+import { useContent } from "@/components/portfolio/content-editor";
 
 export function BackToTop() {
+  const { t } = useContent();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ export function BackToTop() {
           whileTap={{ scale: 0.92 }}
           onClick={scrollTop}
           className="fixed bottom-5 left-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-sky-500/30 bg-card/90 text-sky-600 shadow-soft backdrop-blur transition-colors hover:border-pink-500/40 hover:text-pink-600 dark:text-sky-400 lg:hidden"
-          aria-label="Back to top"
+          aria-label={t("widgets.backToTop")}
         >
           <ArrowUp className="h-5 w-5" />
         </motion.button>

@@ -36,7 +36,8 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
 import { TechBadge } from "../tech-icons";
-import { developer, socials, getProjectPreview } from "@/lib/portfolio-data";
+import { getProjectPreview } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
 interface Repo {
@@ -64,9 +65,9 @@ interface Repo {
   fallback?: boolean;
 }
 
-const categories = ["All", "Full-Stack", "AI", "Backend", "Frontend", "Tool", "Project"];
-
 export function Projects() {
+  const { t, tj } = useContent();
+  const categories = tj<string[]>("projects.categories");
   const [repos, setRepos] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(true);
   const [source, setSource] = useState<string>("");
@@ -126,12 +127,8 @@ export function Projects() {
   return (
     <section id="projects" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="🚀"
-          title="Featured"
-          highlight="Projects"
-          subtitle="A live showcase of my GitHub repositories — fetched in real-time with documentation previews."
-        />
+        <SectionHeading ek="projects" />
+        <Editable id="projects.categories" json label="Filter categories" />
 
         {/* Controls */}
         <motion.div
@@ -165,12 +162,12 @@ export function Projects() {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className="h-9 cursor-pointer appearance-none rounded-full border border-sky-500/30 bg-card pl-8 pr-8 text-xs font-medium shadow-soft transition-colors hover:border-pink-500/40 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
-                aria-label="Sort projects"
+                aria-label={t("a11y.sortProjects")}
               >
-                <option value="updated">Recently Updated</option>
-                <option value="stars">Most Stars</option>
-                <option value="forks">Most Forks</option>
-                <option value="name">Name (A-Z)</option>
+                <option value="updated">{t("projects.sortUpdated")}</option>
+                <option value="stars">{t("projects.sortStars")}</option>
+                <option value="forks">{t("projects.sortForks")}</option>
+                <option value="name">{t("projects.sortName")}</option>
               </select>
               <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -179,7 +176,7 @@ export function Projects() {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search projects..."
+                placeholder={t("projects.searchPlaceholder")}
                 className="w-full rounded-full pl-9 pr-4 sm:w-56"
               />
             </div>
@@ -193,7 +190,7 @@ export function Projects() {
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Refresh"
+                t("projects.refresh")
               )}
             </Button>
           </div>
@@ -203,16 +200,16 @@ export function Projects() {
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-muted-foreground">
           <Github className="h-3.5 w-3.5" />
           <span>
-            Live from{" "}
+            <Editable id="projects.liveFrom" />{" "}
             <a
-              href={socials.github}
+              href={t("socials.github")}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-sky-700 hover:underline"
             >
-              @{developer.githubUsername}
+              @{t("brand.githubUsername")}
             </a>{" "}
-            · {repos.length} repos · source:{" "}
+            · {repos.length} <Editable id="projects.reposWord" /> · <Editable id="projects.sourceWord" />:{" "}
             <span
               className={cn(
                 "rounded-full px-1.5 py-0.5 font-medium",
@@ -227,7 +224,7 @@ export function Projects() {
             </span>
           </span>
           {error && (
-            <span className="text-amber-700">({error} — showing curated list)</span>
+            <span className="text-amber-700">({error} — <Editable id="projects.curatedNote" />)</span>
           )}
         </div>
 
@@ -261,7 +258,7 @@ export function Projects() {
 
         {sorted.length === 0 && !loading && (
           <div className="mt-12 text-center text-muted-foreground">
-            No projects match your search.
+            <Editable id="projects.noMatch" />
           </div>
         )}
 
@@ -273,9 +270,9 @@ export function Projects() {
             variant="outline"
             className="rounded-full border-sky-500/40 px-7 hover:bg-sky-500/5"
           >
-            <a href={socials.github} target="_blank" rel="noopener noreferrer">
+            <a href={t("socials.github")} target="_blank" rel="noopener noreferrer">
               <Github className="mr-2 h-4 w-4" />
-              View All on GitHub
+              <Editable id="projects.viewAll" />
               <ExternalLink className="ml-2 h-3.5 w-3.5" />
             </a>
           </Button>
@@ -342,7 +339,7 @@ function ProjectCard({
           {/* Featured badge overlay */}
           {repo.featured && (
             <Badge className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white shadow-soft">
-              ★ Featured
+              ★ <Editable id="projects.featuredBadge" />
             </Badge>
           )}
 
@@ -427,7 +424,7 @@ function ProjectCard({
               onClick={onDetails}
             >
               <Eye className="mr-1 h-3.5 w-3.5" />
-              Details
+              <Editable id="projects.detailsBtn" />
             </Button>
             <Button
               size="sm"
@@ -436,7 +433,7 @@ function ProjectCard({
               onClick={onDocs}
             >
               <BookOpen className="mr-1 h-3.5 w-3.5" />
-              Docs
+              <Editable id="projects.docsBtn" />
             </Button>
             <Button
               size="sm"
@@ -470,6 +467,7 @@ function ReadmeModal({
   repo: Repo | null;
   onClose: () => void;
 }) {
+  const { t } = useContent();
   const [content, setContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [branch, setBranch] = useState("main");
@@ -509,20 +507,20 @@ function ReadmeModal({
               </div>
               <div>
                 <DialogTitle className="text-lg font-bold">
-                  {repo?.name} — Documentation
+                  {repo?.name} — <Editable id="projects.docsTitle" />
                 </DialogTitle>
                 <p className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Code2 className="h-3 w-3" /> {repo?.language || "—"}
                   </span>
                   <span className="flex items-center gap-1">
-                    <GitFork className="h-3 w-3" /> {repo?.forks_count} forks
+                    <GitFork className="h-3 w-3" /> {repo?.forks_count} <Editable id="projects.forksWord" />
                   </span>
                   <span className="flex items-center gap-1">
-                    <Star className="h-3 w-3" /> {repo?.stargazers_count} stars
+                    <Star className="h-3 w-3" /> {repo?.stargazers_count} <Editable id="projects.starsWord" />
                   </span>
                   <span className="flex items-center gap-1">
-                    <Tag className="h-3 w-3" /> branch: {branch}
+                    <Tag className="h-3 w-3" /> <Editable id="projects.branchWord" />: {branch}
                   </span>
                 </p>
               </div>
@@ -535,7 +533,7 @@ function ReadmeModal({
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-muted-foreground">
                 <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
-                <p className="text-sm">Loading README.md from GitHub...</p>
+                <p className="text-sm"><Editable id="projects.readmeLoading" /></p>
               </div>
             ) : content ? (
               <article className="prose prose-sm max-w-none prose-headings:scroll-mt-20 prose-headings:text-sky-700 prose-a:text-pink-600 prose-code:rounded prose-code:bg-sky-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-pink-600 prose-code:before:hidden prose-code:after:hidden prose-pre:bg-slate-900 prose-pre:text-slate-100 dark:prose-headings:text-sky-300 dark:prose-a:text-pink-400 dark:prose-code:text-pink-400">
@@ -545,7 +543,7 @@ function ReadmeModal({
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-center text-muted-foreground">
                 <BookOpen className="h-8 w-8 text-muted-foreground/50" />
                 <p className="text-sm">
-                  No README found for this repository.
+                  <Editable id="projects.noReadme" />
                 </p>
                 <Button
                   asChild
@@ -558,7 +556,7 @@ function ReadmeModal({
                     rel="noopener noreferrer"
                   >
                     <Github className="mr-1.5 h-3.5 w-3.5" />
-                    Open on GitHub
+                    <Editable id="projects.openGithub" />
                   </a>
                 </Button>
               </div>
@@ -569,7 +567,7 @@ function ReadmeModal({
         <div className="flex items-center justify-between gap-2 border-t border-sky-500/10 bg-muted/30 px-6 py-3">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
-            Updated{" "}
+            <Editable id="projects.updatedWord" />{" "}
             {repo ? new Date(repo.pushed_at).toLocaleDateString() : "—"}
           </span>
           <Button
@@ -580,7 +578,7 @@ function ReadmeModal({
           >
             <a href={repo?.html_url} target="_blank" rel="noopener noreferrer">
               <Github className="mr-1.5 h-3.5 w-3.5" />
-              View Source
+              <Editable id="projects.viewSource" />
               <ExternalLink className="ml-1.5 h-3 w-3" />
             </a>
           </Button>
@@ -703,6 +701,7 @@ function ProjectDetailModal({
   repo: Repo | null;
   onClose: () => void;
 }) {
+  const { t } = useContent();
   if (!repo) return null;
 
   const preview = getProjectPreview(repo.name);
@@ -732,7 +731,7 @@ function ProjectDetailModal({
           <button
             onClick={onClose}
             className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white backdrop-blur transition-colors hover:bg-black/60"
-            aria-label="Close"
+            aria-label={t("a11y.close")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -740,7 +739,7 @@ function ProjectDetailModal({
           {/* Featured badge */}
           {repo.featured && (
             <Badge className="absolute left-4 top-4 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] text-white shadow-soft">
-              ★ Featured Project
+              ★ <Editable id="projects.featuredBadge" />
             </Badge>
           )}
 
@@ -772,7 +771,7 @@ function ProjectDetailModal({
             <div className="mb-5">
               <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
                 <Folder className="h-4 w-4 text-sky-500" />
-                About this project
+                <Editable id="projects.aboutWord" />
               </h3>
               <p className="text-sm leading-relaxed text-foreground sm:text-base">
                 {repo.description}
@@ -784,7 +783,7 @@ function ProjectDetailModal({
               <div className="mb-5">
                 <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
                   <Layers className="h-4 w-4 text-pink-500" />
-                  Tech Stack & Topics
+                  <Editable id="projects.techWord" />
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {repo.topics.map((t) => (
@@ -798,31 +797,31 @@ function ProjectDetailModal({
             <div className="mb-5">
               <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
                 <Star className="h-4 w-4 text-amber-500" />
-                Repository Stats
+                <Editable id="projects.statsWord" />
               </h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <DetailStat
                   icon={<Star className="h-4 w-4" />}
                   value={repo.stargazers_count}
-                  label="Stars"
+                  label={t("projects.starsWord")}
                   color="text-amber-500"
                 />
                 <DetailStat
                   icon={<GitFork className="h-4 w-4" />}
                   value={repo.forks_count}
-                  label="Forks"
+                  label={t("projects.forksWord")}
                   color="text-sky-500"
                 />
                 <DetailStat
                   icon={<Eye className="h-4 w-4" />}
                   value={repo.watchers_count}
-                  label="Watchers"
+                  label={t("projects.watchersWord")}
                   color="text-pink-500"
                 />
                 <DetailStat
                   icon={<Folder className="h-4 w-4" />}
                   value={repo.open_issues_count}
-                  label="Issues"
+                  label={t("projects.issuesWord")}
                   color="text-wood"
                 />
               </div>
@@ -832,22 +831,22 @@ function ProjectDetailModal({
             <div className="mb-5 grid gap-2 rounded-xl border border-sky-500/15 bg-muted/30 p-4 text-xs sm:grid-cols-2">
               <MetaRow
                 icon={<GitBranch className="h-3.5 w-3.5" />}
-                label="Default branch"
+                label={t("projects.branchLabel")}
                 value={repo.default_branch}
               />
               <MetaRow
                 icon={<Scale className="h-3.5 w-3.5" />}
-                label="License"
-                value={repo.license ? repo.license.name : "Not specified"}
+                label={t("projects.licenseWord")}
+                value={repo.license ? repo.license.name : t("projects.notSpecified")}
               />
               <MetaRow
                 icon={<Calendar className="h-3.5 w-3.5" />}
-                label="Created"
+                label={t("projects.createdWord")}
                 value={createdDate}
               />
               <MetaRow
                 icon={<Clock className="h-3.5 w-3.5" />}
-                label="Last updated"
+                label={t("projects.updatedLabel")}
                 value={updatedDate}
               />
             </div>
@@ -860,7 +859,7 @@ function ProjectDetailModal({
               >
                 <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
                   <Github className="mr-2 h-4 w-4" />
-                  View Source Code
+                  <Editable id="projects.viewSourceCode" />
                   <ArrowUpRight className="ml-1.5 h-3.5 w-3.5" />
                 </a>
               </Button>
@@ -872,7 +871,7 @@ function ProjectDetailModal({
                 >
                   <a href={liveDemo} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Live Demo
+                    <Editable id="projects.liveDemo" />
                   </a>
                 </Button>
               ) : null}

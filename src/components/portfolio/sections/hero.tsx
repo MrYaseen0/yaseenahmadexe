@@ -14,10 +14,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { developer, socials } from "@/lib/portfolio-data";
 import { PuzzlePhoto } from "@/components/portfolio/puzzle-photo";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function Hero() {
+  const { t, tj } = useContent();
+  const socials = tj<Record<string, string>>("socials.links");
+  const quickStats = tj<{ v: string; l: string }[]>("hero.quickStats");
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -52,38 +55,38 @@ export function Hero() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
                 </span>
-                {developer.status}
+                <Editable id="brand.status" />
               </Badge>
             </div>
 
             <h1 className="animate-fade-in-up delay-100 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              <span className="block text-muted-foreground">Hi, I&apos;m</span>
+              <span className="block text-muted-foreground"><Editable id="hero.greeting" /></span>
               <span className="mt-2 block text-gradient-sky-pink">
-                {developer.name}
+                <Editable id="brand.name" />
               </span>
             </h1>
 
             <p className="animate-fade-in-up delay-200 mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl">
-              {developer.tagline}{" "}
+              <Editable id="brand.tagline" />{" "}
               <span className="font-semibold text-foreground">
-                {developer.role}
+                <Editable id="brand.role" />
               </span>{" "}
-              specializing in{" "}
+              <Editable id="hero.specializing" />{" "}
               <span className="font-semibold text-pink-600 dark:text-pink-400">
-                MERN stack
+                <Editable id="hero.stack" />
               </span>
-              , SaaS architecture, and modern cloud solutions.
+              <Editable id="hero.stackTail" />
             </p>
 
             <div className="animate-fade-in-up delay-300 mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <MapPin className="h-4 w-4 text-sky-500" />
-                {developer.location}
+                <Editable id="brand.location" />
               </span>
               <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
               <span className="flex items-center gap-1.5">
                 <Code2 className="h-4 w-4 text-pink-500" />
-                {developer.jobTitle}
+                <Editable id="brand.jobTitle" />
               </span>
             </div>
 
@@ -96,7 +99,7 @@ export function Hero() {
                   className="group rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-8 text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
                 >
                   <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
-                  Hire Me
+                  <Editable id="nav.hire" />
                 </Button>
                 <Button
                   onClick={() => scrollTo("#projects")}
@@ -104,7 +107,7 @@ export function Hero() {
                   variant="outline"
                   className="rounded-full border-sky-500/50 px-7 font-semibold hover:border-pink-500/60 hover:bg-sky-500/5"
                 >
-                  View Work
+                  <Editable id="hero.ctaWork" />
                 </Button>
               </div>
 
@@ -119,7 +122,7 @@ export function Hero() {
                   variant="ghost"
                   className="rounded-full text-muted-foreground hover:text-foreground"
                 >
-                  Pricing
+                  <Editable id="hero.linkPricing" />
                 </Button>
                 <Button
                   asChild
@@ -129,7 +132,7 @@ export function Hero() {
                 >
                   <a href={socials.github} target="_blank" rel="noopener noreferrer">
                     <Github className="mr-1.5 h-4 w-4" />
-                    GitHub
+                    <Editable id="hero.linkGithub" />
                   </a>
                 </Button>
                 <Button
@@ -140,7 +143,7 @@ export function Hero() {
                 >
                   <a href="/api/resume" target="_blank" rel="noopener noreferrer">
                     <FileText className="mr-1.5 h-4 w-4" />
-                    Resume
+                    <Editable id="hero.linkResume" />
                   </a>
                 </Button>
               </div>
@@ -148,11 +151,7 @@ export function Hero() {
 
             {/* Quick stats */}
             <div className="animate-fade-in-up delay-500 mt-10 grid grid-cols-3 gap-3">
-              {[
-                { v: "15+", l: "Projects Built" },
-                { v: "MERN", l: "Stack Specialist" },
-                { v: "100%", l: "Client Focused" },
-              ].map((s) => (
+              {quickStats.map((s) => (
                 <div
                   key={s.l}
                   className="glass rounded-2xl p-3 text-center shadow-soft"
@@ -185,10 +184,10 @@ export function Hero() {
         animate={{ opacity: 1, y: [0, 8, 0] }}
         transition={{ opacity: { duration: 0.6, delay: 1.2 }, y: { duration: 2, repeat: Infinity } }}
         className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground sm:flex"
-        aria-label="Scroll down"
+        aria-label={t("a11y.scrollDown")}
       >
         <span className="text-xs font-medium uppercase tracking-widest">
-          Scroll Down
+          <Editable id="hero.scroll" />
         </span>
         <ArrowDown className="h-4 w-4" />
       </motion.button>
@@ -197,6 +196,8 @@ export function Hero() {
 }
 
 function HeroPhotoCard() {
+  const { t, tj } = useContent();
+  const cardStats = tj<{ label: string; value: string }[]>("hero.cardStats");
   return (
     <>
       {/* Mobile: clean simple card — no decorations, no 3D */}
@@ -209,28 +210,33 @@ function HeroPhotoCard() {
               <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
             </div>
             <span className="font-mono text-[11px] font-medium text-muted-foreground">
-              {developer.name} — Developer
+              <Editable id="hero.cardTitle" />
             </span>
             <span className="text-sm">⚛️</span>
           </div>
           <div className="relative aspect-[3/4] overflow-hidden">
             <PuzzlePhoto
               src="/assets/dev-photo.jpg"
-              alt={`${developer.name} — ${developer.role}`}
+              alt={`${t("brand.name")} — ${t("brand.role")}`}
               className="h-full w-full"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
             <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
-              ⚛️ React & Next.js
+              <Editable id="hero.cardBadge1" />
             </div>
             <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
-              Full-Stack Dev
+              <Editable id="hero.cardBadge2" />
             </div>
           </div>
           <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
-            <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Stack" value="MERN" />
-            <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Focus" value="SaaS" />
-            <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Status" value="Open" />
+            {cardStats.map((cs, i) => (
+              <GithubStat
+                key={cs.label}
+                icon={[<Code2 key="c" className="h-3.5 w-3.5" />, <Star key="s" className="h-3.5 w-3.5" />, <GitFork key="g" className="h-3.5 w-3.5" />][i % 3]}
+                label={cs.label}
+                value={cs.value}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -260,28 +266,33 @@ function HeroPhotoCard() {
               <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
             </div>
             <span className="font-mono text-[11px] font-medium text-muted-foreground">
-              {developer.name} — Developer
+              <Editable id="hero.cardTitle" />
             </span>
             <span className="text-sm">⚛️</span>
           </div>
           <div className="relative aspect-[4/5] overflow-hidden">
             <PuzzlePhoto
               src="/assets/dev-photo.jpg"
-              alt={`${developer.name} — ${developer.role}`}
+              alt={`${t("brand.name")} — ${t("brand.role")}`}
               className="h-full w-full"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
             <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
-              ⚛️ React & Next.js
+              <Editable id="hero.cardBadge1" />
             </div>
             <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
-              Full-Stack Dev
+              <Editable id="hero.cardBadge2" />
             </div>
           </div>
           <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
-            <GithubStat icon={<Code2 className="h-3.5 w-3.5" />} label="Stack" value="MERN" />
-            <GithubStat icon={<Star className="h-3.5 w-3.5" />} label="Focus" value="SaaS" />
-            <GithubStat icon={<GitFork className="h-3.5 w-3.5" />} label="Status" value="Open" />
+            {cardStats.map((cs, i) => (
+              <GithubStat
+                key={cs.label}
+                icon={[<Code2 key="c" className="h-3.5 w-3.5" />, <Star key="s" className="h-3.5 w-3.5" />, <GitFork key="g" className="h-3.5 w-3.5" />][i % 3]}
+                label={cs.label}
+                value={cs.value}
+              />
+            ))}
           </div>
         </motion.div>
       </div>

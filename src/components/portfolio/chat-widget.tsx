@@ -7,7 +7,7 @@ import { MessageCircle, X, Send, Loader2, MinusCircle, Users } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { developer } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
 interface ChatMsg {
@@ -20,6 +20,13 @@ interface ChatMsg {
 }
 
 export function ChatWidget() {
+  const { t } = useContent();
+  // t() changes identity when overrides load; the socket effect below must
+  // not resubscribe on every change, so call it through a ref instead.
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
   const [open, setOpen] = useState(false);
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
@@ -69,7 +76,7 @@ export function ChatWidget() {
           id: "sys-" + Date.now(),
           sessionId,
           sender: "owner",
-          name: developer.name,
+          name: tRef.current("brand.name"),
           content: data.content,
           timestamp: data.timestamp,
         },
@@ -135,7 +142,7 @@ export function ChatWidget() {
           "fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-pink-500 text-white shadow-glow-pink transition-colors",
           open && "rotate-180"
         )}
-        aria-label="Open chat"
+        aria-label={t("chat.openChat")}
       >
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
         {!open && unread > 0 && (
@@ -163,7 +170,7 @@ export function ChatWidget() {
               <div className="relative">
                 <img
                   src="/assets/dev-avatar.png"
-                  alt={developer.name}
+                  alt={t("brand.name")}
                   className="h-10 w-10 rounded-full border-2 border-white/50 object-cover"
                   loading="lazy"
                 />
@@ -171,22 +178,22 @@ export function ChatWidget() {
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-1.5 text-sm font-bold">
-                  {developer.name}
+                  {t("brand.name")}
                   {connected && (
                     <span className="flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-medium">
                       <Users className="h-2.5 w-2.5" />
-                      {onlineCount} online
+                      {onlineCount} {t("chat.onlineWord")}
                     </span>
                   )}
                 </div>
                 <div className="text-[11px] opacity-90">
-                  {connected ? "🟢 Online · typically replies in minutes" : "Connecting..."}
+                  {connected ? <Editable id="chat.onlineText" /> : t("chat.connecting")}
                 </div>
               </div>
               <button
                 onClick={() => setOpen(false)}
                 className="rounded-full p-1.5 transition-colors hover:bg-white/20"
-                aria-label="Minimize"
+                aria-label={t("chat.minimize")}
               >
                 <MinusCircle className="h-5 w-5" />
               </button>
@@ -199,7 +206,7 @@ export function ChatWidget() {
                   <div className="flex flex-col items-center gap-2 py-8 text-center">
                     <div className="text-4xl">👋</div>
                     <p className="text-sm font-medium text-muted-foreground">
-                      Hi! Send a message to start the conversation.
+                      <Editable id="chat.greeting" />
                     </p>
                   </div>
                 )}
@@ -213,7 +220,7 @@ export function ChatWidget() {
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-pink-500 [animation-delay:150ms]" />
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-wood [animation-delay:300ms]" />
                     </div>
-                    {developer.firstName} is typing...
+                    {t("brand.firstName")} {t("chat.typing")}
                   </div>
                 )}
               </div>
@@ -230,7 +237,7 @@ export function ChatWidget() {
                     send();
                   }
                 }}
-                placeholder="Type a message..."
+                placeholder={t("chat.typePlaceholder")}
                 disabled={!connected}
                 className="rounded-full"
               />
@@ -239,7 +246,7 @@ export function ChatWidget() {
                 onClick={send}
                 disabled={!connected || !input.trim()}
                 className="shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
-                aria-label="Send message"
+                aria-label={t("chat.sendMsg")}
               >
                 <Send className="h-4 w-4" />
               </Button>
@@ -249,7 +256,7 @@ export function ChatWidget() {
               <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm dark:bg-slate-900/60">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
                   <Loader2 className="h-6 w-6 animate-spin text-sky-500" />
-                  <span className="text-sm">Connecting to chat...</span>
+                  <span className="text-sm"><Editable id="chat.connectingPanel" /></span>
                 </div>
               </div>
             )}
@@ -261,6 +268,7 @@ export function ChatWidget() {
 }
 
 function Bubble({ msg }: { msg: ChatMsg }) {
+  const { t } = useContent();
   const isOwner = msg.sender === "owner";
   return (
     <motion.div
@@ -279,7 +287,7 @@ function Bubble({ msg }: { msg: ChatMsg }) {
       >
         {isOwner && (
           <div className="mb-0.5 text-[10px] font-bold text-sky-600 dark:text-sky-400">
-            {msg.name || developer.name}
+            {msg.name || t("brand.name")}
           </div>
         )}
         <p className="whitespace-pre-wrap break-words">{msg.content}</p>

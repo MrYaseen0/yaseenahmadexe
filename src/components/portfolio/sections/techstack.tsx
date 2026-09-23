@@ -3,19 +3,17 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { SectionHeading } from "../section-heading";
 import { Reveal, Stagger } from "../reveal";
-import { techStack } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function TechStack() {
+  const { tj } = useContent();
+  const techStack = tj<Record<string, { name: string; level: number }[]>>("techstack.groups");
   return (
     <section id="techstack" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="🛠️"
-          title="My"
-          highlight="Skills"
-          subtitle="Technologies and tools I work with to build amazing products."
-        />
+        <SectionHeading ek="techstack" />
 
+        <Editable id="techstack.groups" json label="Skill groups" />
         <Stagger className="mt-14 grid gap-6 lg:grid-cols-3" gap={0.12}>
           {Object.entries(techStack).map(([category, skills]) => (
             <SkillColumn key={category} category={category} skills={skills} />

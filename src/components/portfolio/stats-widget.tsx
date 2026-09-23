@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useContent } from "@/components/portfolio/content-editor";
 import { motion } from "framer-motion";
 import {
   Eye,
@@ -33,6 +34,7 @@ interface StatsData {
 }
 
 export function StatsWidget() {
+  const { t } = useContent();
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -57,7 +59,7 @@ export function StatsWidget() {
       <div className="glass-card animate-fade-in-up rounded-2xl p-5">
         <div className="mb-3 flex items-center gap-2">
           <Activity className="h-4 w-4 animate-pulse text-sky-500" />
-          <span className="text-sm font-semibold">Live Stats</span>
+          <span className="text-sm font-semibold">{t("stats.title")}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3].map((i) => (
@@ -72,46 +74,46 @@ export function StatsWidget() {
 
   const statCards = [
     {
-      label: "Total Views",
+      label: t("stats.totalViews"),
       value: stats.visits.total,
       icon: Eye,
       color: "text-sky-500",
-      sub: `+${stats.visits.last24h} today`,
+      sub: `+${stats.visits.last24h} ${t("stats.today")}`,
     },
     {
-      label: "This Week",
+      label: t("stats.thisWeek"),
       value: stats.visits.last7d,
       icon: TrendingUp,
       color: "text-pink-500",
-      sub: `${stats.visits.last30d} / 30d`,
+      sub: `${stats.visits.last30d} ${t("stats.per30d")}`,
     },
     {
-      label: "Bookings",
+      label: t("stats.bookings"),
       value: stats.engagement.bookings,
       icon: Calendar,
       color: "text-wood",
-      sub: `${stats.engagement.pendingBookings} pending`,
+      sub: `${stats.engagement.pendingBookings} ${t("stats.pending")}`,
     },
     {
-      label: "Testimonials",
+      label: t("stats.testimonials"),
       value: stats.engagement.testimonials,
       icon: MessageSquare,
       color: "text-sky-500",
-      sub: `${stats.engagement.approvedTestimonials} approved`,
+      sub: `${stats.engagement.approvedTestimonials} ${t("stats.approved")}`,
     },
     {
-      label: "Subscribers",
+      label: t("stats.subscribers"),
       value: stats.engagement.subscribers,
       icon: Mail,
       color: "text-pink-500",
-      sub: "newsletter",
+      sub: t("stats.newsletter"),
     },
     {
-      label: "Articles",
+      label: t("stats.articles"),
       value: stats.engagement.articles,
       icon: FileText,
       color: "text-wood",
-      sub: "published",
+      sub: t("stats.published"),
     },
   ];
 
@@ -127,14 +129,14 @@ export function StatsWidget() {
       <div className="flex items-center justify-between border-b border-sky-500/15 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-5 py-3">
         <div className="flex items-center gap-2">
           <Activity className="h-4 w-4 text-sky-500" />
-          <span className="text-sm font-bold">Live Analytics</span>
+          <span className="text-sm font-bold">{t("stats.analytics")}</span>
         </div>
         <span className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
           <span className="relative flex h-1.5 w-1.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
           </span>
-          Live
+          {t("stats.live")}
         </span>
       </div>
 
@@ -173,7 +175,7 @@ export function StatsWidget() {
         <div className="border-t border-sky-500/10 px-5 py-3">
           <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
             <Users className="h-3 w-3 text-pink-500" />
-            Most Viewed Sections
+            {t("stats.topSections")}
           </div>
           <div className="space-y-1.5">
             {stats.topSections.slice(0, 5).map((s, i) => {

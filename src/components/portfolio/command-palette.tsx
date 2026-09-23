@@ -19,9 +19,21 @@ import {
   DialogContent,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { developer, navLinks, services, featuredProjects } from "@/lib/portfolio-data";
+import { useContent } from "@/components/portfolio/content-editor";
+import { featuredProjects } from "@/lib/portfolio-data";
 import { cn } from "@/lib/utils";
+
+interface RepoLite { name: string; description: string | null; stargazers_count: number; }
+let reposPromise: Promise<RepoLite[]> | null = null;
+function fetchRepos(): Promise<RepoLite[]> {
+  if (!reposPromise) {
+    reposPromise = fetch("/api/github", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => (Array.isArray(d) ? d : d.repos || []))
+      .catch(() => []);
+  }
+  return reposPromise;
+}
 
 interface CommandItem {
   id: string;
@@ -34,7 +46,17 @@ interface CommandItem {
 }
 
 export function CommandPalette() {
+  const { t, tj } = useContent();
+  const navLinks = tj<{ label: string; href: string }[]>("nav.links");
+  const services = tj<{ title: string; tags: string[] }[]>("services.items");
+  const socials = tj<Record<string, string>>("socials.links");
   const [open, setOpen] = useState(false);
+  const [repos, setRepos] = useState<RepoLite[]>([]);
+  useEffect(() => {
+    if (open && repos.length === 0) {
+      fetchRepos().then((r) => setRepos(r.slice(0, 8)));
+    }
+  }, [open, repos.length]);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const [showQuickSearch, setShowQuickSearch] = useState(true);
@@ -94,7 +116,7 @@ export function CommandPalette() {
       commands.push({
         id: `nav-${link.href}`,
         label: link.label,
-        hint: "Section",
+        hint: t("palette.hintSection"),
         icon: Hash,
         iconColor: "text-sky-500",
         action: scrollTo(link.href),
@@ -107,7 +129,7 @@ export function CommandPalette() {
       commands.push({
         id: `service-${s.title}`,
         label: s.title,
-        hint: "Service",
+        hint: t("palette.hintService"),
         icon: Sparkles,
         iconColor: "text-pink-500",
         action: scrollTo("#services"),
@@ -120,7 +142,7 @@ export function CommandPalette() {
       commands.push({
         id: `project-${p.title}`,
         label: p.title,
-        hint: "Project",
+        hint: t("palette.hintProject"),
         icon: Briefcase,
         iconColor: "text-wood",
         action: scrollTo("#projects"),
@@ -131,8 +153,8 @@ export function CommandPalette() {
     // Quick actions
     commands.push({
       id: "action-hire",
-      label: "Hire Me",
-      hint: "Action",
+      label: t("palette.hireMe"),
+      hint: t("palette.hintAction"),
       icon: Sparkles,
       iconColor: "text-pink-500",
       action: scrollTo("#contact"),
@@ -140,8 +162,8 @@ export function CommandPalette() {
     });
     commands.push({
       id: "action-resume",
-      label: "Download Resume",
-      hint: "Action",
+      label: t("palette.downloadResume"),
+      hint: t("palette.hintAction"),
       icon: FileText,
       iconColor: "text-wood",
       action: () => {
@@ -152,19 +174,19 @@ export function CommandPalette() {
     });
     commands.push({
       id: "action-github",
-      label: "Visit GitHub Profile",
-      hint: "External",
+      label: t("palette.visitGithub"),
+      hint: t("palette.hintExternal"),
       icon: Code2,
       iconColor: "text-sky-500",
       action: () => {
         setOpen(false);
-        setTimeout(() => window.open(`https://github.com/${developer.githubUsername}`, "_blank"), 100);
+        setTimeout(() => window.open(socials.github, "_blank"), 100);
       },
       keywords: "github code repositories source",
     });
 
     return commands;
-  }, []);
+  }, [t, tj, navLinks, services, repos, socials.github]);
 
   // Filter commands by query
   const filtered = useMemo(() => {
@@ -213,10 +235,10 @@ export function CommandPalette() {
             transition={{ duration: 0.2 }}
             onClick={() => setOpen(true)}
             className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-sky-500/30 bg-card/80 px-3 py-2 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur transition-colors hover:border-pink-500/40 hover:text-foreground lg:flex"
-            aria-label="Open command palette"
+            aria-label={t("palette.openAria")}
           >
             <Search className="h-3.5 w-3.5" />
-            <span>Quick search</span>
+            <span>{t("palette.quickSearch")}</span>
             <kbd className="rounded border border-sky-500/30 bg-muted px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
           </motion.button>
         )}
@@ -224,7 +246,7 @@ export function CommandPalette() {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-xl overflow-hidden rounded-2xl border-sky-500/20 bg-card/95 p-0 shadow-card-hover backdrop-blur-xl">
-          <DialogTitle className="sr-only">Command Palette — Quick Search</DialogTitle>
+          <DialogTitle className="sr-only">{t("palette.title")}</DialogTitle>
           {/* Search input */}
           <div className="flex items-center gap-3 border-b border-sky-500/15 px-4 py-3">
             <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -233,7 +255,7 @@ export function CommandPalette() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search sections, projects, services, or actions..."
+              placeholder={t("palette.placeholder")}
               className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
             <kbd className="hidden rounded border border-sky-500/30 bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground sm:block">
@@ -246,8 +268,8 @@ export function CommandPalette() {
             {filtered.length === 0 ? (
               <div className="flex flex-col items-center gap-2 py-10 text-center text-muted-foreground">
                 <Search className="h-8 w-8 text-muted-foreground/40" />
-                <p className="text-sm">No results for &ldquo;{query}&rdquo;</p>
-                <p className="text-xs">Try searching for sections, projects, or services</p>
+                <p className="text-sm">{t("palette.noResultsA")} &ldquo;{query}&rdquo;</p>
+                <p className="text-xs">{t("palette.noResultsB")}</p>
               </div>
             ) : (
               <>
@@ -255,7 +277,7 @@ export function CommandPalette() {
                 {(() => {
                   const groups: Record<string, CommandItem[]> = {};
                   filtered.forEach((item) => {
-                    const key = item.hint || "Other";
+                    const key = item.hint || t("palette.other");
                     if (!groups[key]) groups[key] = [];
                     groups[key].push(item);
                   });

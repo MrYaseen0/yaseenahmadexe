@@ -15,7 +15,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
-import { faqs, developer } from "@/lib/portfolio-data";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -29,19 +29,19 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ShieldCheck,
 };
 
+interface FaqItem { q: string; a: string; icon: string; }
+
 export function Faq() {
   const [open, setOpen] = useState<number | null>(0);
+  const { t, tj } = useContent();
+  const faqs = tj<FaqItem[]>("faq.items");
 
   return (
     <section id="faq" className="relative py-20 sm:py-28">
       <div className="container mx-auto max-w-4xl px-4 sm:px-6">
-        <SectionHeading
-          emoji="❓"
-          title="Frequently Asked"
-          highlight="Questions"
-          subtitle="Quick answers to the most common questions clients ask before working with me."
-        />
+        <SectionHeading ek="faq" />
 
+        <Editable id="faq.items" json label="Questions & answers" />
         <div className="mt-12 space-y-3">
           {faqs.map((faq, i) => {
             const Icon = iconMap[faq.icon] || HelpCircle;
@@ -112,12 +112,11 @@ export function Faq() {
         {/* CTA */}
         <div className="mt-10 rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 via-transparent to-pink-500/5 p-6 text-center sm:p-8">
           <p className="text-lg font-semibold text-foreground">
-            Still have questions?{" "}
-            <span className="text-gradient-sky-pink">I&apos;m here to help.</span>
+            <Editable id="faq.ctaTitle" />{" "}
+            <span className="text-gradient-sky-pink"><Editable id="faq.ctaHighlight" /></span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
-            Reach out via the contact form, WhatsApp, or the live chat —
-            I typically reply within a few hours.
+            <Editable id="faq.ctaSub" />
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-3">
             <button
@@ -128,7 +127,7 @@ export function Faq() {
               }
               className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-glow-pink hover:-translate-y-0.5"
             >
-              Contact Me
+              <Editable id="faq.ctaContact" />
             </button>
             <a
               href="https://wa.me/923189370042"
@@ -136,7 +135,7 @@ export function Faq() {
               rel="noopener noreferrer"
               className="rounded-full border border-green-500/40 bg-green-500/5 px-6 py-2.5 text-sm font-semibold text-green-600 transition-all hover:bg-green-500/10 hover:-translate-y-0.5 dark:text-green-400"
             >
-              💬 WhatsApp {developer.phone}
+              💬 WhatsApp <Editable id="brand.phone" />
             </a>
           </div>
         </div>
