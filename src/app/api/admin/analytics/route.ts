@@ -98,6 +98,101 @@ export async function GET(request: Request) {
       ratingMap[t.rating] = (ratingMap[t.rating] || 0) + 1;
     });
 
+    // ---------- Vercel-style traffic breakdowns ----------
+    // Each is best-effort: if the new columns don't exist yet (migration
+    // not applied), fall back to empty data instead of failing the request.
+    const weekAgo = days7[0];
+
+    const visitors7d: { date: string; label: string; visitors: number }[] = [];
+    const pageviews7d: { date: string; label: string; count: number }[] = [];
+    let bounceRate: number | null = null;
+    let topPages: { path: string; count: number }[] = [];
+    let referrers: { referrer: string; count: number }[] = [];
+    let countries: { name: string; count: number }[] = [];
+    let devices: { name: string; count: number }[] = [];
+    let browsers: { name: string; count: number }[] = [];
+    let operatingSystems: { name: string; count: number }[] = [];
+
+    try {
+      // Unique visitors + pageviews per day (last 7 days)
+      await Promise.all(
+        days7.map(async (dayStart, i) => {
+          const dayEnd = new Date(dayStart);
+          dayEnd.setDate(dayEnd.getDate() + 1);
+          const where = { createdAt: { gte: dayStart, lt: dayEnd } };
+          const [uniq, pvs] = await Promise.all([
+            db.visit.groupBy({ by: ["ipHash"], where }),
+            db.visit.count({ where: { ...where, isPageview: true } }),
+          ]);
+          visitors7d[i] = {
+            date: dayStart.toISOString().split("T")[0],
+            label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
+            visitors: uniq.filter((u) => u.ipHash).length,
+          };
+          pageviews7d[i] = {
+            date: dayStart.toISOString().split("T")[0],
+            label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
+            count: pvs,
+          };
+        })
+      );
+
+      // Bounce rate: sessions (last 7d) with exactly one tracked event
+      const sessionGroups = await db.visit.groupBy({
+        by: ["sessionId"],
+        where: { createdAt: { gte: weekAgo } },
+        _count: { _all: true },
+      });
+      const realSessions = sessionGroups.filter((g) => g.sessionId);
+      if (realSessions.length > 0) {
+        const bounced = realSessions.filter((g) => g._count._all <= 1).length;
+        bounceRate = Math.round((bounced / realSessions.length) * 100);
+      }
+
+      const top = await db.visit.groupBy({
+        by: ["path"],
+        where: { createdAt: { gte: weekAgo }, isPageview: true },
+        _count: { _all: true },
+        orderBy: { _count: { path: "desc" } },
+        take: 10,
+      });
+      topPages = top.map((t) => ({ path: t.path, count: t._count._all }));
+
+      const refs = await db.visit.groupBy({
+        by: ["referrer"],
+        where: { createdAt: { gte: weekAgo } },
+        _count: { _all: true },
+        orderBy: { _count: { referrer: "desc" } },
+        take: 10,
+      });
+      referrers = refs
+        .filter((r) => r.referrer)
+        .map((r) => ({ referrer: r.referrer as string, count: r._count._all }));
+
+      const breakdown = async (field: "country" | "device" | "browser" | "os") => {
+        const rows = await db.visit.groupBy({
+          by: [field],
+          where: { createdAt: { gte: weekAgo } },
+          _count: { _all: true },
+          orderBy: { _count: { [field]: "desc" } },
+          take: 10,
+        });
+        return rows
+          .filter((r) => (r as any)[field])
+          .map((r) => ({
+            name: String((r as any)[field]),
+            count: r._count._all,
+          }));
+      };
+      countries = await breakdown("country");
+      devices = await breakdown("device");
+      browsers = await breakdown("browser");
+      operatingSystems = await breakdown("os");
+    } catch (e) {
+      // New columns not migrated yet — dashboard shows empty panels, old data intact.
+      console.warn("Extended analytics unavailable:", (e as Error)?.message);
+    }
+
     return NextResponse.json({
       visits7d,
       visits30d,
@@ -120,6 +215,16 @@ export async function GET(request: Request) {
         testimonials: testimonials.length,
         pendingBookings: bookings.filter((b) => b.status === "pending").length,
       },
+      // Vercel-style
+      visitors7d,
+      pageviews7d,
+      bounceRate,
+      topPages,
+      referrers,
+      countries,
+      devices,
+      browsers,
+      operatingSystems,
     });
   } catch (error: any) {
     console.error("Analytics error:", error);
