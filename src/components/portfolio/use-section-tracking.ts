@@ -3,13 +3,47 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Tracks section views anonymously when they scroll into view.
- * Privacy-respecting: only records section name + path, no PII.
+ * Tracks pageviews + section views anonymously when they scroll into view.
+ * Privacy-respecting: no PII — section/pageview, path, referrer origin,
+ * and an anonymous per-tab session id. IPs are hashed server-side.
  */
+
+function getSessionId(): string {
+  try {
+    let sid = sessionStorage.getItem("ya-sid");
+    if (!sid) {
+      sid =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      sessionStorage.setItem("ya-sid", sid);
+    }
+    return sid;
+  } catch {
+    return "unknown";
+  }
+}
+
+function ping(data: Record<string, unknown>) {
+  fetch("/api/track", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      path: window.location.pathname,
+      referrer: document.referrer || null,
+      sessionId: getSessionId(),
+      ...data,
+    }),
+  }).catch(() => {});
+}
+
 export function useSectionTracking() {
   const trackedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
+    // One pageview ping per tab session.
+    ping({ section: "pageview", pageview: true });
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -18,15 +52,7 @@ export function useSectionTracking() {
             if (id && !trackedRef.current.has(id)) {
               trackedRef.current.add(id);
               // Fire and forget — never block UX
-              fetch("/api/track", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  section: id,
-                  path: window.location.pathname,
-                  referrer: document.referrer || null,
-                }),
-              }).catch(() => {});
+              ping({ section: id });
             }
           }
         });
