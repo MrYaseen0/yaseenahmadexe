@@ -217,17 +217,17 @@ export function Projects() {
               className={cn(
                 "rounded-full px-1.5 py-0.5 font-medium",
                 source === "github"
-                  ? "bg-green-500/10 text-green-700"
+                  ? "bg-green-500/10 text-green-800"
                   : source === "cache"
                   ? "bg-sky-500/10 text-sky-700"
-                  : "bg-amber-500/10 text-amber-600"
+                  : "bg-amber-500/10 text-amber-700"
               )}
             >
               {source || "loading"}
             </span>
           </span>
           {error && (
-            <span className="text-amber-600">({error} — showing curated list)</span>
+            <span className="text-amber-700">({error} — showing curated list)</span>
           )}
         </div>
 
