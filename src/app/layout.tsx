@@ -85,9 +85,9 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: "/assets/dev-photo.jpg",
-        width: 600,
-        height: 720,
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
         alt: "Yaseen Ahmad — Full-Stack Developer",
       },
     ],
@@ -97,7 +97,7 @@ export const metadata: Metadata = {
     title: "Yaseen Ahmad — Full-Stack Developer",
     description: "Full-Stack Developer building production-grade SaaS applications.",
     creator: "@yaseencecosian",
-    images: ["/assets/dev-photo.jpg"],
+    images: ["/og-image.png"],
   },
 };
 
