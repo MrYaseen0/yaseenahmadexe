@@ -16,16 +16,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Desktop mirror (Option B): force a fixed 1280px layout viewport on mobile so
-// phones render the exact desktop layout, zoomed out to fit. `initialScale:
-// undefined` is required — Next.js merges the viewport export per-key over its
-// default { width: "device-width", initialScale: 1 }, so without this the tag
-// would emit `initial-scale=1` and render 1:1 (horizontal scroll) instead of
-// scaling to fit. Desktop browsers ignore this meta, so the desktop view is
-// unchanged. Pinch-zoom stays enabled (no user-scalable / maximum-scale set).
+// Responsive mobile viewport: render at the device width so phones get the
+// real mobile layout (the codebase is fully responsive — sm:/lg: Tailwind
+// breakpoints, max-w containers, no fixed pixel widths). The previous
+// fixed `width: 1280` "desktop mirror" rendered a zoomed-out miniature
+// desktop on phones and was flagged by PageSpeed ("Optimize viewport for
+// mobile"). Desktop browsers are unaffected by this meta tag.
 export const viewport: Viewport = {
-  width: 1280,
-  initialScale: undefined,
+  width: "device-width",
+  initialScale: 1,
 };
 
 const SITE_URL = "https://yaseenahmadexe.vercel.app";
