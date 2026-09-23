@@ -74,7 +74,7 @@ export function Experience() {
                   .querySelector("#contact")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="font-semibold text-pink-600 underline-offset-4 hover:underline dark:text-pink-400"
+              className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
             >
               Let&apos;s connect →
             </button>

@@ -208,7 +208,7 @@ export function Projects() {
               href={socials.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-sky-600 hover:underline"
+              className="font-semibold text-sky-700 hover:underline"
             >
               @{developer.githubUsername}
             </a>{" "}
@@ -217,9 +217,9 @@ export function Projects() {
               className={cn(
                 "rounded-full px-1.5 py-0.5 font-medium",
                 source === "github"
-                  ? "bg-green-500/10 text-green-600"
+                  ? "bg-green-500/10 text-green-700"
                   : source === "cache"
-                  ? "bg-sky-500/10 text-sky-600"
+                  ? "bg-sky-500/10 text-sky-700"
                   : "bg-amber-500/10 text-amber-600"
               )}
             >

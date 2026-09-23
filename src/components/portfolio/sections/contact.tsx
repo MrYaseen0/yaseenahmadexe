@@ -286,7 +286,7 @@ function HireForm() {
         </Field>
         <Field label="Project Type" required>
           <Select value={form.projectType} onValueChange={set("projectType")}>
-            <SelectTrigger className="rounded-xl">
+            <SelectTrigger aria-label="Project type" className="rounded-xl">
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
@@ -305,7 +305,7 @@ function HireForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Budget Range">
           <Select value={form.budget} onValueChange={set("budget")}>
-            <SelectTrigger className="rounded-xl">
+            <SelectTrigger aria-label="Budget range" className="rounded-xl">
               <SelectValue placeholder="Select budget" />
             </SelectTrigger>
             <SelectContent>
@@ -320,7 +320,7 @@ function HireForm() {
         </Field>
         <Field label="Timeline">
           <Select value={form.timeline} onValueChange={set("timeline")}>
-            <SelectTrigger className="rounded-xl">
+            <SelectTrigger aria-label="Timeline" className="rounded-xl">
               <SelectValue placeholder="Select timeline" />
             </SelectTrigger>
             <SelectContent>

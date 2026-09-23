@@ -70,7 +70,7 @@ export function Testimonials() {
           <Button
             onClick={() => setSubmitOpen(true)}
             variant="outline"
-            className="rounded-full border-pink-500/40 bg-pink-500/5 px-5 text-pink-600 hover:bg-pink-500/10 dark:text-pink-400"
+            className="rounded-full border-pink-500/40 bg-pink-500/5 px-5 text-pink-700 hover:bg-pink-500/10 dark:text-pink-400"
           >
             <MessageSquarePlus className="mr-2 h-4 w-4" />
             Leave a Testimonial
