@@ -136,16 +136,48 @@ model Booking {
   @@index([date])
 }
 
-// Anonymous visitor stats (privacy-respecting — no PII, just counts)
+// Anonymous visitor stats (privacy-respecting — IPs are hashed, never stored raw)
 model Visit {
-  id        String   @id @default(cuid())
-  section   String   // which section was viewed (e.g. "home", "projects")
-  referrer  String?  // where the visitor came from (origin only)
-  path      String   // page path
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  section    String   // which section was viewed (e.g. "home", "projects", "pageview")
+  referrer   String?  // where the visitor came from (origin only)
+  path       String   // page path
+  sessionId  String?  // anonymous per-tab session id (for bounce rate)
+  ipHash     String?  // sha256(ip) — unique-visitor counting without storing IPs
+  country    String?  // from x-vercel-ip-country header
+  device     String?  // Desktop | Mobile | Tablet
+  browser    String?  // Chrome | Edge | Firefox | Safari | ...
+  os         String?  // Windows | macOS | Android | iOS | Linux | ...
+  isPageview Boolean  @default(false)
+  createdAt  DateTime @default(now())
 
   @@index([section])
   @@index([createdAt])
+  @@index([sessionId])
+  @@index([ipHash])
+  @@index([path])
+}
+
+// Security / attack events: failed logins, rate-limit hits, bursts (DDoS-like)
+model SecurityEvent {
+  id        String   @id @default(cuid())
+  type      String   // FAILED_LOGIN | RATE_LIMIT | BURST | BLOCKED_HIT | SUSPICIOUS
+  ip        String   // attacker IP (raw — needed for blocking)
+  path      String?
+  detail    String?
+  createdAt DateTime @default(now())
+
+  @@index([type])
+  @@index([ip])
+  @@index([createdAt])
+}
+
+// Manually or automatically blocked IPs
+model BlockedIp {
+  id        String   @id @default(cuid())
+  ip        String   @unique
+  reason    String?
+  createdAt DateTime @default(now())
 }
 
 // Editable site content (key-value store for dynamic website data)
