@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendLeadNotification } from "@/lib/email";
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -41,6 +42,22 @@ export async function POST(request: Request) {
         message: String(message).slice(0, 5000),
         website: website ? String(website).slice(0, 200) : null,
       },
+    });
+
+    // Notify the owner instantly; never blocks/fails the client response.
+    // Notify the owner instantly; awaiting keeps it alive on serverless,
+    // and sendLeadNotification never throws so the response is unaffected.
+    await sendLeadNotification({
+      kind: "contact",
+      subject: `📩 New contact: ${String(subject).slice(0, 80)}`,
+      lines: [
+        `Name: ${String(name)}`,
+        `Email: ${String(email)}`,
+        `Subject: ${String(subject)}`,
+        "",
+        String(message).slice(0, 1500),
+      ],
+      replyTo: String(email),
     });
 
     return NextResponse.json({

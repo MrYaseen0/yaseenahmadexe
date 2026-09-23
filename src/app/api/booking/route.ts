@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendLeadNotification } from "@/lib/email";
 
 // GET — list all bookings (admin only)
 export async function GET(request: Request) {
@@ -59,6 +60,22 @@ export async function POST(request: Request) {
         timezone: timezone ? String(timezone).slice(0, 100) : "Asia/Karachi",
         notes: notes ? String(notes).slice(0, 2000) : null,
       },
+    });
+
+    // Notify the owner instantly; awaiting keeps it alive on serverless,
+    // and sendLeadNotification never throws so the response is unaffected.
+    await sendLeadNotification({
+      kind: "booking",
+      subject: `📅 New booking: ${String(purpose).slice(0, 80)}`,
+      lines: [
+        `Name: ${String(name)}`,
+        `Email: ${String(email)}`,
+        `Purpose: ${String(purpose)}`,
+        `When: ${String(date)} at ${String(time)} (${String(timezone || "Asia/Karachi")})`,
+        notes ? "" : "Notes: —",
+        ...(notes ? [String(notes).slice(0, 1500)] : []),
+      ],
+      replyTo: String(email),
     });
 
     return NextResponse.json({
