@@ -2,12 +2,23 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyCredentials, signAdminToken, verifyAdmin } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { logSecurityEvent, isIpBlocked, shouldLogBlockedHit } from "@/lib/security";
 
 export async function POST(request: Request) {
-  // Throttle login attempts to blunt credential brute-forcing.
   const ip = getClientIp(request);
+
+  // Blocked IPs can't even attempt login.
+  if (await isIpBlocked(ip)) {
+    if (shouldLogBlockedHit(ip)) {
+      void logSecurityEvent("BLOCKED_HIT", ip, "/api/admin/auth", "Login attempt from blocked IP");
+    }
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Throttle login attempts to blunt credential brute-forcing.
   const limit = rateLimit(`admin-auth:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!limit.ok) {
+    void logSecurityEvent("RATE_LIMIT", ip, "/api/admin/auth", "Login brute-force throttle (10/min)");
     return NextResponse.json(
       { error: "Too many attempts. Please try again shortly." },
       { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
@@ -26,6 +37,8 @@ export async function POST(request: Request) {
     }
 
     if (!verifyCredentials(email, password)) {
+      // Log every failed login so brute-forcing shows up in the security feed.
+      void logSecurityEvent("FAILED_LOGIN", ip, "/api/admin/auth", `Failed login for ${String(email).slice(0, 80)}`);
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
