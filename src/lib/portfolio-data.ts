@@ -48,9 +48,11 @@ export default developer;`,
 
 export const socials = {
   github: "https://github.com/MrYaseen0",
-  linkedin: "https://linkedin.com/in/yaseen-ahmad",
-  twitter: "https://twitter.com/yaseenahmadexe",
+  linkedin: "https://www.linkedin.com/in/yaseen-ahmad-489967280",
+  twitter: "https://x.com/yaseencecosian",
   facebook: "https://facebook.com/mryaseen.exe",
+  instagram: "https://instagram.com/yaseenahmadexe",
+  tiktok: "https://www.tiktok.com/@mryaseen.exe",
   whatsapp: "https://wa.me/923189370042",
   email: "mailto:yaseenahmad.exe@gmail.com",
 };

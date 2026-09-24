@@ -90,12 +90,12 @@ export function AchievementStats() {
       <div className="container mx-auto max-w-6xl px-4 sm:px-6">
         <div
           ref={ref}
-          className="relative overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 via-white/60 to-pink-500/5 p-6 shadow-soft dark:from-sky-500/5 dark:via-slate-900/60 dark:to-pink-500/5 sm:p-10"
+          className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/5 via-white/60 to-emerald-500/5 p-6 shadow-soft dark:from-green-500/5 dark:via-[#0d140d]/60 dark:to-emerald-500/5 sm:p-10"
         >
           {/* decorative grid */}
           <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-pink-500/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-sky-500/10 blur-3xl" />
+          <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-emerald-500/10 blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-green-500/10 blur-3xl" />
 
           <Editable id="stats.items" json label="Stat counters" />
           <div className="relative grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -126,10 +126,10 @@ function StatCard({
       className="group relative flex flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1"
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-soft ring-1 ring-sky-500/10 transition-all group-hover:ring-pink-500/30 dark:bg-slate-800 ${stat.color}`}>
+      <div className={`mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-soft ring-1 ring-green-500/10 transition-all group-hover:ring-emerald-500/30 dark:bg-[#16241a] ${stat.color}`}>
         <Icon className="h-5 w-5" />
       </div>
-      <div className="text-2xl font-extrabold text-gradient-sky-pink sm:text-3xl">
+      <div className="text-2xl font-extrabold text-gradient-viridia sm:text-3xl">
         {count.toLocaleString()}
         {stat.suffix}
       </div>

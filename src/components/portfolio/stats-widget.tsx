@@ -58,7 +58,7 @@ export function StatsWidget() {
     return (
       <div className="glass-card animate-fade-in-up rounded-2xl p-5">
         <div className="mb-3 flex items-center gap-2">
-          <Activity className="h-4 w-4 animate-pulse text-sky-500" />
+          <Activity className="h-4 w-4 animate-pulse text-green-500" />
           <span className="text-sm font-semibold">{t("stats.title")}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
@@ -77,14 +77,14 @@ export function StatsWidget() {
       label: t("stats.totalViews"),
       value: stats.visits.total,
       icon: Eye,
-      color: "text-sky-500",
+      color: "text-green-500",
       sub: `+${stats.visits.last24h} ${t("stats.today")}`,
     },
     {
       label: t("stats.thisWeek"),
       value: stats.visits.last7d,
       icon: TrendingUp,
-      color: "text-pink-500",
+      color: "text-emerald-500",
       sub: `${stats.visits.last30d} ${t("stats.per30d")}`,
     },
     {
@@ -98,14 +98,14 @@ export function StatsWidget() {
       label: t("stats.testimonials"),
       value: stats.engagement.testimonials,
       icon: MessageSquare,
-      color: "text-sky-500",
+      color: "text-green-500",
       sub: `${stats.engagement.approvedTestimonials} ${t("stats.approved")}`,
     },
     {
       label: t("stats.subscribers"),
       value: stats.engagement.subscribers,
       icon: Mail,
-      color: "text-pink-500",
+      color: "text-emerald-500",
       sub: t("stats.newsletter"),
     },
     {
@@ -126,9 +126,9 @@ export function StatsWidget() {
       className="glass-card overflow-hidden rounded-2xl"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-sky-500/15 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-5 py-3">
+      <div className="flex items-center justify-between border-b border-green-500/15 bg-gradient-to-r from-green-500/5 to-emerald-500/5 px-5 py-3">
         <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-sky-500" />
+          <Activity className="h-4 w-4 text-green-500" />
           <span className="text-sm font-bold">{t("stats.analytics")}</span>
         </div>
         <span className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
@@ -151,12 +151,12 @@ export function StatsWidget() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="rounded-xl border border-sky-500/15 bg-card p-3 text-center shadow-soft"
+              className="rounded-xl border border-green-500/15 bg-card p-3 text-center shadow-soft"
             >
               <div className={`mx-auto mb-1 flex justify-center ${stat.color}`}>
                 <Icon className="h-4 w-4" />
               </div>
-              <div className="text-xl font-bold text-gradient-sky-pink">
+              <div className="text-xl font-bold text-gradient-viridia">
                 {stat.value.toLocaleString()}
               </div>
               <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -172,9 +172,9 @@ export function StatsWidget() {
 
       {/* Top sections */}
       {stats.topSections.length > 0 && (
-        <div className="border-t border-sky-500/10 px-5 py-3">
+        <div className="border-t border-green-500/10 px-5 py-3">
           <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            <Users className="h-3 w-3 text-pink-500" />
+            <Users className="h-3 w-3 text-emerald-500" />
             {t("stats.topSections")}
           </div>
           <div className="space-y-1.5">
@@ -188,7 +188,7 @@ export function StatsWidget() {
                   </span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-sky-400 to-pink-400"
+                      className="h-full rounded-full bg-gradient-to-r from-green-400 to-emerald-400"
                       style={{ width: `${pct}%` }}
                     />
                   </div>

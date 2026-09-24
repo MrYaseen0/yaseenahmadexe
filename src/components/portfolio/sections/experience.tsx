@@ -19,25 +19,25 @@ const colorMap: Record<
   { dot: string; ring: string; bg: string; text: string; line: string }
 > = {
   sky: {
-    dot: "bg-sky-500",
-    ring: "ring-sky-500/30",
-    bg: "from-sky-500/5 to-transparent",
-    text: "text-sky-600 dark:text-sky-400",
-    line: "from-sky-500 to-pink-500",
+    dot: "bg-green-500",
+    ring: "ring-green-500/30",
+    bg: "from-green-500/5 to-transparent",
+    text: "text-green-600 dark:text-green-400",
+    line: "from-green-500 to-emerald-500",
   },
   pink: {
-    dot: "bg-pink-500",
-    ring: "ring-pink-500/30",
-    bg: "from-pink-500/5 to-transparent",
-    text: "text-pink-600 dark:text-pink-400",
-    line: "from-pink-500 to-wood",
+    dot: "bg-emerald-500",
+    ring: "ring-emerald-500/30",
+    bg: "from-emerald-500/5 to-transparent",
+    text: "text-emerald-600 dark:text-emerald-400",
+    line: "from-emerald-500 to-wood",
   },
   wood: {
     dot: "bg-wood",
     ring: "ring-wood/30",
     bg: "from-wood/5 to-transparent",
     text: "text-wood",
-    line: "from-wood to-sky-500",
+    line: "from-wood to-green-500",
   },
 };
 
@@ -66,7 +66,7 @@ export function Experience() {
         {/* Timeline */}
         <div className="relative mt-16">
           {/* Vertical line */}
-          <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-sky-500 via-pink-500 to-wood sm:left-1/2 sm:-translate-x-1/2" />
+          <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-green-500 via-emerald-500 to-wood sm:left-1/2 sm:-translate-x-1/2" />
 
           <div className="space-y-10 sm:space-y-16">
             {experiences.map((exp, i) => (
@@ -85,7 +85,7 @@ export function Experience() {
                   .querySelector("#contact")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
+              className="font-semibold text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
             >
               <Editable id="experience.ctaLink" />
             </button>
@@ -143,7 +143,7 @@ function TimelineItem({
         <div
           className={cn(
             "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover sm:p-6",
-            "border-sky-500/15",
+            "border-green-500/15",
             colors.bg
           )}
         >
@@ -154,7 +154,7 @@ function TimelineItem({
             <div className="flex items-center gap-3">
               <div
                 className={cn(
-                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-soft ring-1 dark:bg-slate-800",
+                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-soft ring-1 dark:bg-[#16241a]",
                   colors.ring,
                   colors.text
                 )}
@@ -187,7 +187,7 @@ function TimelineItem({
               <MapPin className="h-3 w-3" />
               {exp.location}
             </span>
-            <Badge variant="secondary" className="rounded-full border border-pink-500/20 bg-pink-500/10 px-2 py-0.5 text-[10px] text-pink-700 dark:text-pink-300">
+            <Badge variant="secondary" className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-300">
               {exp.type}
             </Badge>
           </div>
@@ -212,7 +212,7 @@ function TimelineItem({
             {exp.tech.map((t) => (
               <span
                 key={t}
-                className="rounded-md border border-sky-500/15 bg-card px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                className="rounded-md border border-green-500/15 bg-card px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
               >
                 {t}
               </span>

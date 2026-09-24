@@ -13,11 +13,13 @@ interface Particle {
   color: string;
 }
 
-const PARTICLE_COLORS = ["#38bdf8", "#ec4899", "#b08968", "#0ea5e9"];
+/** VIRIDIA field palette: greens only, no off-theme hues. */
+const PARTICLE_COLORS = ["#4ade80", "#34d399", "#86efac", "#22c55e"];
 
 /**
- * Animated 3D background with floating gradient blobs, grid, and particles.
- * Uses CSS 3D perspective for depth. Purely decorative.
+ * Animated field-green background with floating gradient blobs, grid, and
+ * particles. Purely decorative. Matches the VIRIDIA dark-green hero in both
+ * themes (pale field wash in light mode, deep field in dark mode).
  * Particles are generated client-side to avoid hydration mismatch.
  */
 export function AnimatedBackground() {
@@ -42,7 +44,7 @@ export function AnimatedBackground() {
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       {/* Base gradient wash */}
-      <div className="absolute inset-0 bg-gradient-to-br from-sky-50 via-white to-pink-50 dark:from-slate-950 dark:via-slate-900 dark:to-rose-950/40" />
+      <div className="absolute inset-0 bg-gradient-to-br from-green-50 via-white to-emerald-50 dark:from-[#0a0f0a] dark:via-[#0d140d] dark:to-[#101a10]" />
 
       {/* Grid overlay */}
       <div className="absolute inset-0 bg-grid opacity-60" />
@@ -52,7 +54,7 @@ export function AnimatedBackground() {
         className="absolute -top-32 -left-32 h-[32rem] w-[32rem] rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(circle, rgba(56,189,248,0.45), transparent 70%)",
+            "radial-gradient(circle, rgba(74,222,128,0.45), transparent 70%)",
         }}
         animate={{
           x: [0, 60, -30, 0],
@@ -65,7 +67,7 @@ export function AnimatedBackground() {
         className="absolute top-1/3 -right-40 h-[34rem] w-[34rem] rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(circle, rgba(236,72,153,0.4), transparent 70%)",
+            "radial-gradient(circle, rgba(52,211,153,0.4), transparent 70%)",
         }}
         animate={{
           x: [0, -50, 30, 0],
@@ -78,7 +80,7 @@ export function AnimatedBackground() {
         className="absolute bottom-0 left-1/4 h-[26rem] w-[26rem] rounded-full blur-3xl"
         style={{
           background:
-            "radial-gradient(circle, rgba(176,137,104,0.3), transparent 70%)",
+            "radial-gradient(circle, rgba(34,197,94,0.3), transparent 70%)",
         }}
         animate={{
           x: [0, 40, -50, 0],

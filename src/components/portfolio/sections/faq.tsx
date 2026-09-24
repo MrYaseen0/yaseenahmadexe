@@ -52,8 +52,8 @@ export function Faq() {
                 className={cn(
                   "group overflow-hidden rounded-2xl border bg-card transition-all duration-300",
                   isOpen
-                    ? "border-sky-500/30 shadow-card-hover"
-                    : "border-sky-500/15 shadow-soft hover:border-pink-500/30"
+                    ? "border-green-500/30 shadow-card-hover"
+                    : "border-green-500/15 shadow-soft hover:border-emerald-500/30"
                 )}
               >
                 <button
@@ -65,8 +65,8 @@ export function Faq() {
                     className={cn(
                       "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-300",
                       isOpen
-                        ? "bg-gradient-to-br from-sky-500 to-pink-500 text-white shadow-soft"
-                        : "bg-sky-500/10 text-sky-600 dark:text-sky-400 group-hover:bg-pink-500/10 group-hover:text-pink-600"
+                        ? "bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-soft"
+                        : "bg-green-500/10 text-green-600 dark:text-green-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-600"
                     )}
                   >
                     <Icon className="h-5 w-5" />
@@ -80,7 +80,7 @@ export function Faq() {
                     className={cn(
                       "flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors",
                       isOpen
-                        ? "bg-sky-500/15 text-sky-600"
+                        ? "bg-green-500/15 text-green-600"
                         : "bg-muted text-muted-foreground"
                     )}
                   >
@@ -110,10 +110,10 @@ export function Faq() {
         </div>
 
         {/* CTA */}
-        <div className="mt-10 rounded-2xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 via-transparent to-pink-500/5 p-6 text-center sm:p-8">
+        <div className="mt-10 rounded-2xl border border-green-500/20 bg-gradient-to-br from-green-500/5 via-transparent to-emerald-500/5 p-6 text-center sm:p-8">
           <p className="text-lg font-semibold text-foreground">
             <Editable id="faq.ctaTitle" />{" "}
-            <span className="text-gradient-sky-pink"><Editable id="faq.ctaHighlight" /></span>
+            <span className="text-gradient-viridia"><Editable id="faq.ctaHighlight" /></span>
           </p>
           <p className="mt-2 text-sm text-muted-foreground">
             <Editable id="faq.ctaSub" />
@@ -125,7 +125,7 @@ export function Faq() {
                   .querySelector("#contact")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-glow-pink hover:-translate-y-0.5"
+              className="rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-glow-green hover:-translate-y-0.5"
             >
               <Editable id="faq.ctaContact" />
             </button>

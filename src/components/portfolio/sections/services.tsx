@@ -9,16 +9,16 @@ import { cn } from "@/lib/utils";
 
 const colorMap: Record<string, { ring: string; bg: string; text: string; glow: string }> = {
   sky: {
-    ring: "border-sky-500/30",
-    bg: "from-sky-500/10 to-sky-500/5",
-    text: "text-sky-600 dark:text-sky-400",
-    glow: "group-hover:shadow-glow-sky",
+    ring: "border-green-500/30",
+    bg: "from-green-500/10 to-green-500/5",
+    text: "text-green-600 dark:text-green-400",
+    glow: "group-hover:shadow-glow-green",
   },
   pink: {
-    ring: "border-pink-500/30",
-    bg: "from-pink-500/10 to-pink-500/5",
-    text: "text-pink-600 dark:text-pink-400",
-    glow: "group-hover:shadow-glow-pink",
+    ring: "border-emerald-500/30",
+    bg: "from-emerald-500/10 to-emerald-500/5",
+    text: "text-emerald-600 dark:text-emerald-400",
+    glow: "group-hover:shadow-glow-green",
   },
   wood: {
     ring: "border-wood/30",

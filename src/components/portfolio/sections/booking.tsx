@@ -128,9 +128,9 @@ export function Booking() {
       <div className="container mx-auto max-w-5xl px-4 sm:px-6">
         <SectionHeading ek="booking" />
 
-        <Reveal className="mt-12 overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover">
+        <Reveal className="mt-12 overflow-hidden rounded-3xl border border-green-500/20 bg-card shadow-card-hover">
           {/* Status bar */}
-          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between border-b border-green-500/10 bg-gradient-to-r from-green-500/5 to-emerald-500/5 px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
@@ -147,12 +147,12 @@ export function Booking() {
                 { n: 3, label: t("booking.step3") },
               ].map((s, i) => (
                 <div key={s.n} className="flex items-center gap-2">
-                  {i > 0 && <div className="h-px w-6 bg-sky-500/30" />}
+                  {i > 0 && <div className="h-px w-6 bg-green-500/30" />}
                   <div
                     className={cn(
                       "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all",
                       step >= s.n
-                        ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
                         : "bg-muted text-muted-foreground"
                     )}
                   >
@@ -220,7 +220,7 @@ export function Booking() {
         <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
           {badges.map((b, i) => {
             const Icon = badgeIcons[i % badgeIcons.length];
-            const colors = ["text-sky-500", "text-pink-500", "text-wood", "text-green-500"];
+            const colors = ["text-green-500", "text-emerald-500", "text-wood", "text-green-500"];
             return (
               <span key={i} className="flex items-center gap-1.5">
                 <Icon className={cn("h-3.5 w-3.5", colors[i % colors.length])} />
@@ -261,11 +261,11 @@ function Step1Purpose({
             className={cn(
               "group flex items-start gap-4 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5",
               purpose === p.id
-                ? "border-pink-500/40 bg-gradient-to-br from-sky-500/10 to-pink-500/10 shadow-soft"
-                : "border-sky-500/15 hover:border-sky-500/30 hover:bg-muted/30"
+                ? "border-emerald-500/40 bg-gradient-to-br from-green-500/10 to-emerald-500/10 shadow-soft"
+                : "border-green-500/15 hover:border-green-500/30 hover:bg-muted/30"
             )}
           >
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-2xl shadow-soft dark:bg-slate-800">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-2xl shadow-soft dark:bg-[#16241a]">
               {p.icon}
             </span>
             <div>
@@ -308,7 +308,7 @@ function Step2DateTime({
         {/* Date picker */}
         <div>
           <Label className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
-            <Calendar className="h-3.5 w-3.5 text-sky-500" />
+            <Calendar className="h-3.5 w-3.5 text-green-500" />
             <Editable id="booking.selectDate" />
           </Label>
           <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-7">
@@ -320,10 +320,10 @@ function Step2DateTime({
                 className={cn(
                   "flex flex-col items-center gap-0.5 rounded-xl border p-2 transition-all",
                   selectedDate === d.iso
-                    ? "border-pink-500/40 bg-gradient-to-br from-sky-500/15 to-pink-500/15 shadow-soft"
+                    ? "border-emerald-500/40 bg-gradient-to-br from-green-500/15 to-emerald-500/15 shadow-soft"
                     : d.disabled
                     ? "cursor-not-allowed border-muted/30 bg-muted/20 opacity-40"
-                    : "border-sky-500/15 hover:border-sky-500/30 hover:bg-muted/30"
+                    : "border-green-500/15 hover:border-green-500/30 hover:bg-muted/30"
                 )}
               >
                 <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -341,7 +341,7 @@ function Step2DateTime({
         {/* Time picker */}
         <div>
           <Label className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
-            <Clock className="h-3.5 w-3.5 text-pink-500" />
+            <Clock className="h-3.5 w-3.5 text-emerald-500" />
             <Editable id="booking.selectTime" />
           </Label>
           {selectedDate ? (
@@ -353,8 +353,8 @@ function Step2DateTime({
                   className={cn(
                     "rounded-lg border px-3 py-2 text-sm font-medium transition-all",
                     selectedTime === t
-                      ? "border-pink-500/40 bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
-                      : "border-sky-500/15 hover:border-sky-500/30 hover:bg-muted/30"
+                      ? "border-emerald-500/40 bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
+                      : "border-green-500/15 hover:border-green-500/30 hover:bg-muted/30"
                   )}
                 >
                   {t}
@@ -362,7 +362,7 @@ function Step2DateTime({
               ))}
             </div>
           ) : (
-            <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-sky-500/20 p-4 text-center text-sm text-muted-foreground">
+            <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-green-500/20 p-4 text-center text-sm text-muted-foreground">
               <Editable id="booking.dateFirst" />
             </div>
           )}
@@ -416,16 +416,16 @@ function Step3Details({
       </p>
 
       {/* Summary card */}
-      <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-sky-500/20 bg-gradient-to-r from-sky-500/5 to-pink-500/5 p-4">
-        <Badge className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white">
+      <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-green-500/20 bg-gradient-to-r from-green-500/5 to-emerald-500/5 p-4">
+        <Badge className="rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white">
           {purposesMap[purpose] || purpose}
         </Badge>
         <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-          <Calendar className="h-4 w-4 text-sky-500" />
+          <Calendar className="h-4 w-4 text-green-500" />
           {dateLabel}
         </span>
         <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
-          <Clock className="h-4 w-4 text-pink-500" />
+          <Clock className="h-4 w-4 text-emerald-500" />
           {selectedTime}
         </span>
       </div>
@@ -476,7 +476,7 @@ function Step3Details({
         <Button
           onClick={onSubmit}
           disabled={loading}
-          className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+          className="rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
         >
           {loading ? (
             <>
@@ -554,7 +554,7 @@ function SuccessView({
         <a
           href={calendarUrl}
           download
-          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-green"
         >
           <CalendarPlus className="h-4 w-4" />
           <Editable id="booking.addCalendar" />
@@ -562,14 +562,14 @@ function SuccessView({
         <Button
           onClick={onReset}
           variant="outline"
-          className="rounded-full border-sky-500/30"
+          className="rounded-full border-green-500/30"
         >
           <Editable id="booking.bookAnother" />
         </Button>
       </div>
 
-      <div className="mt-2 flex items-center gap-2 rounded-full border border-sky-500/20 bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
-        <Mail className="h-3.5 w-3.5 text-sky-500" />
+      <div className="mt-2 flex items-center gap-2 rounded-full border border-green-500/20 bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+        <Mail className="h-3.5 w-3.5 text-green-500" />
         <Editable id="brand.email" />
       </div>
     </motion.div>
@@ -593,7 +593,7 @@ function Field({
     <div className={cn("space-y-1.5", className)}>
       <Label className="text-xs font-semibold">
         {labelId ? <Editable id={labelId} /> : label}
-        {required && <span className="ml-1 text-pink-500">*</span>}
+        {required && <span className="ml-1 text-emerald-500">*</span>}
       </Label>
       {children}
     </div>

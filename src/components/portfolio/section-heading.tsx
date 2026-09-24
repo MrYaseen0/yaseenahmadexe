@@ -43,11 +43,11 @@ export function SectionHeading({
           <Editable
             id={`${ek}.highlight`}
             as="span"
-            className="text-gradient-sky-pink"
+            className="text-gradient-viridia"
           />
         ) : (
           highlight && (
-            <span className="text-gradient-sky-pink">{highlight}</span>
+            <span className="text-gradient-viridia">{highlight}</span>
           )
         )}
       </h2>
@@ -62,7 +62,7 @@ export function SectionHeading({
           </p>
         )
       )}
-      <div className="mx-auto mt-5 h-1 w-24 rounded-full bg-gradient-to-r from-sky-400 via-pink-400 to-wood" />
+      <div className="mx-auto mt-5 h-1 w-24 rounded-full bg-gradient-to-r from-green-400 via-emerald-400 to-wood" />
     </Reveal>
   );
 }

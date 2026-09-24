@@ -131,7 +131,7 @@ export function Navbar() {
                     <button
                       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                       aria-label="Toggle theme"
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-colors hover:bg-white/15"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-colors hover:border-green-400/40 hover:bg-green-400/15 hover:text-green-300"
                     >
                       {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                     </button>

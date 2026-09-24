@@ -139,7 +139,7 @@ export function ChatWidget() {
           });
         }}
         className={cn(
-          "fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-pink-500 text-white shadow-glow-pink transition-colors",
+          "fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-glow-green transition-colors",
           open && "rotate-180"
         )}
         aria-label={t("chat.openChat")}
@@ -151,7 +151,7 @@ export function ChatWidget() {
           </span>
         )}
         {!open && (
-          <span className="absolute inset-0 animate-ping rounded-full bg-pink-500/40" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500/40" />
         )}
       </motion.button>
 
@@ -163,10 +163,10 @@ export function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-24 right-5 z-50 flex h-[28rem] w-[min(22rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover"
+            className="fixed bottom-24 right-5 z-50 flex h-[28rem] w-[min(22rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-green-500/20 bg-card shadow-card-hover"
           >
             {/* Header */}
-            <div className="relative flex items-center gap-3 bg-gradient-to-r from-sky-500 to-pink-500 p-4 text-white">
+            <div className="relative flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-500 p-4 text-white">
               <div className="relative">
                 <img
                   src="/assets/dev-avatar.png"
@@ -200,7 +200,7 @@ export function ChatWidget() {
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 bg-gradient-to-b from-sky-50/50 to-pink-50/30 dark:from-slate-900 dark:to-slate-900" ref={scrollRef}>
+            <ScrollArea className="flex-1 bg-gradient-to-b from-green-50/50 to-emerald-50/30 dark:from-[#0d140d] dark:to-[#0a0f0a]" ref={scrollRef}>
               <div className="space-y-3 p-4">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center gap-2 py-8 text-center">
@@ -216,8 +216,8 @@ export function ChatWidget() {
                 {typing && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <div className="flex gap-1">
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-sky-500 [animation-delay:0ms]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-pink-500 [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-green-500 [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500 [animation-delay:150ms]" />
                       <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-wood [animation-delay:300ms]" />
                     </div>
                     {t("brand.firstName")} {t("chat.typing")}
@@ -227,7 +227,7 @@ export function ChatWidget() {
             </ScrollArea>
 
             {/* Input */}
-            <div className="flex items-center gap-2 border-t border-sky-500/10 bg-card p-3">
+            <div className="flex items-center gap-2 border-t border-green-500/10 bg-card p-3">
               <Input
                 value={input}
                 onChange={(e) => onType(e.target.value)}
@@ -245,7 +245,7 @@ export function ChatWidget() {
                 size="icon"
                 onClick={send}
                 disabled={!connected || !input.trim()}
-                className="shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                className="shrink-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                 aria-label={t("chat.sendMsg")}
               >
                 <Send className="h-4 w-4" />
@@ -253,9 +253,9 @@ export function ChatWidget() {
             </div>
 
             {!connected && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm dark:bg-slate-900/60">
+              <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm dark:bg-[#0d140d]/60">
                 <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <Loader2 className="h-6 w-6 animate-spin text-sky-500" />
+                  <Loader2 className="h-6 w-6 animate-spin text-green-500" />
                   <span className="text-sm"><Editable id="chat.connectingPanel" /></span>
                 </div>
               </div>
@@ -281,12 +281,12 @@ function Bubble({ msg }: { msg: ChatMsg }) {
         className={cn(
           "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-soft",
           isOwner
-            ? "rounded-tl-sm bg-white text-foreground dark:bg-slate-800"
-            : "rounded-tr-sm bg-gradient-to-br from-sky-500 to-pink-500 text-white"
+            ? "rounded-tl-sm bg-white text-foreground dark:bg-[#16241a]"
+            : "rounded-tr-sm bg-gradient-to-br from-green-500 to-emerald-500 text-white"
         )}
       >
         {isOwner && (
-          <div className="mb-0.5 text-[10px] font-bold text-sky-600 dark:text-sky-400">
+          <div className="mb-0.5 text-[10px] font-bold text-green-600 dark:text-green-400">
             {msg.name || t("brand.name")}
           </div>
         )}

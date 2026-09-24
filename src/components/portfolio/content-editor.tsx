@@ -202,7 +202,7 @@ function EditModeBar() {
     window.location.href = u.toString();
   };
   return (
-    <div className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-3 border-b border-sky-500/30 bg-slate-950/95 px-4 py-2.5 text-sm text-white backdrop-blur">
+    <div className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-3 border-b border-green-500/30 bg-[#0a0f0a]/95 px-4 py-2.5 text-sm text-white backdrop-blur">
       <span className="flex items-center gap-2">
         <ShieldCheck className="h-4 w-4 text-green-400" />
         <span className="font-semibold">Edit mode</span>
@@ -345,7 +345,7 @@ export function Editable({
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-4 w-4" /> Edit: {title}
             {customized ? (
-              <span className="rounded-full bg-pink-500/15 px-2 py-0.5 text-[10px] font-semibold text-pink-600">
+              <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-600">
                 Customized
               </span>
             ) : (
@@ -390,7 +390,7 @@ export function Editable({
           <div className="flex items-center justify-between text-[11px] text-muted-foreground">
             <span>{draft.length} characters</span>
             {dirty && (
-              <span className="font-semibold text-amber-600">
+              <span className="font-semibold text-lime-600">
                 ● Unsaved changes
               </span>
             )}
@@ -438,7 +438,7 @@ export function Editable({
         <div className="my-2 flex justify-center">
           <button
             onClick={openEditor}
-            className="flex items-center gap-1.5 rounded-full border border-dashed border-sky-500/50 bg-sky-500/10 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-500/20 dark:text-sky-300"
+            className="flex items-center gap-1.5 rounded-full border border-dashed border-green-500/50 bg-green-500/10 px-3 py-1.5 text-xs font-semibold text-green-700 hover:bg-green-500/20 dark:text-green-300"
           >
             {isJson ? (
               <ListTree className="h-3.5 w-3.5" />
@@ -455,13 +455,13 @@ export function Editable({
 
   const Tag = (as || "span") as any;
   return (
-    <span className="relative rounded-sm transition-all hover:bg-sky-500/10 hover:outline hover:outline-2 hover:outline-dashed hover:outline-sky-400 hover:outline-offset-2">
+    <span className="relative rounded-sm transition-all hover:bg-green-500/10 hover:outline hover:outline-2 hover:outline-dashed hover:outline-green-400 hover:outline-offset-2">
       {createElement(Tag, { className, style }, value)}
       <button
         onClick={openEditor}
         title={`Edit: ${title}`}
         aria-label={`Edit ${title}`}
-        className="absolute -right-2 -top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500 text-white opacity-70 shadow hover:opacity-100"
+        className="absolute -right-2 -top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white opacity-70 shadow hover:opacity-100"
       >
         <Pencil className="h-3 w-3" />
       </button>
