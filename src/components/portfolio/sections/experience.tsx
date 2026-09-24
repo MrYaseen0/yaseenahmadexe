@@ -1,45 +1,9 @@
 "use client";
 
-import {
-  Briefcase,
-  MapPin,
-  Calendar,
-  Check,
-  GraduationCap,
-  Building2,
-} from "lucide-react";
+import { Briefcase, MapPin, Check, GraduationCap, Building2 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-
-const colorMap: Record<
-  string,
-  { dot: string; ring: string; bg: string; text: string; line: string }
-> = {
-  sky: {
-    dot: "bg-green-500",
-    ring: "ring-green-500/30",
-    bg: "from-green-500/5 to-transparent",
-    text: "text-green-600 dark:text-green-400",
-    line: "from-green-500 to-emerald-500",
-  },
-  pink: {
-    dot: "bg-emerald-500",
-    ring: "ring-emerald-500/30",
-    bg: "from-emerald-500/5 to-transparent",
-    text: "text-emerald-600 dark:text-emerald-400",
-    line: "from-emerald-500 to-wood",
-  },
-  wood: {
-    dot: "bg-wood",
-    ring: "ring-wood/30",
-    bg: "from-wood/5 to-transparent",
-    text: "text-wood",
-    line: "from-wood to-green-500",
-  },
-};
 
 interface ExperienceEntry {
   role: string;
@@ -50,7 +14,6 @@ interface ExperienceEntry {
   description: string;
   achievements: string[];
   tech: string[];
-  color: string;
   current: boolean;
 }
 
@@ -58,34 +21,33 @@ export function Experience() {
   const { tj } = useContent();
   const experiences = tj<ExperienceEntry[]>("experience.items");
   return (
-    <section id="experience" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-5xl px-4 sm:px-6">
+    <section id="experience" className="relative border-t border-(--hairline) bg-(--alt) py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading ek="experience" />
 
         <Editable id="experience.items" json label="Timeline entries" />
-        {/* Timeline */}
-        <div className="relative mt-16">
-          {/* Vertical line */}
-          <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-green-500 via-emerald-500 to-wood sm:left-1/2 sm:-translate-x-1/2" />
+        {/* Timeline — left hairline line, accent dots */}
+        <div className="relative mt-14 pl-9">
+          <div className="absolute bottom-2 left-[8px] top-2 w-px bg-(--hairline)" />
 
-          <div className="space-y-10 sm:space-y-16">
-            {experiences.map((exp, i) => (
-              <TimelineItem key={exp.role + exp.company} exp={exp} index={i} />
+          <div className="space-y-8">
+            {experiences.map((exp) => (
+              <Reveal key={exp.role + exp.company}>
+                <TimelineItem exp={exp} />
+              </Reveal>
             ))}
           </div>
         </div>
 
         {/* CTA */}
         <div className="mt-14 text-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-(--muted)">
             <Editable id="experience.ctaText" />{" "}
             <button
               onClick={() =>
-                document
-                  .querySelector("#contact")
-                  ?.scrollIntoView({ behavior: "smooth" })
+                document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" })
               }
-              className="font-semibold text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
+              className="font-semibold text-(--ink) underline-offset-4 transition-colors hover:text-(--accent) hover:underline"
             >
               <Editable id="experience.ctaLink" />
             </button>
@@ -96,130 +58,82 @@ export function Experience() {
   );
 }
 
-function TimelineItem({
-  exp,
-  index,
-}: {
-  exp: ExperienceEntry;
-  index: number;
-}) {
-  const colors = colorMap[exp.color];
-  const isLeft = index % 2 === 0;
+function TimelineItem({ exp }: { exp: ExperienceEntry }) {
   const Icon =
     exp.type === "Education" ? GraduationCap : exp.type === "Freelance" ? Briefcase : Building2;
 
   return (
-    <div
-      className={cn(
-        "relative flex flex-col gap-4 sm:flex-row sm:items-center",
-        isLeft ? "sm:flex-row" : "sm:flex-row-reverse"
-      )}
-    >
-      {/* Dot on the line */}
-      <div className="absolute left-4 top-6 z-10 -translate-x-1/2 sm:left-1/2">
-        <span
-          className={cn(
-            "relative flex h-5 w-5 items-center justify-center rounded-full ring-4 ring-background",
-            colors.dot
-          )}
-        >
-          {exp.current && (
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ backgroundColor: "currentColor" }} />
-          )}
-        </span>
-      </div>
+    <div className="relative">
+      {/* Accent dot on the line */}
+      <span className="absolute -left-9 top-1.5 h-4 w-4 rounded-full border-[3px] border-white bg-(--accent)" />
 
-      {/* Spacer for alternating layout on desktop */}
-      <div className="hidden sm:block sm:w-1/2" />
-
-      {/* Card */}
-      <Reveal
-        direction={isLeft ? "right" : "left"}
-        className={cn(
-          "ml-12 sm:ml-0 sm:w-1/2",
-          isLeft ? "sm:pr-12" : "sm:pl-12"
-        )}
-      >
-        <div
-          className={cn(
-            "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover sm:p-6",
-            "border-green-500/15",
-            colors.bg
-          )}
-        >
-          {/* top accent */}
-          <div className={cn("absolute left-0 top-0 h-full w-1 bg-gradient-to-b", colors.line)} />
-
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div
-                className={cn(
-                  "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-soft ring-1 dark:bg-[#16241a]",
-                  colors.ring,
-                  colors.text
-                )}
-              >
-                <Icon className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-bold leading-tight sm:text-lg">
-                  {exp.role}
-                </h3>
-                <p className={cn("text-sm font-semibold", colors.text)}>
-                  {exp.company}
-                </p>
-              </div>
+      <div className="rounded-xl border border-(--hairline) bg-white p-5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)] sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-(--hairline) bg-white text-(--ink)">
+              <Icon className="h-5 w-5" />
             </div>
-            {exp.current && (
-              <Badge className="shrink-0 bg-green-500/15 text-green-600 hover:bg-green-500/20 dark:text-green-400">
-                Current
-              </Badge>
-            )}
+            <div>
+              {/* Role — Fraunces */}
+              <h3 className="font-display text-xl tracking-tight text-(--ink) sm:text-2xl">
+                {exp.role}
+              </h3>
+              {/* Company + period — mono muted */}
+              <p className="mt-1 font-mono text-xs uppercase tracking-wider text-(--muted)">
+                {exp.company} · {exp.period}
+              </p>
+            </div>
           </div>
-
-          {/* Meta */}
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {exp.period}
+          {exp.current && (
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-(--accent-soft) px-2.5 py-1 font-mono text-[11px] uppercase tracking-wider text-(--accent)">
+              <span className="h-1.5 w-1.5 rounded-full bg-(--accent)" />
+              Current
             </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              {exp.location}
-            </span>
-            <Badge variant="secondary" className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-700 dark:text-emerald-300">
-              {exp.type}
-            </Badge>
-          </div>
+          )}
+        </div>
 
-          {/* Description */}
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            {exp.description}
-          </p>
+        {/* Meta */}
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <span className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider text-(--muted)">
+            <MapPin className="h-3 w-3" />
+            {exp.location}
+          </span>
+          <span className="rounded-full border border-(--hairline) bg-white px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-(--muted)">
+            {exp.type}
+          </span>
+        </div>
 
-          {/* Achievements */}
+        {/* Description */}
+        <p className="mt-3 text-sm leading-relaxed text-(--muted) sm:text-base">
+          {exp.description}
+        </p>
+
+        {/* Achievements */}
+        {exp.achievements.length > 0 && (
           <ul className="mt-4 space-y-1.5">
             {exp.achievements.map((a) => (
-              <li key={a} className="flex items-start gap-2 text-xs text-foreground/80 sm:text-sm">
-                <Check className={cn("mt-0.5 h-3.5 w-3.5 shrink-0", colors.text)} />
+              <li key={a} className="flex items-start gap-2 text-sm text-(--ink)">
+                <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-(--accent)" />
                 <span>{a}</span>
               </li>
             ))}
           </ul>
+        )}
 
-          {/* Tech tags */}
+        {/* Tech tags — mono pills */}
+        {exp.tech.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-1.5">
-            {exp.tech.map((t) => (
+            {exp.tech.map((tag) => (
               <span
-                key={t}
-                className="rounded-md border border-green-500/15 bg-card px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
+                key={tag}
+                className="rounded-full border border-(--hairline) bg-white px-2.5 py-0.5 font-mono text-[11px] uppercase tracking-wider text-(--muted)"
               >
-                {t}
+                {tag}
               </span>
             ))}
           </div>
-        </div>
-      </Reveal>
+        )}
+      </div>
     </div>
   );
 }

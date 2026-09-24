@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -30,13 +29,6 @@ const MORE_LINKS = [
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#home");
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     const ids = [...MAIN_LINKS, ...MORE_LINKS].map((l) => l.href.slice(1));
@@ -125,18 +117,6 @@ export function Navbar() {
                     {link.label}
                   </button>
                 ))}
-                <div className="mt-1 flex items-center justify-between border-t border-white/10 px-4 py-2.5">
-                  <span className="text-xs uppercase tracking-widest text-white/40">Theme</span>
-                  {mounted && (
-                    <button
-                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                      aria-label="Toggle theme"
-                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-colors hover:border-green-400/40 hover:bg-green-400/15 hover:text-green-300"
-                    >
-                      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    </button>
-                  )}
-                </div>
               </motion.div>
             )}
           </AnimatePresence>

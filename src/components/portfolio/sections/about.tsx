@@ -1,128 +1,87 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Image from "next/image";
 import { GraduationCap, Heart, MapPin, Briefcase } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
 
-
-
 export function About() {
   const { t, tj } = useContent();
   const skillChips = tj<string[]>("about.skills");
-  const chips = tj<string[]>("about.chips");
   const infoCards = tj<{ label: string; value: string }[]>("about.infoCards");
   return (
-    <section id="about" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+    <section id="about" className="relative border-t border-(--hairline) bg-white py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading ek="about" />
 
-        <div className="mt-14 grid items-center gap-8 md:gap-10 lg:grid-cols-2">
-          {/* Left: photo + floating tags */}
-          <Reveal direction="right" className="perspective-1000 relative overflow-hidden">
+        <div className="mt-14 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+          {/* Left: photo + nameplate */}
+          <Reveal direction="right">
             <div className="relative mx-auto max-w-md">
-              {/* Wooden frame accent */}
-              <div className="absolute -inset-3 rounded-[2rem] border-2 border-wood/30 bg-wood/5" />
-              <div className="absolute -inset-3 rounded-[2rem] border border-emerald-500/20" />
-
-              <motion.div
-                whileHover={{ rotateY: 5, rotateX: -3, scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 200 }}
-                className="transform-3d relative overflow-hidden rounded-[1.75rem] shadow-card-hover"
-              >
-                <img
+              <div className="relative overflow-hidden rounded-xl border border-(--hairline)">
+                <Image
                   src="/assets/dev-photo.jpg"
                   alt={t("brand.name")}
+                  width={640}
+                  height={800}
+                  sizes="(max-width: 1024px) 100vw, 512px"
                   className="aspect-[4/5] w-full object-cover"
-                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-green-900/60 via-transparent to-emerald-500/10" />
 
-                {/* Name plate */}
-                <div className="absolute inset-x-3 bottom-3 glass rounded-xl p-3">
+                {/* Nameplate — simple, no glass, static availability dot */}
+                <div className="absolute inset-x-4 bottom-4 rounded-xl border border-(--hairline) bg-white p-3">
                   <div className="flex items-center gap-2">
-                    <span className="relative flex h-2.5 w-2.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                      <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-                    </span>
-                    <span className="text-sm font-bold text-foreground">
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-(--accent)" />
+                    <span className="text-sm font-semibold text-(--ink)">
                       <Editable id="brand.name" />
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-(--muted)">
                     <Editable id="about.nameplateRole" />
                   </p>
                 </div>
-              </motion.div>
-
-              {/* Floating skill badges */}
-              <Editable id="about.chips" json label="Floating chips" />
-              {[
-                { className: "-left-6 top-10", delay: 0.4, color: "sky" },
-                { className: "-right-6 top-1/3", delay: 0.6, color: "pink" },
-                { className: "-left-4 bottom-24", delay: 0.8, color: "wood" },
-                { className: "-right-4 bottom-12", delay: 1, color: "sky" },
-              ].map((c, i) => (
-                <FloatingChip key={i} className={c.className} delay={c.delay} color={c.color as "sky" | "pink" | "wood"}>
-                  {chips[i] ?? ""}
-                </FloatingChip>
-              ))}
+              </div>
             </div>
           </Reveal>
 
-          {/* Right: text + code card */}
+          {/* Right: text + skills + CTA + info cards */}
           <Reveal direction="left" delay={0.1} className="space-y-6">
-            <h3 className="text-2xl font-bold sm:text-3xl md:text-4xl">
-              <Editable id="about.h1a" />{" "}
-              <span className="text-gradient-viridia"><Editable id="about.h1b" /></span>
-            </h3>
+            <h2 className="font-display text-4xl tracking-tight text-(--ink) sm:text-5xl">
+              <Editable id="about.h1a" /> <Editable id="about.h1b" />
+            </h2>
 
-            <p className="text-base text-muted-foreground sm:text-lg">
+            <p className="text-base leading-relaxed text-(--muted) sm:text-lg">
               <Editable id="brand.aboutText1" />
             </p>
-            <p className="text-base text-muted-foreground sm:text-lg">
+            <p className="text-base leading-relaxed text-(--muted) sm:text-lg">
               <Editable id="brand.aboutText2" />
             </p>
 
-            {/* Skill chips */}
+            {/* Skill chips — mono pills */}
             <Editable id="about.skills" json label="Skill chips" />
             <div className="flex flex-wrap gap-2">
-              {skillChips.map((s, i) => (
-                <motion.div
+              {skillChips.map((s) => (
+                <span
                   key={s}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 }}
+                  className="rounded-full border border-(--hairline) bg-white px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-(--muted)"
                 >
-                  <Badge
-                    variant="secondary"
-                    className="rounded-full border border-green-500/20 bg-gradient-to-r from-green-500/10 to-emerald-500/10 px-3 py-1.5 text-sm font-medium"
-                  >
-                    {s}
-                  </Badge>
-                </motion.div>
+                  {s}
+                </span>
               ))}
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={() =>
-                  document
-                    .querySelector("#techstack")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
+            <div>
+              <a
+                href="#techstack"
+                className="inline-flex items-center gap-2 rounded-full bg-[#101410] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-black"
               >
-                <Briefcase className="mr-2 h-4 w-4" />
+                <Briefcase className="h-4 w-4" />
                 <Editable id="about.cta" />
-              </Button>
+              </a>
             </div>
 
-            {/* Info cards */}
+            {/* Info cards — white hairline, lucide icons */}
             <Editable id="about.infoCards" json label="Info cards" />
             <div className="grid gap-3 sm:grid-cols-3">
               {[
@@ -141,41 +100,13 @@ export function About() {
           </Reveal>
         </div>
 
-        {/* Code snippet card (full width below) */}
+        {/* Code snippet card (full width below) — light editor card */}
         <Reveal className="mt-14">
           <Editable id="about.code" buttonOnly label="Code snippet" />
           <CodeCard />
         </Reveal>
       </div>
     </section>
-  );
-}
-
-function FloatingChip({
-  children,
-  className,
-  delay,
-  color,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay: number;
-  color: "sky" | "pink" | "wood";
-}) {
-  const colors = {
-    sky: "border-green-500/40 bg-white/90 text-green-700 shadow-glow-green",
-    pink: "border-emerald-500/40 bg-white/90 text-emerald-700 shadow-glow-green",
-    wood: "border-wood/40 bg-white/90 text-wood shadow-soft",
-  };
-  return (
-    <div
-      className={`animate-fade-in-scale absolute z-10 rounded-xl border px-3 py-1.5 text-xs font-bold backdrop-blur ${colors[color]} ${className}`}
-      style={{ animationDelay: `${delay}s` }}
-    >
-      <span className="animate-float inline-block" style={{ animationDelay: `${delay}s`, animationDuration: "3s" }}>
-        {children}
-      </span>
-    </div>
   );
 }
 
@@ -189,12 +120,12 @@ function InfoCard({
   value: string;
 }) {
   return (
-    <div className="glass rounded-xl p-3 shadow-soft">
-      <div className="flex items-center gap-1.5 text-muted-foreground">
-        <span className="text-green-500">{icon}</span>
-        <span className="text-[11px] uppercase tracking-wider">{label}</span>
+    <div className="rounded-xl border border-(--hairline) bg-white p-4">
+      <div className="flex items-center gap-2 text-(--muted)">
+        <span className="text-(--ink)">{icon}</span>
+        <span className="font-mono text-[11px] uppercase tracking-wider">{label}</span>
       </div>
-      <div className="mt-1 text-sm font-semibold">{value}</div>
+      <div className="mt-1.5 text-sm font-semibold text-(--ink)">{value}</div>
     </div>
   );
 }
@@ -203,24 +134,22 @@ function CodeCard() {
   const { t } = useContent();
   const codeLines = t("about.code").split("\n");
   return (
-    <motion.div
-      whileHover={{ rotateX: 1, rotateY: -1 }}
-      transition={{ type: "spring", stiffness: 200 }}
-      className="transform-3d perspective-1000 overflow-hidden rounded-2xl border border-green-500/20 bg-[#0e150e] shadow-card-hover"
-    >
-      {/* Title bar */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-[#16241a]/80 px-4 py-2.5">
+    <div className="overflow-hidden rounded-xl border border-(--hairline) bg-white">
+      {/* Title bar — simple */}
+      <div className="flex items-center justify-between border-b border-(--hairline) px-4 py-2.5">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
-            <span className="h-3 w-3 rounded-full bg-red-400" />
-            <span className="h-3 w-3 rounded-full bg-lime-400" />
-            <span className="h-3 w-3 rounded-full bg-green-400" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#E6E8E2]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#E6E8E2]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#E6E8E2]" />
           </div>
-          <span className="ml-2 font-mono text-xs text-slate-300">
+          <span className="ml-2 font-mono text-xs text-(--muted)">
             <Editable id="about.codeFile" />
           </span>
         </div>
-        <span className="font-mono text-[11px] text-slate-400"><Editable id="about.codeLang" /></span>
+        <span className="font-mono text-[11px] uppercase tracking-wider text-(--muted)">
+          <Editable id="about.codeLang" />
+        </span>
       </div>
 
       {/* Code */}
@@ -228,45 +157,38 @@ function CodeCard() {
         <code className="font-mono">
           {codeLines.map((line, i) => (
             <div key={i} className="flex">
-              <span className="mr-4 inline-block w-6 select-none text-right text-slate-600">
+              <span className="mr-4 inline-block w-6 select-none text-right text-(--muted) opacity-60">
                 {i + 1}
               </span>
-              <span className="text-slate-200">{highlightLine(line)}</span>
+              <span className="text-(--ink)">{highlightLine(line)}</span>
             </div>
           ))}
         </code>
       </pre>
-    </motion.div>
+    </div>
   );
 }
 
-// Very light syntax highlighting
+// Very light syntax highlighting (light theme)
 function highlightLine(line: string) {
-  // keywords
   const parts: React.ReactNode[] = [];
   const tokens = line.split(/(\s+|[{}[\]():,;])/);
   tokens.forEach((tok, i) => {
     if (/^(const|export|default|return)$/.test(tok)) {
       parts.push(
-        <span key={i} className="font-bold text-emerald-400">
+        <span key={i} className="font-semibold text-(--ink)">
           {tok}
         </span>
       );
     } else if (/^["'`].*["'`]$/.test(tok)) {
       parts.push(
-        <span key={i} className="text-lime-300">
-          {tok}
-        </span>
-      );
-    } else if (/^[A-Z][a-zA-Z]+$/.test(tok)) {
-      parts.push(
-        <span key={i} className="text-green-300">
+        <span key={i} className="text-(--accent)">
           {tok}
         </span>
       );
     } else if (/^(name|role|location|skills|passion|status)$/.test(tok)) {
       parts.push(
-        <span key={i} className="text-green-200">
+        <span key={i} className="text-(--ink)">
           {tok}
         </span>
       );

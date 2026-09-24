@@ -127,7 +127,7 @@ export function CommandPalette() {
         label: link.label,
         hint: t("palette.hintSection"),
         icon: Hash,
-        iconColor: "text-green-500",
+        iconColor: "text-[#166534]",
         action: scrollTo(link.href),
         keywords: `navigation section ${link.label.toLowerCase()} go to`,
       });
@@ -140,7 +140,7 @@ export function CommandPalette() {
         label: s.title,
         hint: t("palette.hintService"),
         icon: Sparkles,
-        iconColor: "text-emerald-500",
+        iconColor: "text-[#101410]",
         action: scrollTo("#services"),
         keywords: `service ${s.title.toLowerCase()} ${s.tags.join(" ").toLowerCase()}`,
       });
@@ -153,7 +153,7 @@ export function CommandPalette() {
         label: p.title,
         hint: t("palette.hintProject"),
         icon: Briefcase,
-        iconColor: "text-wood",
+        iconColor: "text-[#5F665F]",
         action: scrollTo("#projects"),
         keywords: `project ${p.title.toLowerCase()} ${p.tags.join(" ").toLowerCase()}`,
       });
@@ -166,7 +166,7 @@ export function CommandPalette() {
         label: r.name,
         hint: t("palette.hintExternal"),
         icon: Code2,
-        iconColor: "text-green-500",
+        iconColor: "text-[#166534]",
         action: () => {
           setOpen(false);
           setTimeout(
@@ -184,7 +184,7 @@ export function CommandPalette() {
       label: t("palette.hireMe"),
       hint: t("palette.hintAction"),
       icon: Sparkles,
-      iconColor: "text-emerald-500",
+      iconColor: "text-[#101410]",
       action: scrollTo("#contact"),
       keywords: "hire contact work freelance",
     });
@@ -193,7 +193,7 @@ export function CommandPalette() {
       label: t("palette.downloadResume"),
       hint: t("palette.hintAction"),
       icon: FileText,
-      iconColor: "text-wood",
+      iconColor: "text-[#5F665F]",
       action: () => {
         setOpen(false);
         setTimeout(() => window.open("/api/resume", "_blank"), 100);
@@ -205,7 +205,7 @@ export function CommandPalette() {
       label: t("palette.visitGithub"),
       hint: t("palette.hintExternal"),
       icon: Code2,
-      iconColor: "text-green-500",
+      iconColor: "text-[#166534]",
       action: () => {
         setOpen(false);
         setTimeout(() => window.open(socials.github, "_blank"), 100);
@@ -265,31 +265,31 @@ export function CommandPalette() {
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
             onClick={() => setOpen(true)}
-            className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-green-500/30 bg-card/80 px-3 py-2 text-xs font-medium text-muted-foreground shadow-soft backdrop-blur transition-colors hover:border-emerald-500/40 hover:text-foreground lg:flex"
+            className="fixed bottom-5 left-5 z-40 hidden items-center gap-2 rounded-full border border-[--hairline] bg-white px-3 py-2 text-xs font-medium text-[#5F665F] shadow-[0_4px_16px_rgba(16,20,16,0.08)] transition-colors hover:border-[#101410] hover:text-[#101410] lg:flex"
             aria-label={t("palette.openAria")}
           >
             <Search className="h-3.5 w-3.5" />
             <span>{t("palette.quickSearch")}</span>
-            <kbd className="rounded border border-green-500/30 bg-muted px-1.5 py-0.5 text-[10px] font-mono">⌘K</kbd>
+            <kbd className="rounded border border-[--hairline] bg-[#F4F5F1] px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd>
           </motion.button>
         )}
       </AnimatePresence>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-xl overflow-hidden rounded-2xl border-green-500/20 bg-card/95 p-0 shadow-card-hover backdrop-blur-xl">
+        <DialogContent className="max-w-xl overflow-hidden rounded-2xl border-[--hairline] bg-white p-0 shadow-[0_16px_48px_rgba(16,20,16,0.12)]">
           <DialogTitle className="sr-only">{t("palette.title")}</DialogTitle>
           {/* Search input */}
-          <div className="flex items-center gap-3 border-b border-green-500/15 px-4 py-3">
-            <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+          <div className="flex items-center gap-3 border-b border-[--hairline] px-4 py-3">
+            <Search className="h-5 w-5 shrink-0 text-[#5F665F]" />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t("palette.placeholder")}
-              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+              className="flex-1 bg-transparent text-sm text-[#101410] placeholder:text-[#5F665F] focus:outline-none"
             />
-            <kbd className="hidden rounded border border-green-500/30 bg-muted px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground sm:block">
+            <kbd className="hidden rounded border border-[--hairline] bg-[#F4F5F1] px-1.5 py-0.5 font-mono text-[10px] text-[#5F665F] sm:block">
               ESC
             </kbd>
           </div>
@@ -297,8 +297,8 @@ export function CommandPalette() {
           {/* Results */}
           <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-2">
             {filtered.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-10 text-center text-muted-foreground">
-                <Search className="h-8 w-8 text-muted-foreground/40" />
+              <div className="flex flex-col items-center gap-2 py-10 text-center text-[#5F665F]">
+                <Search className="h-8 w-8 text-[#5F665F]/40" />
                 <p className="text-sm">{t("palette.noResultsA")} &ldquo;{query}&rdquo;</p>
                 <p className="text-xs">{t("palette.noResultsB")}</p>
               </div>
@@ -315,7 +315,7 @@ export function CommandPalette() {
                   let runningIndex = 0;
                   return Object.entries(groups).map(([groupName, items]) => (
                     <div key={groupName} className="mb-2">
-                      <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <div className="px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-[#5F665F]">
                         {groupName}
                       </div>
                       {items.map((item) => {
@@ -331,20 +331,20 @@ export function CommandPalette() {
                             className={cn(
                               "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
                               isActive
-                                ? "bg-gradient-to-r from-green-500/10 to-emerald-500/10"
-                                : "hover:bg-muted/50"
+                                ? "bg-[#F4F5F1]"
+                                : "hover:bg-[#F4F5F1]/60"
                             )}
                           >
-                            <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-green-500/15 bg-card", item.iconColor)}>
+                            <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[--hairline] bg-white", item.iconColor)}>
                               <Icon className="h-4 w-4" />
                             </span>
                             <span className="flex-1 min-w-0">
-                              <span className="block truncate text-sm font-medium text-foreground">
+                              <span className="block truncate text-sm font-medium text-[#101410]">
                                 {item.label}
                               </span>
                             </span>
                             {isActive && (
-                              <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                              <CornerDownLeft className="h-3.5 w-3.5 shrink-0 text-[#5F665F]" />
                             )}
                           </button>
                         );
@@ -357,17 +357,17 @@ export function CommandPalette() {
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between border-t border-green-500/15 px-4 py-2.5 text-[11px] text-muted-foreground">
+          <div className="flex items-center justify-between border-t border-[--hairline] px-4 py-2.5 text-[11px] text-[#5F665F]">
             <div className="flex items-center gap-3">
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-green-500/30 bg-muted px-1 py-0.5 font-mono">
+                <kbd className="rounded border border-[--hairline] bg-[#F4F5F1] px-1 py-0.5 font-mono">
                   <ArrowUp className="inline h-2.5 w-2.5" />
                   <ArrowDown className="inline h-2.5 w-2.5" />
                 </kbd>
                 navigate
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-green-500/30 bg-muted px-1 py-0.5 font-mono">
+                <kbd className="rounded border border-[--hairline] bg-[#F4F5F1] px-1 py-0.5 font-mono">
                   <CornerDownLeft className="inline h-2.5 w-2.5" />
                 </kbd>
                 select

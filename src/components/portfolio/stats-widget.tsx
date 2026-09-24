@@ -56,14 +56,14 @@ export function StatsWidget() {
 
   if (loading) {
     return (
-      <div className="glass-card animate-fade-in-up rounded-2xl p-5">
+      <div className="rounded-2xl border border-[--hairline] bg-white p-5">
         <div className="mb-3 flex items-center gap-2">
-          <Activity className="h-4 w-4 animate-pulse text-green-500" />
-          <span className="text-sm font-semibold">{t("stats.title")}</span>
+          <Activity className="h-4 w-4 animate-pulse text-[#166534]" />
+          <span className="text-sm font-semibold text-[#101410]">{t("stats.title")}</span>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-muted/50" />
+            <div key={i} className="h-16 animate-pulse rounded-xl bg-[#F4F5F1]" />
           ))}
         </div>
       </div>
@@ -77,42 +77,36 @@ export function StatsWidget() {
       label: t("stats.totalViews"),
       value: stats.visits.total,
       icon: Eye,
-      color: "text-green-500",
       sub: `+${stats.visits.last24h} ${t("stats.today")}`,
     },
     {
       label: t("stats.thisWeek"),
       value: stats.visits.last7d,
       icon: TrendingUp,
-      color: "text-emerald-500",
       sub: `${stats.visits.last30d} ${t("stats.per30d")}`,
     },
     {
       label: t("stats.bookings"),
       value: stats.engagement.bookings,
       icon: Calendar,
-      color: "text-wood",
       sub: `${stats.engagement.pendingBookings} ${t("stats.pending")}`,
     },
     {
       label: t("stats.testimonials"),
       value: stats.engagement.testimonials,
       icon: MessageSquare,
-      color: "text-green-500",
       sub: `${stats.engagement.approvedTestimonials} ${t("stats.approved")}`,
     },
     {
       label: t("stats.subscribers"),
       value: stats.engagement.subscribers,
       icon: Mail,
-      color: "text-emerald-500",
       sub: t("stats.newsletter"),
     },
     {
       label: t("stats.articles"),
       value: stats.engagement.articles,
       icon: FileText,
-      color: "text-wood",
       sub: t("stats.published"),
     },
   ];
@@ -123,18 +117,18 @@ export function StatsWidget() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="glass-card overflow-hidden rounded-2xl"
+      className="overflow-hidden rounded-2xl border border-[--hairline] bg-white shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-green-500/15 bg-gradient-to-r from-green-500/5 to-emerald-500/5 px-5 py-3">
+      <div className="flex items-center justify-between border-b border-[--hairline] px-5 py-3">
         <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-green-500" />
-          <span className="text-sm font-bold">{t("stats.analytics")}</span>
+          <Activity className="h-4 w-4 text-[#166534]" />
+          <span className="text-sm font-bold text-[#101410]">{t("stats.analytics")}</span>
         </div>
-        <span className="flex items-center gap-1.5 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
+        <span className="flex items-center gap-1.5 rounded-full bg-[#EAF3EC] px-2 py-0.5 font-mono text-[10px] font-medium uppercase tracking-wider text-[#166534]">
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#166534] opacity-75" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#166534]" />
           </span>
           {t("stats.live")}
         </span>
@@ -151,18 +145,18 @@ export function StatsWidget() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="rounded-xl border border-green-500/15 bg-card p-3 text-center shadow-soft"
+              className="rounded-xl border border-[--hairline] bg-white p-3 text-center"
             >
-              <div className={`mx-auto mb-1 flex justify-center ${stat.color}`}>
+              <div className="mx-auto mb-1 flex justify-center text-[#101410]">
                 <Icon className="h-4 w-4" />
               </div>
-              <div className="text-xl font-bold text-gradient-viridia">
+              <div className="text-xl font-bold text-[#101410]">
                 {stat.value.toLocaleString()}
               </div>
-              <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#5F665F]">
                 {stat.label}
               </div>
-              <div className="mt-0.5 text-[9px] text-muted-foreground/70">
+              <div className="mt-0.5 text-[9px] text-[#5F665F]/70">
                 {stat.sub}
               </div>
             </motion.div>
@@ -172,27 +166,27 @@ export function StatsWidget() {
 
       {/* Top sections */}
       {stats.topSections.length > 0 && (
-        <div className="border-t border-green-500/10 px-5 py-3">
-          <div className="mb-2 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            <Users className="h-3 w-3 text-emerald-500" />
+        <div className="border-t border-[--hairline] px-5 py-3">
+          <div className="mb-2 flex items-center gap-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#5F665F]">
+            <Users className="h-3 w-3 text-[#166534]" />
             {t("stats.topSections")}
           </div>
           <div className="space-y-1.5">
-            {stats.topSections.slice(0, 5).map((s, i) => {
+            {stats.topSections.slice(0, 5).map((s) => {
               const maxCount = stats.topSections[0]?.count || 1;
               const pct = (s.count / maxCount) * 100;
               return (
                 <div key={s.section} className="flex items-center gap-2">
-                  <span className="w-16 shrink-0 text-xs font-medium capitalize text-muted-foreground">
+                  <span className="w-16 shrink-0 text-xs font-medium capitalize text-[#5F665F]">
                     {s.section}
                   </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-[#F4F5F1]">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-green-400 to-emerald-400"
+                      className="h-full rounded-full bg-[#166534]"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="w-10 shrink-0 text-right text-[10px] font-mono text-muted-foreground">
+                  <span className="w-10 shrink-0 text-right font-mono text-[10px] text-[#5F665F]">
                     {s.count}
                   </span>
                 </div>

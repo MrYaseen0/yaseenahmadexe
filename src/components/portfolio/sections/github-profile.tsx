@@ -9,6 +9,10 @@ import {
   FolderGit2,
   ExternalLink,
   Loader2,
+  MapPin,
+  Building2,
+  Link2,
+  CalendarDays,
 } from "lucide-react";
 import { SectionHeading } from "../section-heading";
 import { Reveal } from "../reveal";
@@ -28,6 +32,10 @@ interface Profile {
   blog: string | null;
   location: string | null;
   created_at: string;
+}
+
+interface RepoStars {
+  stargazers_count?: number;
 }
 
 export function GithubProfile() {
@@ -84,7 +92,7 @@ export function GithubProfile() {
         if (reposRes.ok) {
           const r = await reposRes.json();
           stars = (r.repos || []).reduce(
-            (acc: number, x: any) => acc + (x.stargazers_count || 0),
+            (acc: number, x: RepoStars) => acc + (x.stargazers_count || 0),
             0
           );
         }
@@ -102,131 +110,131 @@ export function GithubProfile() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <section id="github" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+    <section id="github" className="border-t border-[var(--hairline)] bg-[#F4F5F1] py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading ek="github" />
 
-        <Reveal className="mt-14 mx-auto max-w-4xl">
+        <Reveal className="mx-auto mt-14 max-w-4xl">
           {error && (
-            <div className="mb-4 rounded-2xl border border-lime-500/30 bg-lime-500/10 p-4 text-center text-sm text-lime-700 dark:text-lime-300">
+            <p className="mb-4 text-center text-sm text-[var(--muted)]">
               <Editable id="github.loadError" />
-            </div>
+            </p>
           )}
-          <div className="overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/5 via-white to-emerald-500/5 shadow-card-hover dark:from-green-500/5 dark:via-[#0d140d] dark:to-emerald-500/5">
-            {/* Top banner */}
-            <div className="relative h-28 bg-gradient-to-r from-green-500 via-emerald-500 to-wood">
-              <div className="absolute inset-0 bg-grid opacity-30" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-            </div>
-
-            <div className="px-6 pb-6 sm:px-8">
-              <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end">
-                {/* avatar */}
-                <div className="-mt-14 h-28 w-28 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg dark:border-[#0d140d] dark:bg-[#0d140d]">
-                  {loading ? (
-                    <div className="flex h-full w-full items-center justify-center bg-muted">
-                      <Loader2 className="h-6 w-6 animate-spin text-green-500" />
-                    </div>
-                  ) : (
-                    <img
-                      src={profile?.avatar_url}
-                      alt={t("brand.name")}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                  )}
-                </div>
-
-                <div className="flex-1 pb-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-2xl font-bold">
-                      {profile?.name || t("brand.name")}
-                    </h3>
-                    <a
-                      href={t("socials.github")}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground hover:bg-green-500/10 hover:text-green-600"
-                    >
-                      @{profile?.login || t("brand.githubUsername")}
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
+          <div className="rounded-xl border border-[var(--hairline)] bg-white p-6 transition-all duration-200 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)] sm:p-8">
+            <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+              {/* avatar */}
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border border-[var(--hairline)] bg-[#F4F5F1]">
+                {loading ? (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Loader2 className="h-6 w-6 animate-spin text-[#101410]" />
                   </div>
-                  <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-                    {profile?.bio}
-                  </p>
-                </div>
-
-                <a
-                  href={t("socials.github")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-shadow hover:shadow-glow-green"
-                >
-                  <Github className="h-4 w-4" />
-                  <Editable id="github.followBtn" />
-                </a>
+                ) : (
+                  // Plain <img>: next/image needs remotePatterns in next.config.ts
+                  // for avatars.githubusercontent.com, which is out of scope here.
+                  <img
+                    src={profile?.avatar_url}
+                    alt={t("brand.name")}
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                )}
               </div>
 
-              {/* Stats grid */}
-              <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <StatBox
-                  icon={<FolderGit2 className="h-5 w-5" />}
-                  value={profile?.public_repos ?? 0}
-                  label={t("github.statRepos")}
-                />
-                <StatBox
-                  icon={<Star className="h-5 w-5" />}
-                  value={profile?.totalStars ?? 0}
-                  label={t("github.statStars")}
-                />
-                <StatBox
-                  icon={<Users className="h-5 w-5" />}
-                  value={profile?.followers ?? 0}
-                  label={t("github.statFollowers")}
-                />
-                <StatBox
-                  icon={<BookMarked className="h-5 w-5" />}
-                  value={profile?.following ?? 0}
-                  label={t("github.statFollowing")}
-                />
-              </div>
-
-              {/* Meta info */}
-              <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                {profile?.location && (
-                  <span className="flex items-center gap-1">📍 {profile.location}</span>
-                )}
-                {profile?.company && (
-                  <span className="flex items-center gap-1">🏢 {profile.company}</span>
-                )}
-                {profile?.blog && (
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-xl font-semibold text-[#101410]">
+                    {profile?.name || t("brand.name")}
+                  </h3>
                   <a
-                    href={
-                      profile.blog.startsWith("http")
-                        ? profile.blog
-                        : `https://${profile.blog}`
-                    }
+                    href={t("socials.github")}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:text-green-600"
+                    className="inline-flex items-center gap-1 rounded-full border border-[var(--hairline)] px-2.5 py-0.5 font-mono text-xs text-[var(--muted)] transition-colors hover:border-[#101410] hover:text-[#101410]"
                   >
-                    🔗 {profile.blog}
+                    @{profile?.login || t("brand.githubUsername")}
+                    <ExternalLink className="h-3 w-3" />
                   </a>
-                )}
-                {profile?.created_at && (
-                  <span className="flex items-center gap-1">
-                    🗓️ <Editable id="github.joinedWord" />{" "}
-                    {new Date(profile.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                    })}
-                  </span>
-                )}
+                </div>
+                <p className="mt-1 max-w-xl text-sm leading-relaxed text-[var(--muted)]">
+                  {profile?.bio}
+                </p>
               </div>
+
+              <a
+                href={t("socials.github")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#101410] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-black"
+              >
+                <Github className="h-4 w-4" />
+                <Editable id="github.followBtn" />
+              </a>
+            </div>
+
+            {/* Stats row */}
+            <div className="mt-6 grid grid-cols-2 gap-3 border-t border-[var(--hairline)] pt-6 sm:grid-cols-4">
+              <StatBox
+                icon={<FolderGit2 className="h-4 w-4" />}
+                value={profile?.public_repos ?? 0}
+                label={t("github.statRepos")}
+              />
+              <StatBox
+                icon={<Star className="h-4 w-4" />}
+                value={profile?.totalStars ?? 0}
+                label={t("github.statStars")}
+              />
+              <StatBox
+                icon={<Users className="h-4 w-4" />}
+                value={profile?.followers ?? 0}
+                label={t("github.statFollowers")}
+              />
+              <StatBox
+                icon={<BookMarked className="h-4 w-4" />}
+                value={profile?.following ?? 0}
+                label={t("github.statFollowing")}
+              />
+            </div>
+
+            {/* Meta info */}
+            <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 font-mono text-xs text-[var(--muted)]">
+              {profile?.location && (
+                <span className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5" /> {profile.location}
+                </span>
+              )}
+              {profile?.company && (
+                <span className="flex items-center gap-1.5">
+                  <Building2 className="h-3.5 w-3.5" /> {profile.company}
+                </span>
+              )}
+              {profile?.blog && (
+                <a
+                  href={
+                    profile.blog.startsWith("http")
+                      ? profile.blog
+                      : `https://${profile.blog}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 hover:text-[#101410]"
+                >
+                  <Link2 className="h-3.5 w-3.5" /> {profile.blog}
+                </a>
+              )}
+              {profile?.created_at && (
+                <span className="flex items-center gap-1.5">
+                  <CalendarDays className="h-3.5 w-3.5" />{" "}
+                  <Editable id="github.joinedWord" />{" "}
+                  {new Date(profile.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                  })}
+                </span>
+              )}
             </div>
           </div>
         </Reveal>
@@ -245,12 +253,12 @@ function StatBox({
   label: string;
 }) {
   return (
-    <div className="rounded-2xl border border-green-500/15 bg-card p-4 text-center shadow-soft transition-transform hover:-translate-y-1">
-      <div className="mb-1 flex justify-center text-emerald-500">{icon}</div>
-      <div className="text-2xl font-bold text-gradient-viridia">
+    <div className="rounded-xl border border-[var(--hairline)] bg-white p-4 text-center">
+      <div className="mb-1 flex justify-center text-[#101410]">{icon}</div>
+      <div className="font-mono text-xl font-medium text-[#101410]">
         {value.toLocaleString()}
       </div>
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+      <div className="mt-0.5 font-mono text-[11px] uppercase tracking-wider text-[var(--muted)]">
         {label}
       </div>
     </div>

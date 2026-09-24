@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { io, Socket } from "socket.io-client";
 import { MessageCircle, X, Send, Loader2, MinusCircle, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
@@ -138,10 +137,7 @@ export function ChatWidget() {
             return next;
           });
         }}
-        className={cn(
-          "fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-glow-green transition-colors",
-          open && "rotate-180"
-        )}
+        className="fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#101410] text-white shadow-lg transition-colors hover:bg-black"
         aria-label={t("chat.openChat")}
       >
         {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
@@ -149,9 +145,6 @@ export function ChatWidget() {
           <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white ring-2 ring-white">
             {unread}
           </span>
-        )}
-        {!open && (
-          <span className="absolute inset-0 animate-ping rounded-full bg-emerald-500/40" />
         )}
       </motion.button>
 
@@ -163,36 +156,36 @@ export function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed bottom-24 right-5 z-50 flex h-[28rem] w-[min(22rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-3xl border border-green-500/20 bg-card shadow-card-hover"
+            className="fixed bottom-24 right-5 z-50 flex h-[28rem] w-[min(22rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[--hairline] bg-white shadow-[0_16px_48px_rgba(16,20,16,0.12)]"
           >
             {/* Header */}
-            <div className="relative flex items-center gap-3 bg-gradient-to-r from-green-500 to-emerald-500 p-4 text-white">
+            <div className="flex items-center gap-3 border-b border-[--hairline] bg-white p-4 text-[#101410]">
               <div className="relative">
                 <img
                   src="/assets/dev-avatar.png"
                   alt={t("brand.name")}
-                  className="h-10 w-10 rounded-full border-2 border-white/50 object-cover"
+                  className="h-10 w-10 rounded-full border border-[--hairline] object-cover"
                   loading="lazy"
                 />
-                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-green-400" />
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-[#166534]" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-1.5 text-sm font-bold">
                   {t("brand.name")}
                   {connected && (
-                    <span className="flex items-center gap-1 rounded-full bg-white/20 px-1.5 py-0.5 text-[9px] font-medium">
+                    <span className="flex items-center gap-1 rounded-full bg-[#EAF3EC] px-1.5 py-0.5 font-mono text-[9px] font-medium text-[#166534]">
                       <Users className="h-2.5 w-2.5" />
                       {onlineCount} {t("chat.onlineWord")}
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] opacity-90">
+                <div className="text-[11px] text-[#5F665F]">
                   {connected ? <Editable id="chat.onlineText" /> : t("chat.connecting")}
                 </div>
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="rounded-full p-1.5 transition-colors hover:bg-white/20"
+                className="rounded-full p-1.5 text-[#5F665F] transition-colors hover:bg-[#F4F5F1] hover:text-[#101410]"
                 aria-label={t("chat.minimize")}
               >
                 <MinusCircle className="h-5 w-5" />
@@ -200,12 +193,11 @@ export function ChatWidget() {
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 bg-gradient-to-b from-green-50/50 to-emerald-50/30 dark:from-[#0d140d] dark:to-[#0a0f0a]" ref={scrollRef}>
+            <ScrollArea className="flex-1 bg-white" ref={scrollRef}>
               <div className="space-y-3 p-4">
                 {messages.length === 0 && (
                   <div className="flex flex-col items-center gap-2 py-8 text-center">
-                    <div className="text-4xl">👋</div>
-                    <p className="text-sm font-medium text-muted-foreground">
+                    <p className="text-sm font-medium text-[#5F665F]">
                       <Editable id="chat.greeting" />
                     </p>
                   </div>
@@ -214,11 +206,11 @@ export function ChatWidget() {
                   <Bubble key={m.id} msg={m} />
                 ))}
                 {typing && (
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2 text-xs text-[#5F665F]">
                     <div className="flex gap-1">
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-green-500 [animation-delay:0ms]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-emerald-500 [animation-delay:150ms]" />
-                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-wood [animation-delay:300ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#5F665F]/60 [animation-delay:0ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#5F665F]/60 [animation-delay:150ms]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#5F665F]/60 [animation-delay:300ms]" />
                     </div>
                     {t("brand.firstName")} {t("chat.typing")}
                   </div>
@@ -227,7 +219,7 @@ export function ChatWidget() {
             </ScrollArea>
 
             {/* Input */}
-            <div className="flex items-center gap-2 border-t border-green-500/10 bg-card p-3">
+            <div className="flex items-center gap-2 border-t border-[--hairline] bg-white p-3">
               <Input
                 value={input}
                 onChange={(e) => onType(e.target.value)}
@@ -239,23 +231,22 @@ export function ChatWidget() {
                 }}
                 placeholder={t("chat.typePlaceholder")}
                 disabled={!connected}
-                className="rounded-full"
+                className="rounded-full border-[--hairline] bg-white focus-visible:border-[#101410]"
               />
-              <Button
-                size="icon"
+              <button
                 onClick={send}
                 disabled={!connected || !input.trim()}
-                className="shrink-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#101410] text-white transition-colors hover:bg-black disabled:opacity-40"
                 aria-label={t("chat.sendMsg")}
               >
                 <Send className="h-4 w-4" />
-              </Button>
+              </button>
             </div>
 
             {!connected && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm dark:bg-[#0d140d]/60">
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                  <Loader2 className="h-6 w-6 animate-spin text-green-500" />
+              <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+                <div className="flex flex-col items-center gap-2 text-[#5F665F]">
+                  <Loader2 className="h-6 w-6 animate-spin text-[#166534]" />
                   <span className="text-sm"><Editable id="chat.connectingPanel" /></span>
                 </div>
               </div>
@@ -279,14 +270,14 @@ function Bubble({ msg }: { msg: ChatMsg }) {
     >
       <div
         className={cn(
-          "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-soft",
+          "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm",
           isOwner
-            ? "rounded-tl-sm bg-white text-foreground dark:bg-[#16241a]"
-            : "rounded-tr-sm bg-gradient-to-br from-green-500 to-emerald-500 text-white"
+            ? "rounded-tl-sm bg-[#F4F5F1] text-[#101410]"
+            : "rounded-tr-sm bg-[#101410] text-white"
         )}
       >
         {isOwner && (
-          <div className="mb-0.5 text-[10px] font-bold text-green-600 dark:text-green-400">
+          <div className="mb-0.5 text-[10px] font-bold text-[#166534]">
             {msg.name || t("brand.name")}
           </div>
         )}
@@ -294,7 +285,7 @@ function Bubble({ msg }: { msg: ChatMsg }) {
         <div
           className={cn(
             "mt-1 text-right text-[9px] opacity-60",
-            isOwner ? "text-muted-foreground" : "text-white"
+            isOwner ? "text-[#5F665F]" : "text-white"
           )}
         >
           {new Date(msg.timestamp).toLocaleTimeString([], {
