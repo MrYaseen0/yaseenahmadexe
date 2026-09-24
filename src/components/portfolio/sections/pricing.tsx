@@ -21,21 +21,21 @@ interface Plan {
 
 const colorMap: Record<string, { border: string; bg: string; btn: string; check: string }> = {
   sky: {
-    border: "border-sky-500/30",
-    bg: "from-sky-500/5 to-transparent",
-    btn: "bg-gradient-to-r from-sky-500 to-sky-600 text-white",
-    check: "text-sky-500",
+    border: "border-green-500/30",
+    bg: "from-green-500/5 to-transparent",
+    btn: "bg-gradient-to-r from-green-500 to-green-600 text-white",
+    check: "text-green-500",
   },
   pink: {
-    border: "border-pink-500/40",
-    bg: "from-pink-500/10 to-sky-500/5",
-    btn: "bg-gradient-to-r from-pink-500 to-sky-500 text-white shadow-glow-pink",
-    check: "text-pink-500",
+    border: "border-emerald-500/40",
+    bg: "from-emerald-500/10 to-green-500/5",
+    btn: "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-glow-green",
+    check: "text-emerald-500",
   },
   wood: {
     border: "border-wood/30",
     bg: "from-wood/10 to-transparent",
-    btn: "bg-gradient-to-r from-wood to-amber-700 text-white",
+    btn: "bg-gradient-to-r from-wood to-lime-700 text-white",
     check: "text-wood",
   },
 };
@@ -67,7 +67,7 @@ export function Pricing() {
                 )}
               >
                 {plan.popular && (
-                  <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] font-bold text-white">
+                  <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-3 py-1 text-[11px] font-bold text-white">
                     <Sparkles className="h-3 w-3" />
                     <Editable id="pricing.popular" />
                   </div>
@@ -80,7 +80,7 @@ export function Pricing() {
                 </p>
 
                 <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gradient-sky-pink">
+                  <span className="text-4xl font-extrabold text-gradient-viridia">
                     {plan.price}
                   </span>
                   <span className="text-sm text-muted-foreground">
@@ -116,7 +116,7 @@ export function Pricing() {
           <Editable id="pricing.footText" />{" "}
           <button
             onClick={scrollToContact}
-            className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
+            className="font-semibold text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
           >
             <Editable id="pricing.footLink" />
           </button>

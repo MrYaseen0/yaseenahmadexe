@@ -172,8 +172,8 @@ export function Projects() {
                 className={cn(
                   "rounded-full px-4 py-1.5 text-sm font-medium transition-all",
                   active === c
-                    ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
-                    : "bg-muted text-muted-foreground hover:bg-sky-500/10 hover:text-sky-600"
+                    ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
+                    : "bg-muted text-muted-foreground hover:bg-green-500/10 hover:text-green-600"
                 )}
               >
                 {c}
@@ -188,7 +188,7 @@ export function Projects() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="h-9 cursor-pointer appearance-none rounded-full border border-sky-500/30 bg-card pl-8 pr-8 text-xs font-medium shadow-soft transition-colors hover:border-pink-500/40 focus:outline-none focus:ring-2 focus:ring-sky-500/30"
+                className="h-9 cursor-pointer appearance-none rounded-full border border-green-500/30 bg-card pl-8 pr-8 text-xs font-medium shadow-soft transition-colors hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-green-500/30"
                 aria-label={t("a11y.sortProjects")}
               >
                 <option value="updated">{t("projects.sortUpdated")}</option>
@@ -232,7 +232,7 @@ export function Projects() {
               href={t("socials.github")}
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-sky-700 hover:underline"
+              className="font-semibold text-green-700 hover:underline"
             >
               @{t("brand.githubUsername")}
             </a>{" "}
@@ -243,15 +243,15 @@ export function Projects() {
                 source === "github"
                   ? "bg-green-500/10 text-green-800"
                   : source === "cache"
-                  ? "bg-sky-500/10 text-sky-700"
-                  : "bg-amber-500/10 text-amber-700"
+                  ? "bg-green-500/10 text-green-700"
+                  : "bg-lime-500/10 text-lime-700"
               )}
             >
               {source || "loading"}
             </span>
           </span>
           {error && (
-            <span className="text-amber-700">({error} — <Editable id="projects.curatedNote" />)</span>
+            <span className="text-lime-700">({error} — <Editable id="projects.curatedNote" />)</span>
           )}
         </div>
 
@@ -261,7 +261,7 @@ export function Projects() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="h-72 animate-pulse rounded-2xl border border-sky-500/10 bg-muted/50"
+                className="h-72 animate-pulse rounded-2xl border border-green-500/10 bg-muted/50"
               />
             ))}
           </div>
@@ -295,7 +295,7 @@ export function Projects() {
             asChild
             size="lg"
             variant="outline"
-            className="rounded-full border-sky-500/40 px-7 hover:bg-sky-500/5"
+            className="rounded-full border-green-500/40 px-7 hover:bg-green-500/5"
           >
             <a href={t("socials.github")} target="_blank" rel="noopener noreferrer">
               <Github className="mr-2 h-4 w-4" />
@@ -351,7 +351,7 @@ function ProjectCard({
           transform: `perspective(1000px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
           transition: "transform 0.2s ease-out",
         }}
-        className="transform-3d group relative flex h-full flex-col overflow-hidden rounded-2xl border border-sky-500/20 bg-card shadow-soft transition-shadow hover:shadow-card-hover"
+        className="transform-3d group relative flex h-full flex-col overflow-hidden rounded-2xl border border-green-500/20 bg-card shadow-soft transition-shadow hover:shadow-card-hover"
       >
         {/* Project preview image */}
         <div className="relative h-36 overflow-hidden sm:h-40">
@@ -365,7 +365,7 @@ function ProjectCard({
 
           {/* Featured badge overlay */}
           {repo.featured && (
-            <Badge className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white shadow-soft">
+            <Badge className="absolute right-3 top-3 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-2 py-0.5 text-[10px] text-white shadow-soft">
               ★ <Editable id="projects.featuredBadge" />
             </Badge>
           )}
@@ -388,14 +388,14 @@ function ProjectCard({
         </div>
 
         {/* Top gradient bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-sky-400 via-pink-400 to-wood" />
+        <div className="h-1 w-full bg-gradient-to-r from-green-400 via-emerald-400 to-wood" />
 
         <div className="flex flex-1 flex-col p-5">
           {/* header */}
           <div className="mb-2 flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500/15 to-pink-500/15">
-                <Github className="h-4 w-4 text-sky-600" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-green-500/15 to-emerald-500/15">
+                <Github className="h-4 w-4 text-green-600" />
               </div>
               <h3 className="font-bold leading-tight text-foreground">
                 {repo.name.replace(/-/g, " ").replace(/_/g, " ")}
@@ -418,7 +418,7 @@ function ProjectCard({
           )}
 
           {/* stats */}
-          <div className="mt-auto grid grid-cols-3 gap-2 border-t border-sky-500/10 pt-3 text-xs">
+          <div className="mt-auto grid grid-cols-3 gap-2 border-t border-green-500/10 pt-3 text-xs">
             <Stat icon={<Star className="h-3 w-3" />} value={repo.stargazers_count} />
             <Stat icon={<GitFork className="h-3 w-3" />} value={repo.forks_count} />
             <Stat icon={<Eye className="h-3 w-3" />} value={repo.watchers_count} />
@@ -447,7 +447,7 @@ function ProjectCard({
             <Button
               size="sm"
               variant="outline"
-              className="rounded-lg border-sky-500/30 hover:bg-sky-500/5"
+              className="rounded-lg border-green-500/30 hover:bg-green-500/5"
               onClick={onDetails}
             >
               <Eye className="mr-1 h-3.5 w-3.5" />
@@ -456,7 +456,7 @@ function ProjectCard({
             <Button
               size="sm"
               variant="outline"
-              className="rounded-lg border-sky-500/30 hover:bg-sky-500/5"
+              className="rounded-lg border-green-500/30 hover:bg-green-500/5"
               onClick={onDocs}
             >
               <BookOpen className="mr-1 h-3.5 w-3.5" />
@@ -465,7 +465,7 @@ function ProjectCard({
             <Button
               size="sm"
               asChild
-              className="rounded-lg bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+              className="rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white"
             >
               <a href={repo.html_url} target="_blank" rel="noopener noreferrer" aria-label={`View ${repo.name} source code on GitHub`}>
                 <Github className="h-3.5 w-3.5" />
@@ -481,7 +481,7 @@ function ProjectCard({
 function Stat({ icon, value }: { icon: React.ReactNode; value: number }) {
   return (
     <div className="flex items-center justify-center gap-1 text-muted-foreground">
-      <span className="text-pink-500">{icon}</span>
+      <span className="text-emerald-500">{icon}</span>
       <span className="font-semibold text-foreground">{value}</span>
     </div>
   );
@@ -525,11 +525,11 @@ function ReadmeModal({
 
   return (
     <Dialog open={!!repo} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[88vh] max-w-3xl overflow-hidden rounded-2xl border-sky-500/20 p-0">
-        <DialogHeader className="border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-6 py-4">
+      <DialogContent className="max-h-[88vh] max-w-3xl overflow-hidden rounded-2xl border-green-500/20 p-0">
+        <DialogHeader className="border-b border-green-500/10 bg-gradient-to-r from-green-500/5 to-emerald-500/5 px-6 py-4">
           <div className="flex items-center justify-between gap-3 pr-8">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-pink-500 text-white">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white">
                 <BookOpen className="h-5 w-5" />
               </div>
               <div>
@@ -559,11 +559,11 @@ function ReadmeModal({
           <div className="p-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-3 py-20 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-green-500" />
                 <p className="text-sm"><Editable id="projects.readmeLoading" /></p>
               </div>
             ) : content ? (
-              <article className="prose prose-sm max-w-none prose-headings:scroll-mt-20 prose-headings:text-sky-700 prose-a:text-pink-600 prose-code:rounded prose-code:bg-sky-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-pink-600 prose-code:before:hidden prose-code:after:hidden prose-pre:bg-slate-900 prose-pre:text-slate-100 dark:prose-headings:text-sky-300 dark:prose-a:text-pink-400 dark:prose-code:text-pink-400">
+              <article className="prose prose-sm max-w-none prose-headings:scroll-mt-20 prose-headings:text-green-700 prose-a:text-emerald-600 prose-code:rounded prose-code:bg-green-500/10 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-emerald-600 prose-code:before:hidden prose-code:after:hidden prose-pre:bg-[#0e150e] prose-pre:text-green-50 dark:prose-headings:text-green-300 dark:prose-a:text-emerald-400 dark:prose-code:text-emerald-400">
                 <MarkdownLite content={content} />
               </article>
             ) : (
@@ -575,7 +575,7 @@ function ReadmeModal({
                 <Button
                   asChild
                   size="sm"
-                  className="mt-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                  className="mt-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                 >
                   <a
                     href={repo?.html_url}
@@ -591,7 +591,7 @@ function ReadmeModal({
           </div>
         </ScrollArea>
 
-        <div className="flex items-center justify-between gap-2 border-t border-sky-500/10 bg-muted/30 px-6 py-3">
+        <div className="flex items-center justify-between gap-2 border-t border-green-500/10 bg-muted/30 px-6 py-3">
           <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
             <Editable id="projects.updatedWord" />{" "}
@@ -601,7 +601,7 @@ function ReadmeModal({
             asChild
             size="sm"
             variant="outline"
-            className="rounded-full border-sky-500/30"
+            className="rounded-full border-green-500/30"
           >
             <a href={repo?.html_url} target="_blank" rel="noopener noreferrer">
               <Github className="mr-1.5 h-3.5 w-3.5" />
@@ -627,7 +627,7 @@ function MarkdownLite({ content }: { content: string }) {
     if (line.trim().startsWith("```")) {
       if (inCode) {
         out.push(
-          <pre key={`code-${i}`} className="rounded-lg bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto">
+          <pre key={`code-${i}`} className="rounded-lg bg-[#0e150e] p-4 text-sm text-green-50 overflow-x-auto">
             <code>{codeBuf.join("\n")}</code>
           </pre>
         );
@@ -673,7 +673,7 @@ function MarkdownLite({ content }: { content: string }) {
 
     // horizontal rule
     if (/^---+$/.test(line.trim())) {
-      out.push(<hr key={i} className="my-4 border-sky-500/20" />);
+      out.push(<hr key={i} className="my-4 border-green-500/20" />);
       return;
     }
 
@@ -687,7 +687,7 @@ function MarkdownLite({ content }: { content: string }) {
 
   if (inCode && codeBuf.length) {
     out.push(
-      <pre key="code-final" className="rounded-lg bg-slate-900 p-4 text-sm text-slate-100 overflow-x-auto">
+      <pre key="code-final" className="rounded-lg bg-[#0e150e] p-4 text-sm text-green-50 overflow-x-auto">
         <code>{codeBuf.join("\n")}</code>
       </pre>
     );
@@ -709,10 +709,10 @@ function inline(text: string): React.ReactNode[] {
     if (tok.startsWith("**")) {
       parts.push(<strong key={key++} className="font-bold text-foreground">{tok.slice(2, -2)}</strong>);
     } else if (tok.startsWith("`")) {
-      parts.push(<code key={key++} className="rounded bg-sky-500/10 px-1.5 py-0.5 text-pink-600 dark:text-pink-400">{tok.slice(1, -1)}</code>);
+      parts.push(<code key={key++} className="rounded bg-green-500/10 px-1.5 py-0.5 text-emerald-600 dark:text-emerald-400">{tok.slice(1, -1)}</code>);
     } else if (tok.startsWith("[")) {
       const lm = tok.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if (lm) parts.push(<a key={key++} href={lm[2]} target="_blank" rel="noopener noreferrer" className="font-medium text-pink-600 underline dark:text-pink-400">{lm[1]}</a>);
+      if (lm) parts.push(<a key={key++} href={lm[2]} target="_blank" rel="noopener noreferrer" className="font-medium text-emerald-600 underline dark:text-emerald-400">{lm[1]}</a>);
     }
     last = m.index + tok.length;
   }
@@ -744,7 +744,7 @@ function ProjectDetailModal({
 
   return (
     <Dialog open={!!repo} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-sky-500/20 p-0">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-green-500/20 p-0">
         {/* Hero preview image */}
         <div className="relative h-56 overflow-hidden sm:h-64">
           <img
@@ -752,7 +752,7 @@ function ProjectDetailModal({
             alt={`${repo.name} preview`}
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-[#0a0f0a]/40 to-transparent" />
 
           {/* Close button */}
           <button
@@ -765,7 +765,7 @@ function ProjectDetailModal({
 
           {/* Featured badge */}
           {repo.featured && (
-            <Badge className="absolute left-4 top-4 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-3 py-1 text-[11px] text-white shadow-soft">
+            <Badge className="absolute left-4 top-4 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-3 py-1 text-[11px] text-white shadow-soft">
               ★ <Editable id="projects.featuredBadge" />
             </Badge>
           )}
@@ -797,7 +797,7 @@ function ProjectDetailModal({
             {/* Description */}
             <div className="mb-5">
               <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                <Folder className="h-4 w-4 text-sky-500" />
+                <Folder className="h-4 w-4 text-green-500" />
                 <Editable id="projects.aboutWord" />
               </h3>
               <p className="text-sm leading-relaxed text-foreground sm:text-base">
@@ -809,7 +809,7 @@ function ProjectDetailModal({
             {repo.topics.length > 0 && (
               <div className="mb-5">
                 <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                  <Layers className="h-4 w-4 text-pink-500" />
+                  <Layers className="h-4 w-4 text-emerald-500" />
                   <Editable id="projects.techWord" />
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -823,7 +823,7 @@ function ProjectDetailModal({
             {/* Stats grid */}
             <div className="mb-5">
               <h3 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                <Star className="h-4 w-4 text-amber-500" />
+                <Star className="h-4 w-4 text-lime-500" />
                 <Editable id="projects.statsWord" />
               </h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -831,19 +831,19 @@ function ProjectDetailModal({
                   icon={<Star className="h-4 w-4" />}
                   value={repo.stargazers_count}
                   label={t("projects.starsWord")}
-                  color="text-amber-500"
+                  color="text-lime-500"
                 />
                 <DetailStat
                   icon={<GitFork className="h-4 w-4" />}
                   value={repo.forks_count}
                   label={t("projects.forksWord")}
-                  color="text-sky-500"
+                  color="text-green-500"
                 />
                 <DetailStat
                   icon={<Eye className="h-4 w-4" />}
                   value={repo.watchers_count}
                   label={t("projects.watchersWord")}
-                  color="text-pink-500"
+                  color="text-emerald-500"
                 />
                 <DetailStat
                   icon={<Folder className="h-4 w-4" />}
@@ -855,7 +855,7 @@ function ProjectDetailModal({
             </div>
 
             {/* Meta info */}
-            <div className="mb-5 grid gap-2 rounded-xl border border-sky-500/15 bg-muted/30 p-4 text-xs sm:grid-cols-2">
+            <div className="mb-5 grid gap-2 rounded-xl border border-green-500/15 bg-muted/30 p-4 text-xs sm:grid-cols-2">
               <MetaRow
                 icon={<GitBranch className="h-3.5 w-3.5" />}
                 label={t("projects.branchLabel")}
@@ -882,7 +882,7 @@ function ProjectDetailModal({
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
                 asChild
-                className="flex-1 rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+                className="flex-1 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
               >
                 <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
                   <Github className="mr-2 h-4 w-4" />
@@ -922,7 +922,7 @@ function DetailStat({
   color: string;
 }) {
   return (
-    <div className="rounded-xl border border-sky-500/15 bg-card p-3 text-center shadow-soft">
+    <div className="rounded-xl border border-green-500/15 bg-card p-3 text-center shadow-soft">
       <div className={`mx-auto mb-1 flex justify-center ${color}`}>{icon}</div>
       <div className="text-lg font-bold text-foreground">
         {value.toLocaleString()}
@@ -946,7 +946,7 @@ function MetaRow({
   return (
     <div className="flex items-center justify-between gap-2">
       <span className="flex items-center gap-1.5 text-muted-foreground">
-        <span className="text-sky-500">{icon}</span>
+        <span className="text-green-500">{icon}</span>
         {label}
       </span>
       <span className="font-medium text-foreground">{value}</span>

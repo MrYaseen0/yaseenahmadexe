@@ -57,23 +57,23 @@ export function Newsletter() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/10 via-white/80 to-pink-500/10 p-8 shadow-card-hover dark:from-sky-500/10 dark:via-slate-900/80 dark:to-pink-500/10 sm:p-12"
+          className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/10 via-white/80 to-emerald-500/10 p-8 shadow-card-hover dark:from-green-500/10 dark:via-[#0d140d]/80 dark:to-emerald-500/10 sm:p-12"
         >
           {/* Decorative background */}
           <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-pink-500/15 blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-sky-500/15 blur-3xl" />
+          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl" />
+          <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-green-500/15 blur-3xl" />
 
           <div className="relative flex flex-col items-center gap-6 text-center">
             {/* Icon badge */}
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-pink-500 shadow-glow-sky">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 shadow-glow-green">
               <Mail className="h-8 w-8 text-white" />
             </div>
 
             <div>
               <h3 className="text-2xl font-bold sm:text-3xl">
                 <Editable id="newsletter.titleA" />{" "}
-                <span className="text-gradient-sky-pink"><Editable id="newsletter.titleB" /></span>
+                <span className="text-gradient-viridia"><Editable id="newsletter.titleB" /></span>
               </h3>
               <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
                 <Editable id="newsletter.sub" />
@@ -86,8 +86,8 @@ export function Newsletter() {
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
               {stats.map((st, i) => (
                 <span key={i} className="flex items-center gap-1.5">
-                  {i === 0 ? <BookOpen className="h-3.5 w-3.5 text-sky-500" />
-                   : i === 1 ? <Sparkles className="h-3.5 w-3.5 text-pink-500" />
+                  {i === 0 ? <BookOpen className="h-3.5 w-3.5 text-green-500" />
+                   : i === 1 ? <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
                    : <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />}
                   {st.text}
                 </span>
@@ -121,13 +121,13 @@ export function Newsletter() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("newsletter.emailPlaceholder")}
-                  className="rounded-full border-sky-500/30 bg-white/80 px-5 py-3 text-sm shadow-soft dark:bg-slate-800/80"
+                  className="rounded-full border-green-500/30 bg-white/80 px-5 py-3 text-sm shadow-soft dark:bg-[#16241a]/80"
                   disabled={loading}
                 />
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-6 py-3 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
+                  className="shrink-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-green"
                 >
                   {loading ? (
                     <>

@@ -279,7 +279,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 32 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.7 }}
-        className="absolute inset-x-0 bottom-0 z-10 border-t border-white/10 bg-black/45 backdrop-blur-xl"
+        className="relative z-10 border-t border-white/10 bg-black/45 backdrop-blur-xl md:absolute md:inset-x-0 md:bottom-0"
       >
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 sm:px-8 md:flex-row md:items-center md:gap-6 md:py-5">
           {/* Showreel */}

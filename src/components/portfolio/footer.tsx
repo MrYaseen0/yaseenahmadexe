@@ -6,6 +6,7 @@ import {
   Linkedin,
   Twitter,
   Facebook,
+  Instagram,
   Mail,
   Heart,
   ArrowUp,
@@ -51,9 +52,9 @@ export function Footer() {
     window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
-    <footer className="relative mt-auto border-t border-sky-500/15 bg-gradient-to-br from-sky-50/80 via-white to-pink-50/80 dark:from-slate-950 dark:via-slate-900 dark:to-rose-950/40">
+    <footer className="relative mt-auto border-t border-green-500/15 bg-gradient-to-br from-green-50/80 via-white to-emerald-50/80 dark:from-[#0a0f0a] dark:via-[#0d140d] dark:to-emerald-950/40">
       {/* Top wave decoration */}
-      <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-sky-500/40 to-transparent" />
+      <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-green-500/40 to-transparent" />
 
       <div className="container mx-auto max-w-7xl px-4 py-14 sm:px-6">
         <div className="grid gap-10 lg:grid-cols-12">
@@ -65,7 +66,7 @@ export function Footer() {
             className="lg:col-span-4"
           >
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 overflow-hidden rounded-xl ring-2 ring-sky-500/30">
+              <div className="h-12 w-12 overflow-hidden rounded-xl ring-2 ring-green-500/30">
                 <img
                   src="/assets/logo.png"
                   alt={`${t("brand.name")} logo`}
@@ -75,7 +76,7 @@ export function Footer() {
               <div>
                 <div className="text-lg font-bold">
                   <Editable id="brand.firstName" />
-                  <span className="text-gradient-sky-pink">.</span>
+                  <span className="text-gradient-viridia">.</span>
                 </div>
                 <div className="text-[11px] uppercase tracking-widest text-muted-foreground">
                   <Editable id="footer.brandTag" />
@@ -99,7 +100,7 @@ export function Footer() {
                 type="submit"
                 disabled={subscribing}
                 size="sm"
-                className="shrink-0 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                className="shrink-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white"
               >
                 <Editable id="footer.newsButton" />
               </Button>
@@ -124,7 +125,7 @@ export function Footer() {
                 <li key={l.label}>
                   <a
                     href={l.href}
-                    className="text-muted-foreground transition-colors hover:text-sky-600"
+                    className="text-muted-foreground transition-colors hover:text-green-600"
                   >
                     {l.label}
                   </a>
@@ -148,16 +149,16 @@ export function Footer() {
             />
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
-                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-pink-500" />
+                <Mail className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
                 <a
                   href={socials.email}
-                  className="break-all hover:text-sky-600"
+                  className="break-all hover:text-green-600"
                 >
                   <Editable id="brand.email" />
                 </a>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-pink-500" />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
                 <Editable id="brand.location" as="span" />
               </li>
             </ul>
@@ -189,6 +190,12 @@ export function Footer() {
               <SocialIcon href={socials.facebook} label="Facebook">
                 <Facebook className="h-4 w-4" />
               </SocialIcon>
+              <SocialIcon href={socials.instagram} label="Instagram">
+                <Instagram className="h-4 w-4" />
+              </SocialIcon>
+              <SocialIcon href={socials.tiktok} label="TikTok">
+                <TikTokIcon className="h-4 w-4" />
+              </SocialIcon>
               <SocialIcon href={socials.email} label="Email">
                 <Mail className="h-4 w-4" />
               </SocialIcon>
@@ -197,17 +204,17 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-sky-500/10 pt-6 sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-green-500/10 pt-6 sm:flex-row">
           <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
             © {new Date().getFullYear()} <Editable id="brand.name" />. Built with
-            <Heart className="h-3 w-3 fill-pink-500 text-pink-500" />
+            <Heart className="h-3 w-3 fill-emerald-500 text-emerald-500" />
             <Editable id="footer.copyrightB" />
           </p>
           <Button
             onClick={scrollTop}
             variant="outline"
             size="sm"
-            className="rounded-full border-sky-500/30 hover:bg-sky-500/5"
+            className="rounded-full border-green-500/30 hover:bg-green-500/5"
           >
             <ArrowUp className="mr-1.5 h-4 w-4" />
             <Editable id="footer.backToTop" />
@@ -215,6 +222,14 @@ export function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
   );
 }
 
@@ -233,7 +248,7 @@ function SocialIcon({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-500/20 bg-card text-muted-foreground transition-all hover:border-pink-500/40 hover:bg-gradient-to-br hover:from-sky-500 hover:to-pink-500 hover:text-white"
+      className="flex h-10 w-10 items-center justify-center rounded-xl border border-green-500/20 bg-card text-muted-foreground transition-all hover:border-emerald-500/40 hover:bg-gradient-to-br hover:from-green-500 hover:to-emerald-500 hover:text-white"
     >
       {children}
     </a>

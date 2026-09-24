@@ -43,7 +43,7 @@ export function Contact() {
         <div className="mt-14 grid gap-6 md:gap-8 lg:grid-cols-5">
           {/* Contact info */}
           <Reveal direction="right" className="lg:col-span-2">
-            <div className="glass rounded-3xl border border-sky-500/15 p-6 shadow-soft sm:p-8">
+            <div className="glass rounded-3xl border border-green-500/15 p-6 shadow-soft sm:p-8">
               <div className="mb-3 flex flex-wrap items-center gap-3">
                 <Editable id="contact.title2" as="h3" className="text-2xl font-bold" />
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-600 dark:text-green-400">
@@ -84,13 +84,15 @@ export function Contact() {
                 />
               </div>
 
-              <div className="mt-6 border-t border-sky-500/10 pt-6">
+              <div className="mt-6 border-t border-green-500/10 pt-6">
                 <p className="mb-3 text-sm font-semibold"><Editable id="contact.follow" /></p>
                 <div className="flex flex-wrap gap-2">
                   <SocialButton href={socials.github} label="GitHub" />
                   <SocialButton href={socials.linkedin} label="LinkedIn" />
                   <SocialButton href={socials.twitter} label="X / Twitter" />
                   <SocialButton href={socials.facebook} label="Facebook" />
+                  <SocialButton href={socials.instagram} label="Instagram" />
+                  <SocialButton href={socials.tiktok} label="TikTok" />
                 </div>
               </div>
 
@@ -98,7 +100,7 @@ export function Contact() {
                 href={socials.whatsapp}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-glow-sky"
+                className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3.5 text-sm font-semibold text-white shadow-soft transition-all hover:shadow-glow-green"
               >
                 <MessageCircle className="h-5 w-5" />
                 <Editable id="contact.whatsapp" />
@@ -108,19 +110,19 @@ export function Contact() {
 
           {/* Forms */}
           <Reveal direction="left" delay={0.1} className="lg:col-span-3">
-            <div className="rounded-3xl border border-sky-500/15 bg-card p-6 shadow-card-hover sm:p-8">
+            <div className="rounded-3xl border border-green-500/15 bg-card p-6 shadow-card-hover sm:p-8">
               <Tabs defaultValue="hire" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1">
                   <TabsTrigger
                     value="hire"
-                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
                   >
                     <Briefcase className="mr-1.5 h-4 w-4" />
                     <Editable id="contact.tabHire" />
                   </TabsTrigger>
                   <TabsTrigger
                     value="message"
-                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white"
+                    className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white"
                   >
                     <Mail className="mr-1.5 h-4 w-4" />
                     <Editable id="contact.tabMessage" />
@@ -156,8 +158,8 @@ function ContactItem({
   color: "sky" | "pink" | "wood";
 }) {
   const colors = {
-    sky: "bg-sky-500/10 text-sky-600 border-sky-500/20",
-    pink: "bg-pink-500/10 text-pink-600 border-pink-500/20",
+    sky: "bg-green-500/10 text-green-600 border-green-500/20",
+    pink: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
     wood: "bg-wood/10 text-wood border-wood/20",
   };
   return (
@@ -165,7 +167,7 @@ function ContactItem({
       href={href}
       target={href.startsWith("http") ? "_blank" : undefined}
       rel="noopener noreferrer"
-      className="group flex items-start gap-3 rounded-2xl border border-transparent p-3 transition-all hover:border-sky-500/15 hover:bg-muted/40"
+      className="group flex items-start gap-3 rounded-2xl border border-transparent p-3 transition-all hover:border-green-500/15 hover:bg-muted/40"
     >
       <div
         className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${colors[color]}`}
@@ -176,7 +178,7 @@ function ContactItem({
         <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
         </div>
-        <div className="truncate text-sm font-medium text-foreground group-hover:text-sky-600">
+        <div className="truncate text-sm font-medium text-foreground group-hover:text-green-600">
           {value}
         </div>
       </div>
@@ -190,7 +192,7 @@ function SocialButton({ href, label }: { href: string; label: string }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-full border border-sky-500/20 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-pink-500/40 hover:bg-sky-500/10 hover:text-sky-600"
+      className="rounded-full border border-green-500/20 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-emerald-500/40 hover:bg-green-500/10 hover:text-green-600"
     >
       {label}
     </a>
@@ -336,7 +338,7 @@ function HireForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft transition-all hover:shadow-glow-pink"
+        className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft transition-all hover:shadow-glow-green"
       >
         {loading ? (
           <>
@@ -448,7 +450,7 @@ function MessageForm() {
       <Button
         type="submit"
         disabled={loading}
-        className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft transition-all hover:shadow-glow-pink"
+        className="w-full rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft transition-all hover:shadow-glow-green"
       >
         {loading ? (
           <>
@@ -481,7 +483,7 @@ function Field({
     <div className="space-y-1.5">
       <Label className="text-xs font-semibold">
         {labelId ? <Editable id={labelId} /> : label}
-        {required && <span className="ml-1 text-pink-500">*</span>}
+        {required && <span className="ml-1 text-emerald-500">*</span>}
       </Label>
       {children}
     </div>

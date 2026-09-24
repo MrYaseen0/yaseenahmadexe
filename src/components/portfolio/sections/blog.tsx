@@ -51,22 +51,22 @@ interface FullArticle extends Article {
 
 const colorMap: Record<string, { bg: string; ring: string; text: string; gradient: string }> = {
   sky: {
-    bg: "from-sky-500/10 to-sky-500/5",
-    ring: "border-sky-500/30",
-    text: "text-sky-600 dark:text-sky-400",
-    gradient: "from-sky-400 to-blue-600",
+    bg: "from-green-500/10 to-green-500/5",
+    ring: "border-green-500/30",
+    text: "text-green-600 dark:text-green-400",
+    gradient: "from-green-400 to-green-600",
   },
   pink: {
-    bg: "from-pink-500/10 to-pink-500/5",
-    ring: "border-pink-500/30",
-    text: "text-pink-600 dark:text-pink-400",
-    gradient: "from-pink-400 to-rose-600",
+    bg: "from-emerald-500/10 to-emerald-500/5",
+    ring: "border-emerald-500/30",
+    text: "text-emerald-600 dark:text-emerald-400",
+    gradient: "from-emerald-400 to-emerald-600",
   },
   wood: {
     bg: "from-wood/10 to-wood/5",
     ring: "border-wood/30",
     text: "text-wood",
-    gradient: "from-amber-500 to-orange-700",
+    gradient: "from-lime-500 to-lime-700",
   },
 };
 
@@ -154,7 +154,7 @@ export function Blog() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="h-72 animate-pulse rounded-2xl border border-sky-500/10 bg-muted/50"
+                className="h-72 animate-pulse rounded-2xl border border-green-500/10 bg-muted/50"
               />
             ))}
           </div>
@@ -175,8 +175,8 @@ export function Blog() {
                     className={cn(
                       "rounded-full px-3.5 py-1.5 text-xs font-medium transition-all",
                       activeTag === tag
-                        ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
-                        : "bg-muted text-muted-foreground hover:bg-sky-500/10 hover:text-sky-600"
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
+                        : "bg-muted text-muted-foreground hover:bg-green-500/10 hover:text-green-600"
                     )}
                   >
                     {tag}
@@ -211,7 +211,7 @@ export function Blog() {
                 {t("blog.showingPre")} {filtered.length} {t("blog.showingMid")} {articles.length} {t("blog.showingPost")}
                 {activeTag !== "All" && (
                   <>
-                    {" "}{t("blog.inWord")} <span className="font-semibold text-sky-600 dark:text-sky-400">{activeTag}</span>
+                    {" "}{t("blog.inWord")} <span className="font-semibold text-green-600 dark:text-green-400">{activeTag}</span>
                   </>
                 )}
               </div>
@@ -224,7 +224,7 @@ export function Blog() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full border-sky-500/30"
+                  className="rounded-full border-green-500/30"
                   onClick={() => {
                     setQuery("");
                     setActiveTag("All");
@@ -273,7 +273,7 @@ export function Blog() {
                           .querySelector("#contact")
                           ?.scrollIntoView({ behavior: "smooth" })
                       }
-                      className="font-semibold text-pink-700 underline-offset-4 hover:underline dark:text-pink-400"
+                      className="font-semibold text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
                     >
                       <Editable id="blog.connectBtn" />
                     </button>
@@ -282,7 +282,7 @@ export function Blog() {
                     href="/api/blog/rss"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/5 px-4 py-2 text-xs font-medium text-amber-600 transition-all hover:border-amber-500/50 hover:bg-amber-500/10 dark:text-amber-400"
+                    className="inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/5 px-4 py-2 text-xs font-medium text-lime-600 transition-all hover:border-lime-500/50 hover:bg-lime-500/10 dark:text-lime-400"
                     aria-label={t("a11y.subscribeRss")}
                   >
                     <Rss className="h-3.5 w-3.5" />
@@ -339,7 +339,7 @@ function FeaturedArticleCard({
       )}
     >
       {/* Featured badge */}
-      <Badge className="absolute right-4 top-4 rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white">
+      <Badge className="absolute right-4 top-4 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-2 py-0.5 text-[10px] text-white">
         ★ <Editable id="blog.featuredBadge" />
       </Badge>
 
@@ -371,7 +371,7 @@ function FeaturedArticleCard({
       </div>
 
       {/* Meta */}
-      <div className="flex items-center justify-between border-t border-sky-500/10 pt-3 text-xs text-muted-foreground">
+      <div className="flex items-center justify-between border-t border-green-500/10 pt-3 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <Calendar className="h-3.5 w-3.5" />
           {date}
@@ -413,7 +413,7 @@ function ArticleCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.5, delay: (index % 3) * 0.08 }}
-      className="group flex h-full flex-col rounded-2xl border border-sky-500/15 bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-1 hover:shadow-card-hover"
+      className="group flex h-full flex-col rounded-2xl border border-green-500/15 bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-1 hover:shadow-card-hover"
     >
       {/* Gradient top bar */}
       <div className={cn("mb-3 h-1.5 w-12 rounded-full bg-gradient-to-r", colors.gradient)} />
@@ -439,7 +439,7 @@ function ArticleCard({
       </div>
 
       {/* Meta */}
-      <div className="flex items-center justify-between border-t border-sky-500/10 pt-2.5 text-xs text-muted-foreground">
+      <div className="flex items-center justify-between border-t border-green-500/10 pt-2.5 text-xs text-muted-foreground">
         <span className="flex items-center gap-1">
           <Calendar className="h-3 w-3" />
           {date}
@@ -520,11 +520,11 @@ function ArticleModal({
 
   return (
     <Dialog open={!!slug} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-sky-500/20 p-0">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-green-500/20 p-0">
         {/* Reading progress bar */}
         <div className="absolute inset-x-0 top-0 z-20 h-1 bg-muted/30">
           <div
-            className="h-full bg-gradient-to-r from-sky-500 via-pink-500 to-wood transition-[width] duration-150 ease-out"
+            className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-wood transition-[width] duration-150 ease-out"
             style={{ width: `${readingProgress}%` }}
           />
         </div>
@@ -539,7 +539,7 @@ function ArticleModal({
                 Article
               </span>
               {article?.featured && (
-                <Badge className="rounded-full bg-gradient-to-r from-pink-500 to-sky-500 px-2 py-0.5 text-[10px] text-white">
+                <Badge className="rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-2 py-0.5 text-[10px] text-white">
                   ★ Featured
                 </Badge>
               )}
@@ -584,7 +584,7 @@ function ArticleModal({
           <div className="p-6">
             {loading ? (
               <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-sky-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-green-500" />
                 <p className="text-sm"><Editable id="blog.loadingArticle" /></p>
               </div>
             ) : article ? (
@@ -593,7 +593,7 @@ function ArticleModal({
                 <TableOfContents content={article.content} />
 
                 {/* Excerpt */}
-                <p className="mb-6 border-l-4 border-sky-500/40 bg-sky-500/5 py-2 pl-4 text-base font-medium italic text-foreground/80">
+                <p className="mb-6 border-l-4 border-green-500/40 bg-green-500/5 py-2 pl-4 text-base font-medium italic text-foreground/80">
                   {article.excerpt}
                 </p>
 
@@ -603,7 +603,7 @@ function ArticleModal({
                 </article>
 
                 {/* Tags */}
-                <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-sky-500/10 pt-4">
+                <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-green-500/10 pt-4">
                   <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
                     <Tag className="h-3.5 w-3.5" />
                     <Editable id="blog.tagsWord" />
@@ -620,7 +620,7 @@ function ArticleModal({
                 </div>
 
                 {/* Author footer */}
-                <div className="mt-6 flex items-center gap-3 rounded-xl border border-sky-500/15 bg-gradient-to-r from-sky-500/5 to-pink-500/5 p-4">
+                <div className="mt-6 flex items-center gap-3 rounded-xl border border-green-500/15 bg-gradient-to-r from-green-500/5 to-emerald-500/5 p-4">
                   <img
                     src="/assets/dev-avatar.png"
                     alt={t("brand.name")}
@@ -643,14 +643,14 @@ function ArticleModal({
                           ?.scrollIntoView({ behavior: "smooth" });
                       }, 100);
                     }}
-                    className="ml-auto rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                    className="ml-auto rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white"
                   >
                     <Editable id="blog.hireBtn" />
                   </Button>
                 </div>
 
                 {/* Social sharing */}
-                <div className="mt-4 flex items-center gap-2 border-t border-sky-500/10 pt-4">
+                <div className="mt-4 flex items-center gap-2 border-t border-green-500/10 pt-4">
                   <span className="text-xs font-semibold text-muted-foreground">
                     <Editable id="blog.shareWord" />
                   </span>
@@ -687,7 +687,7 @@ function ArticleModal({
                         setTimeout(() => setShareCopied(false), 2000);
                       }
                     }}
-                    className="flex items-center gap-1.5 rounded-full border border-sky-500/30 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-pink-500/40 hover:bg-sky-500/10 hover:text-sky-600"
+                    className="flex items-center gap-1.5 rounded-full border border-green-500/30 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-emerald-500/40 hover:bg-green-500/10 hover:text-green-600"
                   >
                     {shareCopied ? (
                       <>
@@ -715,9 +715,9 @@ function ArticleModal({
                     .slice(0, 3);
                   if (related.length === 0) return null;
                   return (
-                    <div className="mt-6 border-t border-sky-500/10 pt-5">
+                    <div className="mt-6 border-t border-green-500/10 pt-5">
                       <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
-                        <BookOpen className="h-4 w-4 text-sky-500" />
+                        <BookOpen className="h-4 w-4 text-green-500" />
                         <Editable id="blog.relatedWord" />
                       </h4>
                       <div className="space-y-2">
@@ -730,11 +730,11 @@ function ArticleModal({
                                 onSelectArticle(r.slug);
                                 setReadingProgress(0);
                               }}
-                              className="group flex w-full items-center gap-3 rounded-xl border border-sky-500/15 bg-card p-3 text-left transition-all hover:border-pink-500/30 hover:shadow-soft"
+                              className="group flex w-full items-center gap-3 rounded-xl border border-green-500/15 bg-card p-3 text-left transition-all hover:border-emerald-500/30 hover:shadow-soft"
                             >
                               <div className={cn("h-10 w-1.5 shrink-0 rounded-full bg-gradient-to-b", relColors.gradient)} />
                               <div className="min-w-0 flex-1">
-                                <div className="line-clamp-1 text-sm font-semibold text-foreground group-hover:text-sky-600">
+                                <div className="line-clamp-1 text-sm font-semibold text-foreground group-hover:text-green-600">
                                   {r.title}
                                 </div>
                                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -742,7 +742,7 @@ function ArticleModal({
                                   {r.readTime} {t("blog.minRead")}
                                 </div>
                               </div>
-                              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-sky-500" />
+                              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-green-500" />
                             </button>
                           );
                         })}
@@ -780,7 +780,7 @@ function ShareButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Share on ${label}`}
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-500/30 bg-card text-muted-foreground transition-all hover:border-pink-500/40 hover:bg-sky-500/10 hover:text-sky-600"
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-green-500/30 bg-card text-muted-foreground transition-all hover:border-emerald-500/40 hover:bg-green-500/10 hover:text-green-600"
     >
       {children}
     </a>
@@ -821,15 +821,15 @@ function TableOfContents({ content }: { content: string }) {
   };
 
   return (
-    <div className="mb-6 overflow-hidden rounded-xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 to-pink-500/5">
+    <div className="mb-6 overflow-hidden rounded-xl border border-green-500/20 bg-gradient-to-br from-green-500/5 to-emerald-500/5">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
         <span className="flex items-center gap-2 text-sm font-bold text-foreground">
-          <List className="h-4 w-4 text-sky-500" />
+          <List className="h-4 w-4 text-green-500" />
           <Editable id="blog.tocTitle" />
-          <Badge variant="secondary" className="rounded-full border border-pink-500/20 bg-pink-500/10 px-1.5 py-0 text-[10px] text-pink-700 dark:text-pink-300">
+          <Badge variant="secondary" className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0 text-[10px] text-emerald-700 dark:text-emerald-300">
             {headings.length}
           </Badge>
         </span>
@@ -841,7 +841,7 @@ function TableOfContents({ content }: { content: string }) {
         />
       </button>
       {!collapsed && (
-        <nav className="border-t border-sky-500/10 px-4 py-3">
+        <nav className="border-t border-green-500/10 px-4 py-3">
           <ul className="space-y-1">
             {headings.map((h, i) => (
               <li
@@ -850,9 +850,9 @@ function TableOfContents({ content }: { content: string }) {
               >
                 <button
                   onClick={() => handleClick(h.slug)}
-                  className="flex items-center gap-2 text-left text-xs text-muted-foreground transition-colors hover:text-sky-600 dark:hover:text-sky-400"
+                  className="flex items-center gap-2 text-left text-xs text-muted-foreground transition-colors hover:text-green-600 dark:hover:text-green-400"
                 >
-                  <span className="text-sky-500/50">
+                  <span className="text-green-500/50">
                     {h.level === 2 ? "▸" : "•"}
                   </span>
                   <span className="line-clamp-1">{h.text}</span>
@@ -877,7 +877,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     if (line.trim().startsWith("```")) {
       if (inCode) {
         out.push(
-          <pre key={`code-${i}`} className="my-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100">
+          <pre key={`code-${i}`} className="my-4 overflow-x-auto rounded-lg bg-[#0e150e] p-4 text-sm text-green-50">
             <code>{codeBuf.join("\n")}</code>
           </pre>
         );
@@ -933,7 +933,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
 
     if (/^---+$/.test(line.trim())) {
-      out.push(<hr key={i} className="my-4 border-sky-500/20" />);
+      out.push(<hr key={i} className="my-4 border-green-500/20" />);
       return;
     }
 
@@ -951,7 +951,7 @@ function MarkdownRenderer({ content }: { content: string }) {
 
   if (inCode && codeBuf.length) {
     out.push(
-      <pre key="code-final" className="my-4 overflow-x-auto rounded-lg bg-slate-900 p-4 text-sm text-slate-100">
+      <pre key="code-final" className="my-4 overflow-x-auto rounded-lg bg-[#0e150e] p-4 text-sm text-green-50">
         <code>{codeBuf.join("\n")}</code>
       </pre>
     );
@@ -979,7 +979,7 @@ function renderInline(text: string): React.ReactNode[] {
       parts.push(
         <code
           key={key++}
-          className="rounded bg-sky-500/10 px-1.5 py-0.5 text-[0.85em] text-pink-600 dark:text-pink-400"
+          className="rounded bg-green-500/10 px-1.5 py-0.5 text-[0.85em] text-emerald-600 dark:text-emerald-400"
         >
           {tok.slice(1, -1)}
         </code>
@@ -993,7 +993,7 @@ function renderInline(text: string): React.ReactNode[] {
             href={lm[2]}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-pink-600 underline dark:text-pink-400"
+            className="font-medium text-emerald-600 underline dark:text-emerald-400"
           >
             {lm[1]}
           </a>

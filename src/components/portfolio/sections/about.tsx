@@ -26,7 +26,7 @@ export function About() {
             <div className="relative mx-auto max-w-md">
               {/* Wooden frame accent */}
               <div className="absolute -inset-3 rounded-[2rem] border-2 border-wood/30 bg-wood/5" />
-              <div className="absolute -inset-3 rounded-[2rem] border border-pink-500/20" />
+              <div className="absolute -inset-3 rounded-[2rem] border border-emerald-500/20" />
 
               <motion.div
                 whileHover={{ rotateY: 5, rotateX: -3, scale: 1.02 }}
@@ -39,7 +39,7 @@ export function About() {
                   className="aspect-[4/5] w-full object-cover"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-sky-900/60 via-transparent to-pink-500/10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-green-900/60 via-transparent to-emerald-500/10" />
 
                 {/* Name plate */}
                 <div className="absolute inset-x-3 bottom-3 glass rounded-xl p-3">
@@ -77,7 +77,7 @@ export function About() {
           <Reveal direction="left" delay={0.1} className="space-y-6">
             <h3 className="text-2xl font-bold sm:text-3xl md:text-4xl">
               <Editable id="about.h1a" />{" "}
-              <span className="text-gradient-sky-pink"><Editable id="about.h1b" /></span>
+              <span className="text-gradient-viridia"><Editable id="about.h1b" /></span>
             </h3>
 
             <p className="text-base text-muted-foreground sm:text-lg">
@@ -100,7 +100,7 @@ export function About() {
                 >
                   <Badge
                     variant="secondary"
-                    className="rounded-full border border-sky-500/20 bg-gradient-to-r from-sky-500/10 to-pink-500/10 px-3 py-1.5 text-sm font-medium"
+                    className="rounded-full border border-green-500/20 bg-gradient-to-r from-green-500/10 to-emerald-500/10 px-3 py-1.5 text-sm font-medium"
                   >
                     {s}
                   </Badge>
@@ -115,7 +115,7 @@ export function About() {
                     .querySelector("#techstack")
                     ?.scrollIntoView({ behavior: "smooth" })
                 }
-                className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+                className="rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
               >
                 <Briefcase className="mr-2 h-4 w-4" />
                 <Editable id="about.cta" />
@@ -163,8 +163,8 @@ function FloatingChip({
   color: "sky" | "pink" | "wood";
 }) {
   const colors = {
-    sky: "border-sky-500/40 bg-white/90 text-sky-700 shadow-glow-sky",
-    pink: "border-pink-500/40 bg-white/90 text-pink-700 shadow-glow-pink",
+    sky: "border-green-500/40 bg-white/90 text-green-700 shadow-glow-green",
+    pink: "border-emerald-500/40 bg-white/90 text-emerald-700 shadow-glow-green",
     wood: "border-wood/40 bg-white/90 text-wood shadow-soft",
   };
   return (
@@ -191,7 +191,7 @@ function InfoCard({
   return (
     <div className="glass rounded-xl p-3 shadow-soft">
       <div className="flex items-center gap-1.5 text-muted-foreground">
-        <span className="text-sky-500">{icon}</span>
+        <span className="text-green-500">{icon}</span>
         <span className="text-[11px] uppercase tracking-wider">{label}</span>
       </div>
       <div className="mt-1 text-sm font-semibold">{value}</div>
@@ -206,14 +206,14 @@ function CodeCard() {
     <motion.div
       whileHover={{ rotateX: 1, rotateY: -1 }}
       transition={{ type: "spring", stiffness: 200 }}
-      className="transform-3d perspective-1000 overflow-hidden rounded-2xl border border-sky-500/20 bg-slate-900 shadow-card-hover"
+      className="transform-3d perspective-1000 overflow-hidden rounded-2xl border border-green-500/20 bg-[#0e150e] shadow-card-hover"
     >
       {/* Title bar */}
-      <div className="flex items-center justify-between border-b border-white/10 bg-slate-800/80 px-4 py-2.5">
+      <div className="flex items-center justify-between border-b border-white/10 bg-[#16241a]/80 px-4 py-2.5">
         <div className="flex items-center gap-2">
           <div className="flex gap-1.5">
             <span className="h-3 w-3 rounded-full bg-red-400" />
-            <span className="h-3 w-3 rounded-full bg-amber-400" />
+            <span className="h-3 w-3 rounded-full bg-lime-400" />
             <span className="h-3 w-3 rounded-full bg-green-400" />
           </div>
           <span className="ml-2 font-mono text-xs text-slate-300">
@@ -248,25 +248,25 @@ function highlightLine(line: string) {
   tokens.forEach((tok, i) => {
     if (/^(const|export|default|return)$/.test(tok)) {
       parts.push(
-        <span key={i} className="font-bold text-pink-400">
+        <span key={i} className="font-bold text-emerald-400">
           {tok}
         </span>
       );
     } else if (/^["'`].*["'`]$/.test(tok)) {
       parts.push(
-        <span key={i} className="text-amber-300">
+        <span key={i} className="text-lime-300">
           {tok}
         </span>
       );
     } else if (/^[A-Z][a-zA-Z]+$/.test(tok)) {
       parts.push(
-        <span key={i} className="text-sky-300">
+        <span key={i} className="text-green-300">
           {tok}
         </span>
       );
     } else if (/^(name|role|location|skills|passion|status)$/.test(tok)) {
       parts.push(
-        <span key={i} className="text-sky-200">
+        <span key={i} className="text-green-200">
           {tok}
         </span>
       );

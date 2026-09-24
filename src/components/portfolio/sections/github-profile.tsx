@@ -111,13 +111,13 @@ export function GithubProfile() {
 
         <Reveal className="mt-14 mx-auto max-w-4xl">
           {error && (
-            <div className="mb-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-center text-sm text-amber-700 dark:text-amber-300">
+            <div className="mb-4 rounded-2xl border border-lime-500/30 bg-lime-500/10 p-4 text-center text-sm text-lime-700 dark:text-lime-300">
               <Editable id="github.loadError" />
             </div>
           )}
-          <div className="overflow-hidden rounded-3xl border border-sky-500/20 bg-gradient-to-br from-sky-500/5 via-white to-pink-500/5 shadow-card-hover dark:from-sky-500/5 dark:via-slate-900 dark:to-pink-500/5">
+          <div className="overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/5 via-white to-emerald-500/5 shadow-card-hover dark:from-green-500/5 dark:via-[#0d140d] dark:to-emerald-500/5">
             {/* Top banner */}
-            <div className="relative h-28 bg-gradient-to-r from-sky-500 via-pink-500 to-wood">
+            <div className="relative h-28 bg-gradient-to-r from-green-500 via-emerald-500 to-wood">
               <div className="absolute inset-0 bg-grid opacity-30" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
@@ -125,10 +125,10 @@ export function GithubProfile() {
             <div className="px-6 pb-6 sm:px-8">
               <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-end">
                 {/* avatar */}
-                <div className="-mt-14 h-28 w-28 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg dark:border-slate-900 dark:bg-slate-900">
+                <div className="-mt-14 h-28 w-28 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg dark:border-[#0d140d] dark:bg-[#0d140d]">
                   {loading ? (
                     <div className="flex h-full w-full items-center justify-center bg-muted">
-                      <Loader2 className="h-6 w-6 animate-spin text-sky-500" />
+                      <Loader2 className="h-6 w-6 animate-spin text-green-500" />
                     </div>
                   ) : (
                     <img
@@ -149,7 +149,7 @@ export function GithubProfile() {
                       href={t("socials.github")}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground hover:bg-sky-500/10 hover:text-sky-600"
+                      className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground hover:bg-green-500/10 hover:text-green-600"
                     >
                       @{profile?.login || t("brand.githubUsername")}
                       <ExternalLink className="h-3 w-3" />
@@ -164,7 +164,7 @@ export function GithubProfile() {
                   href={t("socials.github")}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-shadow hover:shadow-glow-pink"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-shadow hover:shadow-glow-green"
                 >
                   <Github className="h-4 w-4" />
                   <Editable id="github.followBtn" />
@@ -212,7 +212,7 @@ export function GithubProfile() {
                     }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 hover:text-sky-600"
+                    className="flex items-center gap-1 hover:text-green-600"
                   >
                     🔗 {profile.blog}
                   </a>
@@ -245,9 +245,9 @@ function StatBox({
   label: string;
 }) {
   return (
-    <div className="rounded-2xl border border-sky-500/15 bg-card p-4 text-center shadow-soft transition-transform hover:-translate-y-1">
-      <div className="mb-1 flex justify-center text-pink-500">{icon}</div>
-      <div className="text-2xl font-bold text-gradient-sky-pink">
+    <div className="rounded-2xl border border-green-500/15 bg-card p-4 text-center shadow-soft transition-transform hover:-translate-y-1">
+      <div className="mb-1 flex justify-center text-emerald-500">{icon}</div>
+      <div className="text-2xl font-bold text-gradient-viridia">
         {value.toLocaleString()}
       </div>
       <div className="text-[11px] uppercase tracking-wider text-muted-foreground">

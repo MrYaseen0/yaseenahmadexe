@@ -34,10 +34,10 @@ function SkillColumn({
   return (
     <Reveal
       asChild
-      className="glass rounded-2xl border border-sky-500/15 p-6 shadow-soft"
+      className="glass rounded-2xl border border-green-500/15 p-6 shadow-soft"
     >
       <div className="mb-5 flex items-center gap-2">
-        <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-sky-400 to-pink-400" />
+        <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-green-400 to-emerald-400" />
         <h3 className="text-lg font-bold">{category}</h3>
       </div>
 
@@ -63,13 +63,13 @@ function SkillBar({
     <div>
       <div className="mb-1.5 flex items-center justify-between text-sm">
         <span className="font-medium">{skill.name}</span>
-        <span className="font-mono text-xs font-bold text-pink-600 dark:text-pink-400">
+        <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
           {skill.level}%
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-muted">
         <motion.div
-          className="relative h-full rounded-full bg-gradient-to-r from-sky-400 via-pink-400 to-wood"
+          className="relative h-full rounded-full bg-gradient-to-r from-green-400 via-emerald-400 to-wood"
           style={{ transformOrigin: "left" }}
           initial={{ width: 0 }}
           whileInView={{ width: `${skill.level}%` }}

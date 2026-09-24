@@ -68,7 +68,7 @@ export function Testimonials() {
           <Button
             onClick={() => setSubmitOpen(true)}
             variant="outline"
-            className="rounded-full border-pink-500/40 bg-pink-500/5 px-5 text-pink-700 hover:bg-pink-500/10 dark:text-pink-400"
+            className="rounded-full border-emerald-500/40 bg-emerald-500/5 px-5 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400"
           >
             <MessageSquarePlus className="mr-2 h-4 w-4" />
             <Editable id="testimonials.leaveBtn" />
@@ -77,7 +77,7 @@ export function Testimonials() {
 
         {/* Testimonials grid */}
         {allTestimonials.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-sky-500/15 bg-card p-12 text-center">
+          <div className="mt-12 rounded-2xl border border-green-500/15 bg-card p-12 text-center">
             <Quote className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
             <h3 className="text-lg font-semibold"><Editable id="testimonials.emptyTitle" /></h3>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -90,21 +90,21 @@ export function Testimonials() {
             <Reveal
               asChild
               key={tm.name + i}
-              className="group relative overflow-hidden rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
+              className="group relative overflow-hidden rounded-2xl border border-green-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
             >
-              <Quote className="absolute right-4 top-4 h-10 w-10 text-sky-500/10 transition-colors group-hover:text-pink-500/20" />
+              <Quote className="absolute right-4 top-4 h-10 w-10 text-green-500/10 transition-colors group-hover:text-emerald-500/20" />
 
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex gap-1">
                   {Array.from({ length: tm.rating }).map((_, j) => (
                     <Star
                       key={j}
-                      className="h-4 w-4 fill-amber-400 text-amber-400"
+                      className="h-4 w-4 fill-lime-400 text-lime-400"
                     />
                   ))}
                 </div>
                 {tm.verified ? (
-                  <span className="flex items-center gap-1 rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] font-medium text-sky-600 dark:text-sky-400">
+                  <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
                     <CheckCircle2 className="h-3 w-3" />
                     {t("testimonials.verifiedWord")}
                   </span>
@@ -120,7 +120,7 @@ export function Testimonials() {
                 &ldquo;{tm.text}&rdquo;
               </p>
 
-              <div className="flex items-center gap-3 border-t border-sky-500/10 pt-4">
+              <div className="flex items-center gap-3 border-t border-green-500/10 pt-4">
                 <div
                   className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${tm.color} text-sm font-bold text-white shadow-soft`}
                 >
@@ -147,7 +147,7 @@ export function Testimonials() {
               key={s.l}
               className="glass rounded-2xl p-5 text-center shadow-soft"
             >
-              <div className="text-2xl font-bold text-gradient-sky-pink sm:text-3xl">
+              <div className="text-2xl font-bold text-gradient-viridia sm:text-3xl">
                 {si === 0 ? visitorTestimonials.length.toString() : s.v}
               </div>
               <div className="mt-1 text-xs text-muted-foreground sm:text-sm">
@@ -172,9 +172,9 @@ export function Testimonials() {
 }
 
 const colorMap = {
-  sky: "from-sky-400 to-blue-500",
-  pink: "from-pink-400 to-rose-500",
-  wood: "from-amber-500 to-orange-600",
+  sky: "from-green-400 to-green-500",
+  pink: "from-emerald-400 to-emerald-500",
+  wood: "from-lime-500 to-lime-600",
 };
 
 function SubmitTestimonialModal({
@@ -243,10 +243,10 @@ function SubmitTestimonialModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-2xl border-sky-500/20 p-0">
-        <DialogHeader className="border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-6 py-4">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-2xl border-green-500/20 p-0">
+        <DialogHeader className="border-b border-green-500/10 bg-gradient-to-r from-green-500/5 to-emerald-500/5 px-6 py-4">
           <DialogTitle className="flex items-center gap-2 text-lg font-bold">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-pink-500 text-white">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white">
               <MessageSquarePlus className="h-5 w-5" />
             </span>
             <Editable id="testimonials.leaveBtn" />
@@ -313,7 +313,7 @@ function SubmitTestimonialModal({
                   <Star
                     className={`h-6 w-6 transition-colors ${
                       n <= (hoverRating || form.rating)
-                        ? "fill-amber-400 text-amber-400"
+                        ? "fill-lime-400 text-lime-400"
                         : "fill-muted text-muted-foreground"
                     }`}
                   />
@@ -350,7 +350,7 @@ function SubmitTestimonialModal({
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+              className="flex-1 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
             >
               {loading ? (
                 <>
@@ -384,7 +384,7 @@ function Field({
     <div className="space-y-1.5">
       <Label className="text-xs font-semibold">
         {label}
-        {required && <span className="ml-1 text-pink-500">*</span>}
+        {required && <span className="ml-1 text-emerald-500">*</span>}
       </Label>
       {children}
     </div>
