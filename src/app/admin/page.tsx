@@ -405,7 +405,19 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             {analytics ? (
               <TrafficDashboard analytics={analytics} />
             ) : (
-              <div className="text-center text-muted-foreground">Loading analytics...</div>
+              <div className="space-y-4" aria-label="Loading analytics">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted/40" />
+                  ))}
+                </div>
+                <div className="h-64 animate-pulse rounded-2xl bg-muted/40" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[0, 1].map((i) => (
+                    <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted/40" />
+                  ))}
+                </div>
+              </div>
             )}
           </TabsContent>
 
@@ -421,7 +433,11 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
 
           {/* Bookings Tab */}
           <TabsContent value="bookings" className="mt-6">
-            <BookingsView bookings={bookings} />
+            <BookingsView
+              bookings={bookings}
+              authHeaders={authHeaders}
+              onChanged={loadAll}
+            />
           </TabsContent>
 
           {/* Testimonials Tab */}
@@ -654,6 +670,9 @@ function RegistryField({
   }
 
   const long = json || multiline || val.length > 90 || val.includes("\n");
+  // Dirty tracking: highlight when the draft differs from the saved value,
+  // so unsaved edits are impossible to miss.
+  const dirty = val !== value;
 
   return (
     <div className="space-y-1.5">
@@ -661,6 +680,11 @@ function RegistryField({
         <Label className="text-xs font-semibold">
           {label} <span className="font-mono text-muted-foreground">({fieldKey})</span>
         </Label>
+        {dirty && (
+          <Badge className="rounded-full bg-amber-500/15 px-2 py-0 text-[9px] font-semibold text-amber-600">
+            ● Unsaved
+          </Badge>
+        )}
         {customized ? (
           <Badge className="rounded-full bg-pink-500/15 px-2 py-0 text-[9px] font-semibold text-pink-600">
             Customized
@@ -707,7 +731,7 @@ function RegistryField({
           <Textarea
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            className="flex-1 font-mono text-xs"
+            className={cn("flex-1 font-mono text-xs", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
             rows={json ? 6 : 3}
             spellCheck={false}
           />
@@ -715,14 +739,20 @@ function RegistryField({
           <Input
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            className="flex-1"
+            className={cn("flex-1", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
           />
         )}
         <Button
           size="sm"
           onClick={trySave}
-          disabled={saving}
-          className="shrink-0 rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+          disabled={saving || !dirty}
+          title={dirty ? "Save this field" : "No changes to save"}
+          className={cn(
+            "shrink-0 rounded-xl text-white",
+            dirty
+              ? "bg-gradient-to-r from-amber-500 to-pink-500 shadow-glow-pink"
+              : "bg-gradient-to-r from-sky-500 to-pink-500 opacity-60"
+          )}
         >
           {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
         </Button>
@@ -935,8 +965,10 @@ function AuditLogView({ authHeaders }: { authHeaders: Record<string, string> }) 
       </div>
 
       {loading ? (
-        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
-          Loading audit log...
+        <div className="space-y-2" aria-label="Loading audit log">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-16 animate-pulse rounded-xl bg-muted/40" />
+          ))}
         </div>
       ) : entries.length === 0 ? (
         <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
@@ -1030,7 +1062,65 @@ function AuditLogView({ authHeaders }: { authHeaders: Record<string, string> }) 
   );
 }
 
-function BookingsView({ bookings }: { bookings: Booking[] }) {
+function BookingsView({
+  bookings,
+  authHeaders,
+  onChanged,
+}: {
+  bookings: Booking[];
+  authHeaders: Record<string, string>;
+  onChanged: () => void;
+}) {
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [acting, setActing] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const act = async (id: string, action: "confirm" | "cancel" | "delete") => {
+    setActing(id);
+    try {
+      const res = await fetch("/api/booking", {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ id, action }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Action failed");
+      toast.success(
+        action === "confirm"
+          ? "Booking confirmed"
+          : action === "cancel"
+            ? "Booking cancelled"
+            : "Booking deleted"
+      );
+      setConfirmDelete(null);
+      onChanged();
+    } catch (err: any) {
+      toast.error("Action failed", { description: err?.message });
+    } finally {
+      setActing(null);
+    }
+  };
+
+  const counts = {
+    all: bookings.length,
+    pending: bookings.filter((b) => b.status === "pending").length,
+    confirmed: bookings.filter((b) => b.status === "confirmed").length,
+    cancelled: bookings.filter((b) => b.status === "cancelled").length,
+  };
+  const shown =
+    statusFilter === "all"
+      ? bookings
+      : bookings.filter((b) => b.status === statusFilter);
+
+  const statusBadge = (status: string) =>
+    status === "pending"
+      ? "bg-amber-500/15 text-amber-600"
+      : status === "confirmed"
+        ? "bg-green-500/15 text-green-600"
+        : status === "cancelled"
+          ? "bg-red-500/15 text-red-600"
+          : "bg-muted text-muted-foreground";
+
   if (bookings.length === 0) {
     return (
       <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
@@ -1040,47 +1130,122 @@ function BookingsView({ bookings }: { bookings: Booking[] }) {
     );
   }
   return (
-    <div className="space-y-3">
-      {bookings.map((b) => (
-        <div key={b.id} className="rounded-2xl border border-sky-500/15 bg-card p-4 shadow-soft">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <h4 className="font-bold">{b.name}</h4>
-                <Badge className={cn(
-                  "rounded-full px-2 py-0.5 text-[10px]",
-                  b.status === "pending" ? "bg-amber-500/15 text-amber-600" :
-                  b.status === "confirmed" ? "bg-green-500/15 text-green-600" :
-                  "bg-muted text-muted-foreground"
-                )}>
-                  {b.status}
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground">{b.email}</p>
-            </div>
-            <div className="text-right text-xs text-muted-foreground">
-              <div className="font-semibold text-foreground">{b.purpose}</div>
-              <div>{b.date} at {b.time}</div>
-              <div>{b.timezone}</div>
-            </div>
-          </div>
-          {b.notes && (
-            <p className="mt-2 rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
-              <strong>Notes:</strong> {b.notes}
-            </p>
-          )}
-          <div className="mt-3 flex items-center justify-between border-t border-sky-500/10 pt-2 text-[11px] text-muted-foreground">
-            <span>Submitted {new Date(b.createdAt).toLocaleString()}</span>
-            <a
-              href={`/api/booking/calendar?date=${b.date}&time=${encodeURIComponent(b.time)}&purpose=${encodeURIComponent(b.purpose)}&name=${encodeURIComponent(b.name)}&email=${encodeURIComponent(b.email)}`}
-              download
-              className="text-sky-600 hover:underline"
-            >
-              Download .ics
-            </a>
-          </div>
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {(["all", "pending", "confirmed", "cancelled"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors",
+              statusFilter === s
+                ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {s} ({counts[s]})
+          </button>
+        ))}
+      </div>
+      {shown.length === 0 ? (
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          No {statusFilter} bookings
         </div>
-      ))}
+      ) : (
+        <div className="space-y-3">
+          {shown.map((b) => (
+            <div
+              key={b.id}
+              className="rounded-2xl border border-sky-500/15 bg-card p-4 shadow-soft"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold">{b.name}</h4>
+                    <Badge className={cn("rounded-full px-2 py-0.5 text-[10px] capitalize", statusBadge(b.status))}>
+                      {b.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{b.email}</p>
+                </div>
+                <div className="text-right text-xs text-muted-foreground">
+                  <div className="font-semibold text-foreground">{b.purpose}</div>
+                  <div>{b.date} at {b.time}</div>
+                  <div>{b.timezone}</div>
+                </div>
+              </div>
+              {b.notes && (
+                <p className="mt-2 rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
+                  <strong>Notes:</strong> {b.notes}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-sky-500/10 pt-3">
+                <div className="flex flex-wrap gap-2">
+                  {b.status === "pending" && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => act(b.id, "confirm")}
+                        disabled={acting === b.id}
+                        className="rounded-full bg-green-500 text-white hover:bg-green-600"
+                      >
+                        {acting === b.id ? (
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5" />
+                        )}
+                        <span className="ml-1">Confirm</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => act(b.id, "cancel")}
+                        disabled={acting === b.id}
+                        className="rounded-full border-amber-500/40 text-amber-600 hover:bg-amber-500/5"
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (confirmDelete === b.id) act(b.id, "delete");
+                      else {
+                        setConfirmDelete(b.id);
+                        setTimeout(() => setConfirmDelete((c) => (c === b.id ? null : c)), 5000);
+                      }
+                    }}
+                    disabled={acting === b.id}
+                    className={cn(
+                      "rounded-full",
+                      confirmDelete === b.id
+                        ? "border-red-500 bg-red-500 text-white hover:bg-red-600"
+                        : "border-red-500/30 text-red-600 hover:bg-red-500/5"
+                    )}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="ml-1">
+                      {confirmDelete === b.id ? "Click again to delete" : "Delete"}
+                    </span>
+                  </Button>
+                </div>
+                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <span>Submitted {new Date(b.createdAt).toLocaleString()}</span>
+                  <a
+                    href={`/api/booking/calendar?date=${b.date}&time=${encodeURIComponent(b.time)}&purpose=${encodeURIComponent(b.purpose)}&name=${encodeURIComponent(b.name)}&email=${encodeURIComponent(b.email)}`}
+                    download
+                    className="text-sky-600 hover:underline"
+                  >
+                    Download .ics
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

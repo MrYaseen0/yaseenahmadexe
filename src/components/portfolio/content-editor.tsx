@@ -47,6 +47,10 @@ interface ContentContextValue {
   t: (key: string) => string;
   tj: <T>(key: string) => T;
   save: (key: string, value: string) => Promise<void>;
+  /** Delete the DB override for a key, restoring its default. */
+  reset: (key: string) => Promise<void>;
+  /** True when a DB override exists for the key (i.e. it differs from default). */
+  isCustomized: (key: string) => boolean;
 }
 
 const ContentContext = createContext<ContentContextValue | null>(null);
@@ -153,9 +157,32 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setOverrides((o) => ({ ...o, [key]: value }));
   }, []);
 
+  const reset = useCallback(async (key: string) => {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) throw new Error("Admin session expired — log in again.");
+    const res = await fetch(
+      `/api/admin/content?key=${encodeURIComponent(key)}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      throw new Error(d.error || "Reset failed");
+    }
+    setOverrides((o) => {
+      const next = { ...o };
+      delete next[key];
+      return next;
+    });
+  }, []);
+
+  const isCustomized = useCallback((key: string) => key in overrides, [overrides]);
+
   const ctx = useMemo(
-    () => ({ values, loaded, editMode, t, tj, save }),
-    [values, loaded, editMode, t, tj, save]
+    () => ({ values, loaded, editMode, t, tj, save, reset, isCustomized }),
+    [values, loaded, editMode, t, tj, save, reset, isCustomized]
   );
 
   return (
@@ -234,11 +261,12 @@ export function Editable({
   buttonOnly,
   label,
 }: EditableProps) {
-  const { t, editMode, save } = useContent();
+  const { t, editMode, save, reset, isCustomized } = useContent();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const field = CONTENT_FIELDS.find((f) => f.key === id);
   const value = t(id);
@@ -248,6 +276,8 @@ export function Editable({
     field?.multiline ??
     (value.includes("\n") || value.length > 90);
   const title = label ?? field?.label ?? id;
+  const customized = isCustomized(id);
+  const dirty = draft !== value;
 
   const openEditor = () => {
     if (isJson) {
@@ -260,7 +290,26 @@ export function Editable({
       setDraft(value);
     }
     setError("");
+    setConfirmReset(false);
     setOpen(true);
+  };
+
+  const doReset = async () => {
+    if (!confirmReset) {
+      setConfirmReset(true);
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await reset(id);
+      setConfirmReset(false);
+      setOpen(false);
+    } catch (e: any) {
+      setError(e?.message || "Reset failed");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const doSave = async () => {
@@ -295,8 +344,22 @@ export function Editable({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-4 w-4" /> Edit: {title}
+            {customized ? (
+              <span className="rounded-full bg-pink-500/15 px-2 py-0.5 text-[10px] font-semibold text-pink-600">
+                Customized
+              </span>
+            ) : (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                Default
+              </span>
+            )}
           </DialogTitle>
           <DialogDescription>
+            <span className="font-mono text-[11px]">{id}</span>
+            {field?.category && (
+              <span className="text-[11px]"> · {field.category}</span>
+            )}
+            <br />
             Saved instantly to the live site. This change is recorded in the
             audit log with your account and IP.
           </DialogDescription>
@@ -323,14 +386,42 @@ export function Editable({
             }}
           />
         )}
+        {!isJson && (
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>{draft.length} characters</span>
+            {dirty && (
+              <span className="font-semibold text-amber-600">
+                ● Unsaved changes
+              </span>
+            )}
+          </div>
+        )}
         {error && <p className="text-sm text-red-500">{error}</p>}
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={doSave} disabled={saving}>
-            {saving ? "Saving…" : "Save change"}
-          </Button>
+        <DialogFooter className="flex-col gap-2 sm:flex-row sm:justify-between">
+          <div>
+            {customized && (
+              <Button
+                variant="ghost"
+                onClick={doReset}
+                disabled={saving}
+                className={
+                  confirmReset
+                    ? "text-red-600 hover:bg-red-500/10 hover:text-red-700"
+                    : "text-muted-foreground"
+                }
+              >
+                {confirmReset ? "Click again to confirm reset" : "Reset to default"}
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={doSave} disabled={saving || (!dirty && !isJson)}>
+              {saving ? "Saving…" : "Save change"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -364,7 +455,7 @@ export function Editable({
 
   const Tag = (as || "span") as any;
   return (
-    <span className="relative">
+    <span className="relative rounded-sm transition-all hover:bg-sky-500/10 hover:outline hover:outline-2 hover:outline-dashed hover:outline-sky-400 hover:outline-offset-2">
       {createElement(Tag, { className, style }, value)}
       <button
         onClick={openEditor}

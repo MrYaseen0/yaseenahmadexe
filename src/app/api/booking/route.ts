@@ -92,3 +92,31 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// PATCH — admin manages a booking: confirm / cancel / delete
+export async function PATCH(request: Request) {
+  if (!verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  try {
+    const { id, action } = await request.json();
+    if (!id || !action) {
+      return NextResponse.json({ error: "id and action are required" }, { status: 400 });
+    }
+    if (action === "delete") {
+      await db.booking.delete({ where: { id: String(id) } });
+      return NextResponse.json({ success: true });
+    }
+    if (action === "confirm" || action === "cancel") {
+      const booking = await db.booking.update({
+        where: { id: String(id) },
+        data: { status: action === "confirm" ? "confirmed" : "cancelled" },
+      });
+      return NextResponse.json({ success: true, booking });
+    }
+    return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+  } catch (error: any) {
+    console.error("Booking update error:", error);
+    return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
+  }
+}
