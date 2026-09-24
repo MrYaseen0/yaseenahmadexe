@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Play, Facebook, Linkedin, Instagram, MessageCircle } from "lucide-react";
 import { useContent } from "@/components/portfolio/content-editor";
@@ -9,7 +10,104 @@ import { useContent } from "@/components/portfolio/content-editor";
  * Dark field-green full-screen hero: huge wide-tracked title, field tagline,
  * Discover / Connect actions, photo bleeding in from the right, and a bottom
  * bar with showreel + mission/vision + socials.
+ *
+ * The desktop photo carries a "move the light to reveal" spotlight: the photo
+ * sits dark by default and a radial spotlight mask follows the cursor (smoothed
+ * via rAF), revealing the bright photo only inside the light circle.
  */
+
+type LightPos = { x: number; y: number };
+
+const SPOTLIGHT_HOME = { xPct: 0.62, yPct: 0.38 };
+const SPOTLIGHT_CSS =
+  "radial-gradient(circle 260px at var(--mx, 62%) var(--my, 38%), black 0%, transparent 70%)";
+
+function setLightVars(photo: HTMLDivElement, glow: HTMLDivElement, x: number, y: number): void {
+  photo.style.setProperty("--mx", `${x.toFixed(1)}px`);
+  photo.style.setProperty("--my", `${y.toFixed(1)}px`);
+  glow.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+}
+
+/**
+ * Tracks the cursor across the whole hero section and drives the spotlight
+ * with a smoothed rAF loop. Direct DOM style updates only — no re-renders
+ * on mousemove. On touch devices the light drifts on its own; with
+ * prefers-reduced-motion it stays parked at a static position.
+ */
+function useLightReveal() {
+  const photoRef = useRef<HTMLDivElement | null>(null);
+  const glowRef = useRef<HTMLDivElement | null>(null);
+  const target = useRef<LightPos>({ x: 0, y: 0 });
+  const smooth = useRef<LightPos>({ x: 0, y: 0 });
+  const started = useRef(false);
+  const [hintVisible, setHintVisible] = useState(true);
+
+  useEffect(() => {
+    const photo = photoRef.current;
+    const glow = glowRef.current;
+    if (!photo || !glow) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const rect = photo.getBoundingClientRect();
+    const home: LightPos = {
+      x: rect.width * SPOTLIGHT_HOME.xPct,
+      y: rect.height * SPOTLIGHT_HOME.yPct,
+    };
+    target.current = { ...home };
+    smooth.current = { ...home };
+
+    if (reduced) {
+      setLightVars(photo, glow, home.x, home.y);
+      return;
+    }
+
+    const coarse = window.matchMedia("(hover: none)").matches;
+    const t0 = performance.now();
+    let raf = 0;
+
+    const tick = (now: number): void => {
+      let tx = target.current.x;
+      let ty = target.current.y;
+      if (coarse && !started.current) {
+        // touch: drift the light on a slow lissajous path
+        const r = photo.getBoundingClientRect();
+        const t = (now - t0) / 1000;
+        tx = r.width * (0.5 + 0.32 * Math.sin(t * 0.7));
+        ty = r.height * (0.5 + 0.3 * Math.sin(t * 1.05 + 1.3));
+      }
+      const s = smooth.current;
+      s.x += (tx - s.x) * 0.12;
+      s.y += (ty - s.y) * 0.12;
+      setLightVars(photo, glow, s.x, s.y);
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    let hintTimer = 0;
+    if (coarse) {
+      // no cursor on touch, so retire the hint on its own
+      hintTimer = window.setTimeout(() => setHintVisible(false), 6000);
+    }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      if (hintTimer) window.clearTimeout(hintTimer);
+    };
+  }, []);
+
+  const onSectionMouseMove = (e: ReactMouseEvent<HTMLElement>): void => {
+    const photo = photoRef.current;
+    if (!photo) return;
+    const rect = photo.getBoundingClientRect();
+    target.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    if (!started.current) {
+      started.current = true;
+      setHintVisible(false);
+    }
+  };
+
+  return { photoRef, glowRef, hintVisible, onSectionMouseMove };
+}
 
 function XIcon({ className }: { className?: string }) {
   return (
@@ -22,6 +120,7 @@ function XIcon({ className }: { className?: string }) {
 export function Hero() {
   const { tj } = useContent();
   const socials = tj<Record<string, string>>("socials.links");
+  const { photoRef, glowRef, hintVisible, onSectionMouseMove } = useLightReveal();
 
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
@@ -36,6 +135,7 @@ export function Hero() {
   return (
     <section
       id="home"
+      onMouseMove={onSectionMouseMove}
       className="viridia-hero relative flex min-h-screen flex-col overflow-hidden bg-[#0a0f0a] text-white"
     >
       {/* ---- Background: dark field-green gradients ---- */}
@@ -48,21 +148,50 @@ export function Hero() {
         <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-green-400/[0.06] to-transparent" />
       </div>
 
-      {/* ---- Photo: right side, fading into the field ---- */}
+      {/* ---- Photo: right side, fading into the field, with light-reveal spotlight ---- */}
       <motion.div
+        ref={photoRef}
         initial={{ opacity: 0, x: 60 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block"
+        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block [mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]"
+        style={{
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent 0%, black 28%, black 100%)",
+        }}
       >
+        {/* dark base layer: low-light default state */}
         <img
           src="/assets/yaseen-viridia.png"
           alt="Yaseen Ahmad"
-          className="h-full w-full object-cover object-top [mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]"
+          className="h-full w-full object-cover object-top [filter:brightness(0.22)_saturate(0.35)]"
           loading="eager"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-transparent to-[#0a0f0a]/40 [mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]" />
+        {/* bright reveal layer: visible only inside the spotlight circle */}
+        <img
+          src="/assets/yaseen-viridia.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover object-top"
+          style={{ maskImage: SPOTLIGHT_CSS, WebkitMaskImage: SPOTLIGHT_CSS }}
+          loading="eager"
+        />
+        {/* soft green glow that travels with the cursor */}
+        <div ref={glowRef} className="absolute left-0 top-0 h-0 w-0">
+          <div className="h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-400/[0.13] blur-[100px]" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-transparent to-[#0a0f0a]/40" />
         <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#0d140d] to-transparent" />
+        {/* one-time hint, fades forever after the first mousemove */}
+        <div
+          className={`absolute bottom-28 left-8 transition-opacity duration-700 ${
+            hintVisible ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-white/40">
+            ○ Move the light to reveal
+          </p>
+        </div>
       </motion.div>
 
       {/* ---- Main content ---- */}
