@@ -1,42 +1,51 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun, MessageCircle, Search } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { X, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Editable, useContent } from "@/components/portfolio/content-editor";
+
+/**
+ * VIRIDIA-style floating pill navbar.
+ * Left: dark translucent pill with links (active = white pill).
+ * Right: dark pill with "Menu" + ".." circular button opening a dropdown.
+ */
+const MAIN_LINKS = [
+  { label: "Home", href: "#home" },
+  { label: "Projects", href: "#projects" },
+  { label: "Technology", href: "#techstack" },
+  { label: "Clients", href: "#testimonials" },
+];
+
+const MORE_LINKS = [
+  { label: "About", href: "#about" },
+  { label: "Services", href: "#services" },
+  { label: "Skills", href: "#techstack" },
+  { label: "Blog", href: "#blog" },
+  { label: "Book", href: "#booking" },
+  { label: "Contact", href: "#contact" },
+];
 
 export function Navbar() {
-  const { t, tj } = useContent();
-  const navLinks = tj<{ label: string; href: string }[]>("nav.links");
-  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("#home");
-  // Logo: serve the tiny static PNG by default; swap in the 1.8MB animated
-  // GIF only while hovered (desktop). Mobile never triggers hover, so the
-  // GIF is never downloaded on phones — big LCP/bytes win.
-  const [logoHover, setLogoHover] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // next-themes requires a mounted flag to avoid hydration mismatch
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
   useEffect(() => {
+    const ids = [...MAIN_LINKS, ...MORE_LINKS].map((l) => l.href.slice(1));
     const onScroll = () => {
-      setScrolled(window.scrollY > 24);
-      // active section detection
-      const sections = navLinks.map((l) => l.href.slice(1));
-      for (const id of sections) {
+      for (const id of ids) {
         const el = document.getElementById(id);
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= 120 && rect.bottom >= 120) {
+          if (rect.top <= 140 && rect.bottom >= 140) {
             setActive(`#${id}`);
             break;
           }
@@ -50,156 +59,107 @@ export function Navbar() {
 
   const go = (href: string) => {
     setOpen(false);
-    const el = document.querySelector(href);
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.querySelector(href)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <header
-      className={cn(
-        "animate-fade-in fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        scrolled
-          ? "glass border-b border-sky-500/10 shadow-soft py-2"
-          : "bg-transparent py-4"
-      )}
-    >
-      <nav className="container mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
-        {/* Logo */}
-        <button
-          onClick={() => go("#home")}
-          className="group flex items-center gap-3"
-          aria-label={t("a11y.goTop")}
-          onMouseEnter={() => setLogoHover(true)}
-          onMouseLeave={() => setLogoHover(false)}
-        >
-          <div className="relative h-11 w-11 overflow-hidden rounded-xl ring-2 ring-sky-500/30 transition-all group-hover:ring-pink-500/50 group-hover:shadow-glow-sky">
-            <img
-              src={logoHover ? "/assets/logo-animated.gif" : "/assets/logo.png"}
-              alt={`${t("brand.name")} logo`}
-              className="h-full w-full object-cover"
-              loading="eager"
-            />
-          </div>
-          <div className="hidden flex-col items-start leading-none sm:flex">
-            <span className="text-base font-bold tracking-tight">
-              <Editable id="brand.firstName" />
-              <span className="text-gradient-sky-pink">.</span>
-            </span>
-            <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
-              <Editable id="nav.brandTag" />
-            </span>
-          </div>
-        </button>
-
-        {/* Desktop nav */}
-        <div className="hidden items-center gap-1 lg:flex">
-          {navLinks.map((link) => (
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6 sm:pt-4">
+      <nav className="mx-auto flex max-w-7xl items-start justify-between gap-3">
+        {/* Left pill: links */}
+        <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/45 p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+          {MAIN_LINKS.map((link) => (
             <button
               key={link.href}
               onClick={() => go(link.href)}
               className={cn(
-                "relative rounded-lg px-3.5 py-2 text-sm font-medium transition-colors",
+                "rounded-full px-4 py-2 text-sm font-medium transition-all duration-200 sm:px-5",
                 active === link.href
-                  ? "text-sky-600 dark:text-sky-400"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-white text-black shadow"
+                  : "text-white/70 hover:text-white"
               )}
             >
               {link.label}
-              {active === link.href && (
-                <motion.span
-                  layoutId="nav-active"
-                  className="absolute inset-0 -z-10 rounded-lg bg-gradient-to-r from-sky-500/10 to-pink-500/10 ring-1 ring-sky-500/20"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                />
-              )}
             </button>
           ))}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
-            className="hidden rounded-full lg:inline-flex"
-            aria-label={t("palette.openAria")}
-            title={t("palette.quickSearch")}
-          >
-            <Search className="h-4 w-4" />
-          </Button>
-          {mounted && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="rounded-full"
-              aria-label={t("a11y.toggleTheme")}
+        {/* Right pill: Menu + ".." */}
+        <div className="relative">
+          <div className="flex items-center gap-1 rounded-full border border-white/10 bg-black/45 p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.45)] backdrop-blur-xl">
+            <button
+              onClick={() => setOpen((o) => !o)}
+              className="rounded-full px-4 py-2 text-sm font-medium text-white/85 transition-colors hover:text-white"
             >
-              {theme === "dark" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </Button>
-          )}
-          <Button
-            onClick={() => go("#contact")}
-            className="hidden rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft hover:shadow-glow-pink sm:inline-flex"
-            size="sm"
-          >
-            <MessageCircle className="mr-1.5 h-4 w-4" />
-            <Editable id="nav.hire" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden rounded-full"
-            onClick={() => setOpen((o) => !o)}
-            aria-label={t("a11y.menu")}
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-      </nav>
+              Menu
+            </button>
+            <button
+              onClick={() => setOpen((o) => !o)}
+              aria-label="More navigation options"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-sm font-bold tracking-widest text-white/85 transition-colors hover:bg-white/15 hover:text-white"
+            >
+              {open ? <X className="h-4 w-4" /> : <span className="-mt-1">..</span>}
+            </button>
+          </div>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25 }}
-            className="lg:hidden overflow-hidden"
-          >
-            <div className="container mx-auto max-w-7xl px-4 pb-4 pt-2">
-              <div className="glass rounded-2xl p-3 shadow-soft">
-                {navLinks.map((link) => (
+          {/* Dropdown panel */}
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                transition={{ duration: 0.18 }}
+                className="absolute right-0 top-full mt-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-[#0d130d]/95 p-2 shadow-[0_16px_48px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+              >
+                {MORE_LINKS.map((link) => (
                   <button
                     key={link.href}
                     onClick={() => go(link.href)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-xl px-4 py-3 text-sm font-medium transition-colors",
+                      "flex w-full items-center justify-between rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
                       active === link.href
-                        ? "bg-sky-500/10 text-sky-600 dark:text-sky-400"
-                        : "text-foreground hover:bg-muted"
+                        ? "bg-white/10 text-white"
+                        : "text-white/65 hover:bg-white/5 hover:text-white"
                     )}
                   >
                     {link.label}
                   </button>
                 ))}
-                <Button
-                  onClick={() => go("#contact")}
-                  className="mt-2 w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
-                >
-                  <Editable id="nav.hire" />
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                <div className="mt-1 flex items-center justify-between border-t border-white/10 px-4 py-2.5">
+                  <span className="text-xs uppercase tracking-widest text-white/40">Theme</span>
+                  {mounted && (
+                    <button
+                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                      aria-label="Toggle theme"
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition-colors hover:bg-white/15"
+                    >
+                      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </nav>
+
+      {/* Mobile: compact link row under the pills */}
+      <div className="mx-auto mt-2 flex max-w-7xl gap-1 overflow-x-auto pb-1 sm:hidden">
+        {MORE_LINKS.slice(0, 5).map((link) => (
+          <button
+            key={link.href}
+            onClick={() => go(link.href)}
+            className={cn(
+              "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium backdrop-blur-xl transition-colors",
+              active === link.href
+                ? "border-white/20 bg-white text-black"
+                : "border-white/10 bg-black/45 text-white/70"
+            )}
+          >
+            {link.label}
+          </button>
+        ))}
+      </div>
     </header>
   );
 }
