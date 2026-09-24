@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { motion } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -30,6 +29,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SectionHeading } from "../section-heading";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
+import { Reveal, Stagger } from "../reveal";
 import { cn } from "@/lib/utils";
 
 interface Article {
@@ -49,27 +49,6 @@ interface FullArticle extends Article {
   updatedAt: string;
 }
 
-const colorMap: Record<string, { bg: string; ring: string; text: string; gradient: string }> = {
-  sky: {
-    bg: "from-green-500/10 to-green-500/5",
-    ring: "border-green-500/30",
-    text: "text-green-600 dark:text-green-400",
-    gradient: "from-green-400 to-green-600",
-  },
-  pink: {
-    bg: "from-emerald-500/10 to-emerald-500/5",
-    ring: "border-emerald-500/30",
-    text: "text-emerald-600 dark:text-emerald-400",
-    gradient: "from-emerald-400 to-emerald-600",
-  },
-  wood: {
-    bg: "from-wood/10 to-wood/5",
-    ring: "border-wood/30",
-    text: "text-wood",
-    gradient: "from-lime-500 to-lime-700",
-  },
-};
-
 export function Blog() {
   const { t } = useContent();
   const [articles, setArticles] = useState<Article[]>([]);
@@ -83,17 +62,6 @@ export function Blog() {
     const data = await res.json();
     return (data.articles || []) as Article[];
   }, []);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setArticles(await fetchArticles());
-    } catch {
-      setArticles([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [fetchArticles]);
 
   // Initial fetch. All state updates happen after `await`, never
   // synchronously inside the effect. Cancelled on unmount.
@@ -112,6 +80,7 @@ export function Blog() {
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchArticles]);
 
   // Collect all unique tags
@@ -145,8 +114,8 @@ export function Blog() {
   const isFiltering = query.trim() !== "" || activeTag !== "All";
 
   return (
-    <section id="blog" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-6xl px-4 sm:px-6">
+    <section id="blog" className="bg-[#F4F5F1] py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading ek="blog" />
 
         {loading ? (
@@ -154,12 +123,12 @@ export function Blog() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="h-72 animate-pulse rounded-2xl border border-green-500/10 bg-muted/50"
+                className="h-64 animate-pulse rounded-xl border border-[#E6E8E2] bg-white"
               />
             ))}
           </div>
         ) : articles.length === 0 ? (
-          <div className="mt-12 text-center text-muted-foreground">
+          <div className="mt-12 text-center text-[#5F665F]">
             <Editable id="blog.empty" />
           </div>
         ) : (
@@ -173,10 +142,10 @@ export function Blog() {
                     key={tag}
                     onClick={() => setActiveTag(tag)}
                     className={cn(
-                      "rounded-full px-3.5 py-1.5 text-xs font-medium transition-all",
+                      "rounded-full border px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-wider transition-all",
                       activeTag === tag
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
-                        : "bg-muted text-muted-foreground hover:bg-green-500/10 hover:text-green-600"
+                        ? "border-[#101410] bg-[#101410] text-white"
+                        : "border-[#E6E8E2] bg-white text-[#5F665F] hover:border-[#101410] hover:text-[#101410]"
                     )}
                   >
                     {tag}
@@ -186,17 +155,17 @@ export function Blog() {
 
               {/* Search input */}
               <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
                 <Input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t("blog.searchPlaceholder")}
-                  className="rounded-full pl-9 pr-4"
+                  className="rounded-full border-[#E6E8E2] bg-white pl-9 pr-4 focus:border-[#101410]"
                 />
                 {query && (
                   <button
                     onClick={() => setQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-0.5 text-[#5F665F] hover:text-[#101410]"
                     aria-label={t("a11y.clearSearch")}
                   >
                     <X className="h-3.5 w-3.5" />
@@ -207,24 +176,24 @@ export function Blog() {
 
             {/* Results count when filtering */}
             {isFiltering && (
-              <div className="mt-4 text-center text-xs text-muted-foreground">
+              <div className="mt-4 text-center font-mono text-xs text-[#5F665F]">
                 {t("blog.showingPre")} {filtered.length} {t("blog.showingMid")} {articles.length} {t("blog.showingPost")}
                 {activeTag !== "All" && (
                   <>
-                    {" "}{t("blog.inWord")} <span className="font-semibold text-green-600 dark:text-green-400">{activeTag}</span>
+                    {" "}{t("blog.inWord")} <span className="font-semibold text-[#101410]">{activeTag}</span>
                   </>
                 )}
               </div>
             )}
 
             {filtered.length === 0 ? (
-              <div className="mt-12 flex flex-col items-center gap-3 py-12 text-center text-muted-foreground">
-                <Search className="h-10 w-10 text-muted-foreground/40" />
+              <div className="mt-12 flex flex-col items-center gap-3 py-12 text-center text-[#5F665F]">
+                <Search className="h-10 w-10 text-[#5F665F]/40" />
                 <p className="text-sm"><Editable id="blog.noMatch" /></p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full border-green-500/30"
+                  className="rounded-full border-[#E6E8E2] bg-white hover:border-[#101410]"
                   onClick={() => {
                     setQuery("");
                     setActiveTag("All");
@@ -237,35 +206,35 @@ export function Blog() {
               <>
                 {/* Featured articles (hidden when filtering) */}
                 {!isFiltering && featured.length > 0 && (
-                  <div className="mt-12 grid gap-6 md:grid-cols-2">
-                    {featured.map((article, i) => (
-                      <FeaturedArticleCard
-                        key={article.id}
-                        article={article}
-                        index={i}
-                        onRead={() => setSelectedSlug(article.slug)}
-                      />
+                  <Stagger className="mt-12 grid gap-6 md:grid-cols-2">
+                    {featured.map((article) => (
+                      <Reveal asChild key={article.id}>
+                        <FeaturedArticleCard
+                          article={article}
+                          onRead={() => setSelectedSlug(article.slug)}
+                        />
+                      </Reveal>
                     ))}
-                  </div>
+                  </Stagger>
                 )}
 
                 {/* Regular articles */}
                 {regular.length > 0 && (
-                  <div className={cn("grid gap-6 md:grid-cols-2 lg:grid-cols-3", !isFiltering && "mt-6")}>
-                    {regular.map((article, i) => (
-                      <ArticleCard
-                        key={article.id}
-                        article={article}
-                        index={i}
-                        onRead={() => setSelectedSlug(article.slug)}
-                      />
+                  <Stagger className={cn("grid gap-6 md:grid-cols-2 lg:grid-cols-3", !isFiltering && featured.length > 0 && "mt-6")}>
+                    {regular.map((article) => (
+                      <Reveal asChild key={article.id}>
+                        <ArticleCard
+                          article={article}
+                          onRead={() => setSelectedSlug(article.slug)}
+                        />
+                      </Reveal>
                     ))}
-                  </div>
+                  </Stagger>
                 )}
 
                 {/* RSS / subscribe hint */}
                 <div className="mt-10 flex flex-col items-center gap-3 text-center">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-[#5F665F]">
                     <Editable id="blog.moreText" />{" "}
                     <button
                       onClick={() =>
@@ -273,7 +242,7 @@ export function Blog() {
                           .querySelector("#contact")
                           ?.scrollIntoView({ behavior: "smooth" })
                       }
-                      className="font-semibold text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
+                      className="font-semibold text-[#101410] underline underline-offset-4 hover:text-[#166534]"
                     >
                       <Editable id="blog.connectBtn" />
                     </button>
@@ -282,7 +251,7 @@ export function Blog() {
                     href="/api/blog/rss"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/5 px-4 py-2 text-xs font-medium text-lime-600 transition-all hover:border-lime-500/50 hover:bg-lime-500/10 dark:text-lime-400"
+                    className="inline-flex items-center gap-2 rounded-full border border-[#E6E8E2] bg-white px-4 py-2 font-mono text-[11px] uppercase tracking-wider text-[#5F665F] transition-all hover:border-[#101410] hover:text-[#101410]"
                     aria-label={t("a11y.subscribeRss")}
                   >
                     <Rss className="h-3.5 w-3.5" />
@@ -307,149 +276,119 @@ export function Blog() {
   );
 }
 
-function FeaturedArticleCard({
-  article,
-  index,
-  onRead,
-}: {
-  article: Article;
-  index: number;
-  onRead: () => void;
-}) {
+function ArticleMeta({ article }: { article: Article }) {
   const { t } = useContent();
-  const colors = colorMap[article.coverColor] || colorMap.sky;
-  const tags = article.tags.split(",").filter(Boolean);
   const date = new Date(article.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
-
   return (
-    <motion.button
+    <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
+      <span className="flex items-center gap-1.5">
+        <Calendar className="h-3 w-3" />
+        {date}
+      </span>
+      <span aria-hidden="true" className="text-[#E6E8E2]">·</span>
+      <span className="flex items-center gap-1.5">
+        <Clock className="h-3 w-3" />
+        {article.readTime} {t("blog.minRead")}
+      </span>
+    </div>
+  );
+}
+
+function FeaturedArticleCard({
+  article,
+  onRead,
+}: {
+  article: Article;
+  onRead: () => void;
+}) {
+  const tags = article.tags.split(",").map((t) => t.trim()).filter(Boolean);
+  return (
+    <button
       onClick={onRead}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className={cn(
-        "group relative overflow-hidden rounded-2xl border bg-gradient-to-br p-6 text-left shadow-soft transition-all hover:-translate-y-1 hover:shadow-card-hover",
-        colors.ring,
-        colors.bg
-      )}
+      className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-[#E6E8E2] bg-white p-7 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)] sm:p-8"
     >
-      {/* Featured badge */}
-      <Badge className="absolute right-4 top-4 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-2 py-0.5 text-[10px] text-white">
-        ★ <Editable id="blog.featuredBadge" />
-      </Badge>
+      <span className="absolute right-5 top-5 rounded-full bg-[#EAF3EC] px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#166534]">
+        <Editable id="blog.featuredBadge" />
+      </span>
 
-      {/* Gradient header bar */}
-      <div className={cn("mb-4 h-1.5 w-16 rounded-full bg-gradient-to-r", colors.gradient)} />
-
-      <h3 className="mb-2 text-xl font-bold leading-tight text-foreground sm:text-2xl">
+      <h3 className="mb-3 pr-24 font-display text-2xl font-semibold leading-tight tracking-tight text-[#101410] sm:text-3xl">
         {article.title}
       </h3>
 
-      <p className="mb-4 line-clamp-3 text-sm text-muted-foreground">
+      <p className="mb-5 line-clamp-3 flex-1 text-[15px] leading-relaxed text-[#5F665F]">
         {article.excerpt}
       </p>
 
       {/* Tags */}
-      <div className="mb-4 flex flex-wrap gap-1.5">
+      <div className="mb-5 flex flex-wrap gap-1.5">
         {tags.slice(0, 4).map((t) => (
           <span
             key={t}
-            className={cn(
-              "rounded-md border px-2 py-0.5 text-[11px] font-medium",
-              colors.ring,
-              colors.text
-            )}
+            className="rounded-full border border-[#E6E8E2] bg-white px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]"
           >
             {t}
           </span>
         ))}
       </div>
 
-      {/* Meta */}
-      <div className="flex items-center justify-between border-t border-green-500/10 pt-3 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <Calendar className="h-3.5 w-3.5" />
-          {date}
-        </span>
-        <span className="flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5" />
-          {article.readTime} {t("blog.minRead")}
-        </span>
-        <span className={cn("flex items-center gap-1 font-semibold", colors.text)}>
+      {/* Meta + read link */}
+      <div className="flex items-center justify-between border-t border-[#E6E8E2] pt-4">
+        <ArticleMeta article={article} />
+        <span className="flex items-center gap-1 text-sm font-medium text-[#101410] underline-offset-4 group-hover:text-[#166534] group-hover:underline">
           <Editable id="blog.readBtn" />
-          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </span>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
 function ArticleCard({
   article,
-  index,
   onRead,
 }: {
   article: Article;
-  index: number;
   onRead: () => void;
 }) {
-  const colors = colorMap[article.coverColor] || colorMap.sky;
-  const tags = article.tags.split(",").filter(Boolean);
-  const date = new Date(article.createdAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-
+  const tags = article.tags.split(",").map((t) => t.trim()).filter(Boolean);
   return (
-    <motion.button
+    <button
       onClick={onRead}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.08 }}
-      className="group flex h-full flex-col rounded-2xl border border-green-500/15 bg-card p-5 text-left shadow-soft transition-all hover:-translate-y-1 hover:shadow-card-hover"
+      className="group flex h-full flex-col rounded-xl border border-[#E6E8E2] bg-white p-6 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
     >
-      {/* Gradient top bar */}
-      <div className={cn("mb-3 h-1.5 w-12 rounded-full bg-gradient-to-r", colors.gradient)} />
-
-      <h3 className="mb-2 line-clamp-2 font-bold leading-tight text-foreground">
+      <h3 className="mb-2 line-clamp-2 font-display text-xl font-semibold leading-tight tracking-tight text-[#101410]">
         {article.title}
       </h3>
 
-      <p className="mb-3 line-clamp-3 flex-1 text-sm text-muted-foreground">
+      <p className="mb-4 line-clamp-3 flex-1 text-sm leading-relaxed text-[#5F665F]">
         {article.excerpt}
       </p>
 
       {/* Tags */}
-      <div className="mb-3 flex flex-wrap gap-1">
+      <div className="mb-4 flex flex-wrap gap-1.5">
         {tags.slice(0, 3).map((t) => (
           <span
             key={t}
-            className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+            className="rounded-full border border-[#E6E8E2] bg-white px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#5F665F]"
           >
             {t}
           </span>
         ))}
       </div>
 
-      {/* Meta */}
-      <div className="flex items-center justify-between border-t border-green-500/10 pt-2.5 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <Calendar className="h-3 w-3" />
-          {date}
-        </span>
-        <span className={cn("flex items-center gap-1 font-semibold", colors.text)}>
-          {article.readTime}m
-          <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
+      {/* Meta + read link */}
+      <div className="flex items-center justify-between border-t border-[#E6E8E2] pt-3">
+        <ArticleMeta article={article} />
+        <span className="flex items-center gap-1 text-sm font-medium text-[#101410] underline-offset-4 group-hover:text-[#166534] group-hover:underline">
+          <Editable id="blog.readBtn" />
+          <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
         </span>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
@@ -514,42 +453,37 @@ function ArticleModal({
     };
   }, [slug]);
 
-  const colors = article
-    ? colorMap[article.coverColor] || colorMap.sky
-    : colorMap.sky;
-
   return (
     <Dialog open={!!slug} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-2xl border-green-500/20 p-0">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-hidden rounded-xl border-[#E6E8E2] bg-white p-0">
         {/* Reading progress bar */}
-        <div className="absolute inset-x-0 top-0 z-20 h-1 bg-muted/30">
+        <div className="absolute inset-x-0 top-0 z-20 h-1 bg-[#E6E8E2]/60">
           <div
-            className="h-full bg-gradient-to-r from-green-500 via-emerald-500 to-wood transition-[width] duration-150 ease-out"
+            className="h-full bg-[#101410] transition-[width] duration-150 ease-out"
             style={{ width: `${readingProgress}%` }}
           />
         </div>
 
-        {/* Header with gradient */}
-        <div className={cn("relative bg-gradient-to-br p-6", colors.bg)}>
-          <div className="absolute inset-0 bg-grid opacity-30" />
+        {/* Header */}
+        <div className="relative border-b border-[#E6E8E2] bg-white p-6">
           <DialogHeader className="relative">
             <div className="mb-3 flex items-center gap-2">
-              <span className={cn("flex items-center gap-1 text-xs font-semibold uppercase tracking-wider", colors.text)}>
+              <span className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
                 <BookOpen className="h-3.5 w-3.5" />
                 Article
               </span>
               {article?.featured && (
-                <Badge className="rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-2 py-0.5 text-[10px] text-white">
-                  ★ Featured
+                <Badge className="rounded-full bg-[#EAF3EC] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#166534] hover:bg-[#EAF3EC]">
+                  <Editable id="blog.featuredBadge" />
                 </Badge>
               )}
             </div>
-            <DialogTitle className="text-2xl font-bold leading-tight sm:text-3xl">
-              {article?.title || "Loading..."}
+            <DialogTitle className="font-display text-2xl font-semibold leading-tight tracking-tight text-[#101410] sm:text-3xl">
+              {article?.title || t("blog.loadingArticle")}
             </DialogTitle>
             {article && (
-              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
+              <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
+                <span className="flex items-center gap-1.5">
                   <Calendar className="h-3.5 w-3.5" />
                   {new Date(article.createdAt).toLocaleDateString("en-US", {
                     year: "numeric",
@@ -557,14 +491,11 @@ function ArticleModal({
                     day: "numeric",
                   })}
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <Clock className="h-3.5 w-3.5" />
                   {article.readTime} {t("blog.minRead")}
                 </span>
-                <span className="flex items-center gap-1">
-                  <span className="text-base">✍️</span>
-                  {t("brand.name")}
-                </span>
+                <span>{t("brand.name")}</span>
               </div>
             )}
           </DialogHeader>
@@ -583,8 +514,8 @@ function ArticleModal({
         >
           <div className="p-6">
             {loading ? (
-              <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-                <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+              <div className="flex flex-col items-center gap-3 py-16 text-[#5F665F]">
+                <Loader2 className="h-8 w-8 animate-spin" />
                 <p className="text-sm"><Editable id="blog.loadingArticle" /></p>
               </div>
             ) : article ? (
@@ -593,26 +524,26 @@ function ArticleModal({
                 <TableOfContents content={article.content} />
 
                 {/* Excerpt */}
-                <p className="mb-6 border-l-4 border-green-500/40 bg-green-500/5 py-2 pl-4 text-base font-medium italic text-foreground/80">
+                <p className="mb-6 border-l-2 border-[#101410] py-1 pl-4 text-base font-medium italic leading-relaxed text-[#101410]/80">
                   {article.excerpt}
                 </p>
 
                 {/* Content (markdown) */}
-                <article className="prose prose-sm max-w-none dark:prose-invert">
+                <article>
                   <MarkdownRenderer content={article.content} />
                 </article>
 
                 {/* Tags */}
-                <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-green-500/10 pt-4">
-                  <span className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
+                <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-[#E6E8E2] pt-4">
+                  <span className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
                     <Tag className="h-3.5 w-3.5" />
                     <Editable id="blog.tagsWord" />
                   </span>
-                  {article.tags.split(",").filter(Boolean).map((t) => (
+                  {article.tags.split(",").map((t) => t.trim()).filter(Boolean).map((t) => (
                     <Badge
                       key={t}
                       variant="secondary"
-                      className={cn("rounded-md border", colors.ring, colors.text)}
+                      className="rounded-full border border-[#E6E8E2] bg-white px-3 py-0.5 font-mono text-[11px] uppercase tracking-wider text-[#5F665F] hover:bg-white"
                     >
                       {t}
                     </Badge>
@@ -620,16 +551,16 @@ function ArticleModal({
                 </div>
 
                 {/* Author footer */}
-                <div className="mt-6 flex items-center gap-3 rounded-xl border border-green-500/15 bg-gradient-to-r from-green-500/5 to-emerald-500/5 p-4">
+                <div className="mt-6 flex items-center gap-3 rounded-xl border border-[#E6E8E2] bg-white p-4">
                   <img
                     src="/assets/dev-avatar.png"
                     alt={t("brand.name")}
-                    className="h-12 w-12 rounded-full border-2 border-white shadow-soft"
+                    className="h-12 w-12 rounded-full border border-[#E6E8E2]"
                     loading="lazy"
                   />
                   <div>
-                    <div className="text-sm font-bold">{t("brand.name")}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-sm font-semibold text-[#101410]">{t("brand.name")}</div>
+                    <div className="text-xs text-[#5F665F]">
                       {t("brand.role")} · {t("brand.location")}
                     </div>
                   </div>
@@ -643,15 +574,15 @@ function ArticleModal({
                           ?.scrollIntoView({ behavior: "smooth" });
                       }, 100);
                     }}
-                    className="ml-auto rounded-full bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                    className="ml-auto rounded-full bg-[#101410] px-5 text-white hover:bg-black"
                   >
                     <Editable id="blog.hireBtn" />
                   </Button>
                 </div>
 
                 {/* Social sharing */}
-                <div className="mt-4 flex items-center gap-2 border-t border-green-500/10 pt-4">
-                  <span className="text-xs font-semibold text-muted-foreground">
+                <div className="mt-4 flex items-center gap-2 border-t border-[#E6E8E2] pt-4">
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
                     <Editable id="blog.shareWord" />
                   </span>
                   <ShareButton
@@ -687,11 +618,11 @@ function ArticleModal({
                         setTimeout(() => setShareCopied(false), 2000);
                       }
                     }}
-                    className="flex items-center gap-1.5 rounded-full border border-green-500/30 bg-card px-3 py-1.5 text-xs font-medium text-muted-foreground transition-all hover:border-emerald-500/40 hover:bg-green-500/10 hover:text-green-600"
+                    className="flex items-center gap-1.5 rounded-full border border-[#E6E8E2] bg-white px-3 py-1.5 text-xs font-medium text-[#5F665F] transition-all hover:border-[#101410] hover:text-[#101410]"
                   >
                     {shareCopied ? (
                       <>
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-[#166534]" />
                         {t("blog.copied")}
                       </>
                     ) : (
@@ -715,45 +646,42 @@ function ArticleModal({
                     .slice(0, 3);
                   if (related.length === 0) return null;
                   return (
-                    <div className="mt-6 border-t border-green-500/10 pt-5">
-                      <h4 className="mb-3 flex items-center gap-2 text-sm font-bold text-foreground">
-                        <BookOpen className="h-4 w-4 text-green-500" />
+                    <div className="mt-6 border-t border-[#E6E8E2] pt-5">
+                      <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#101410]">
+                        <BookOpen className="h-4 w-4" />
                         <Editable id="blog.relatedWord" />
                       </h4>
                       <div className="space-y-2">
-                        {related.map((r) => {
-                          const relColors = colorMap[r.coverColor] || colorMap.sky;
-                          return (
-                            <button
-                              key={r.id}
-                              onClick={() => {
-                                onSelectArticle(r.slug);
-                                setReadingProgress(0);
-                              }}
-                              className="group flex w-full items-center gap-3 rounded-xl border border-green-500/15 bg-card p-3 text-left transition-all hover:border-emerald-500/30 hover:shadow-soft"
-                            >
-                              <div className={cn("h-10 w-1.5 shrink-0 rounded-full bg-gradient-to-b", relColors.gradient)} />
-                              <div className="min-w-0 flex-1">
-                                <div className="line-clamp-1 text-sm font-semibold text-foreground group-hover:text-green-600">
-                                  {r.title}
-                                </div>
-                                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                                  <Clock className="h-3 w-3" />
-                                  {r.readTime} {t("blog.minRead")}
-                                </div>
+                        {related.map((r) => (
+                          <button
+                            key={r.id}
+                            onClick={() => {
+                              onSelectArticle(r.slug);
+                              setReadingProgress(0);
+                            }}
+                            className="group flex w-full items-center gap-3 rounded-xl border border-[#E6E8E2] bg-white p-3 text-left transition-all hover:border-[#101410]"
+                          >
+                            <div className="h-10 w-1 shrink-0 rounded-full bg-[#101410]" />
+                            <div className="min-w-0 flex-1">
+                              <div className="line-clamp-1 text-sm font-semibold text-[#101410]">
+                                {r.title}
                               </div>
-                              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-green-500" />
-                            </button>
-                          );
-                        })}
+                              <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
+                                <Clock className="h-3 w-3" />
+                                {r.readTime} {t("blog.minRead")}
+                              </div>
+                            </div>
+                            <ArrowRight className="h-4 w-4 shrink-0 text-[#5F665F] transition-transform group-hover:translate-x-1 group-hover:text-[#101410]" />
+                          </button>
+                        ))}
                       </div>
                     </div>
                   );
                 })()}
               </>
             ) : (
-              <div className="flex flex-col items-center gap-3 py-16 text-muted-foreground">
-                <BookOpen className="h-8 w-8 text-muted-foreground/50" />
+              <div className="flex flex-col items-center gap-3 py-16 text-[#5F665F]">
+                <BookOpen className="h-8 w-8 text-[#5F665F]/50" />
                 <p className="text-sm"><Editable id="blog.notFound" /></p>
               </div>
             )}
@@ -780,7 +708,7 @@ function ShareButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`Share on ${label}`}
-      className="flex h-8 w-8 items-center justify-center rounded-full border border-green-500/30 bg-card text-muted-foreground transition-all hover:border-emerald-500/40 hover:bg-green-500/10 hover:text-green-600"
+      className="flex h-8 w-8 items-center justify-center rounded-full border border-[#E6E8E2] bg-white text-[#5F665F] transition-all hover:border-[#101410] hover:text-[#101410]"
     >
       {children}
     </a>
@@ -821,27 +749,27 @@ function TableOfContents({ content }: { content: string }) {
   };
 
   return (
-    <div className="mb-6 overflow-hidden rounded-xl border border-green-500/20 bg-gradient-to-br from-green-500/5 to-emerald-500/5">
+    <div className="mb-6 overflow-hidden rounded-xl border border-[#E6E8E2] bg-white">
       <button
         onClick={() => setCollapsed((c) => !c)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
-        <span className="flex items-center gap-2 text-sm font-bold text-foreground">
-          <List className="h-4 w-4 text-green-500" />
+        <span className="flex items-center gap-2 text-sm font-semibold text-[#101410]">
+          <List className="h-4 w-4" />
           <Editable id="blog.tocTitle" />
-          <Badge variant="secondary" className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-1.5 py-0 text-[10px] text-emerald-700 dark:text-emerald-300">
+          <Badge variant="secondary" className="rounded-full border border-[#E6E8E2] bg-[#F4F5F1] px-1.5 py-0 font-mono text-[10px] text-[#5F665F] hover:bg-[#F4F5F1]">
             {headings.length}
           </Badge>
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 text-muted-foreground transition-transform",
+            "h-4 w-4 text-[#5F665F] transition-transform",
             !collapsed && "rotate-180"
           )}
         />
       </button>
       {!collapsed && (
-        <nav className="border-t border-green-500/10 px-4 py-3">
+        <nav className="border-t border-[#E6E8E2] px-4 py-3">
           <ul className="space-y-1">
             {headings.map((h, i) => (
               <li
@@ -850,9 +778,9 @@ function TableOfContents({ content }: { content: string }) {
               >
                 <button
                   onClick={() => handleClick(h.slug)}
-                  className="flex items-center gap-2 text-left text-xs text-muted-foreground transition-colors hover:text-green-600 dark:hover:text-green-400"
+                  className="flex items-center gap-2 text-left text-xs text-[#5F665F] transition-colors hover:text-[#101410]"
                 >
-                  <span className="text-green-500/50">
+                  <span className="text-[#5F665F]/50">
                     {h.level === 2 ? "▸" : "•"}
                   </span>
                   <span className="line-clamp-1">{h.text}</span>
@@ -877,7 +805,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     if (line.trim().startsWith("```")) {
       if (inCode) {
         out.push(
-          <pre key={`code-${i}`} className="my-4 overflow-x-auto rounded-lg bg-[#0e150e] p-4 text-sm text-green-50">
+          <pre key={`code-${i}`} className="my-4 overflow-x-auto rounded-lg bg-[#101410] p-4 text-sm text-[#FBFBF9]">
             <code>{codeBuf.join("\n")}</code>
           </pre>
         );
@@ -904,19 +832,19 @@ function MarkdownRenderer({ content }: { content: string }) {
         .trim()
         .replace(/\s+/g, "-");
       if (level === 1)
-        out.push(<h1 key={i} id={slug} className="mb-3 mt-6 scroll-mt-4 text-2xl font-bold text-foreground">{text}</h1>);
+        out.push(<h1 key={i} id={slug} className="mb-3 mt-6 scroll-mt-4 font-display text-2xl font-semibold tracking-tight text-[#101410]">{text}</h1>);
       else if (level === 2)
-        out.push(<h2 key={i} id={slug} className="mb-2 mt-5 scroll-mt-4 text-xl font-bold text-foreground">{text}</h2>);
+        out.push(<h2 key={i} id={slug} className="mb-2 mt-5 scroll-mt-4 font-display text-xl font-semibold tracking-tight text-[#101410]">{text}</h2>);
       else if (level === 3)
-        out.push(<h3 key={i} id={slug} className="mb-2 mt-4 scroll-mt-4 text-lg font-semibold text-foreground">{text}</h3>);
+        out.push(<h3 key={i} id={slug} className="mb-2 mt-4 scroll-mt-4 font-display text-lg font-semibold tracking-tight text-[#101410]">{text}</h3>);
       else
-        out.push(<h4 key={i} id={slug} className="mb-1 mt-3 scroll-mt-4 text-base font-semibold text-foreground">{text}</h4>);
+        out.push(<h4 key={i} id={slug} className="mb-1 mt-3 scroll-mt-4 text-base font-semibold text-[#101410]">{text}</h4>);
       return;
     }
 
     if (/^\s*[-*]\s+/.test(line)) {
       out.push(
-        <li key={i} className="ml-6 list-disc text-sm leading-relaxed text-foreground/80">
+        <li key={i} className="ml-6 list-disc text-sm leading-relaxed text-[#101410]/80">
           {renderInline(line.replace(/^\s*[-*]\s+/, ""))}
         </li>
       );
@@ -925,7 +853,7 @@ function MarkdownRenderer({ content }: { content: string }) {
 
     if (/^\s*\d+\.\s+/.test(line)) {
       out.push(
-        <li key={i} className="ml-6 list-decimal text-sm leading-relaxed text-foreground/80">
+        <li key={i} className="ml-6 list-decimal text-sm leading-relaxed text-[#101410]/80">
           {renderInline(line.replace(/^\s*\d+\.\s+/, ""))}
         </li>
       );
@@ -933,7 +861,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
 
     if (/^---+$/.test(line.trim())) {
-      out.push(<hr key={i} className="my-4 border-green-500/20" />);
+      out.push(<hr key={i} className="my-4 border-[#E6E8E2]" />);
       return;
     }
 
@@ -943,7 +871,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     }
 
     out.push(
-      <p key={i} className="my-2 text-sm leading-relaxed text-foreground/80">
+      <p key={i} className="my-2 text-sm leading-relaxed text-[#101410]/80">
         {renderInline(line)}
       </p>
     );
@@ -951,7 +879,7 @@ function MarkdownRenderer({ content }: { content: string }) {
 
   if (inCode && codeBuf.length) {
     out.push(
-      <pre key="code-final" className="my-4 overflow-x-auto rounded-lg bg-[#0e150e] p-4 text-sm text-green-50">
+      <pre key="code-final" className="my-4 overflow-x-auto rounded-lg bg-[#101410] p-4 text-sm text-[#FBFBF9]">
         <code>{codeBuf.join("\n")}</code>
       </pre>
     );
@@ -971,7 +899,7 @@ function renderInline(text: string): React.ReactNode[] {
     const tok = m[0];
     if (tok.startsWith("**")) {
       parts.push(
-        <strong key={key++} className="font-bold text-foreground">
+        <strong key={key++} className="font-bold text-[#101410]">
           {tok.slice(2, -2)}
         </strong>
       );
@@ -979,7 +907,7 @@ function renderInline(text: string): React.ReactNode[] {
       parts.push(
         <code
           key={key++}
-          className="rounded bg-green-500/10 px-1.5 py-0.5 text-[0.85em] text-emerald-600 dark:text-emerald-400"
+          className="rounded bg-[#F4F5F1] px-1.5 py-0.5 text-[0.85em] text-[#166534]"
         >
           {tok.slice(1, -1)}
         </code>
@@ -993,7 +921,7 @@ function renderInline(text: string): React.ReactNode[] {
             href={lm[2]}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-emerald-600 underline dark:text-emerald-400"
+            className="font-medium text-[#166534] underline"
           >
             {lm[1]}
           </a>

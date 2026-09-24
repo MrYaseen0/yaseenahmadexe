@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote, Star, MessageSquarePlus, Loader2, CheckCircle2 } from "lucide-react";
+import { Star, MessageSquarePlus, Loader2, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,13 +54,12 @@ export function Testimonials() {
     avatar: tm.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase(),
     rating: tm.rating,
     text: tm.message,
-    color: colorMap[tm.color as keyof typeof colorMap] || colorMap.sky,
     verified: false,
   }));
 
   return (
-    <section id="testimonials" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+    <section id="testimonials" className="border-t border-[var(--hairline)] bg-white py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading ek="testimonials" />
 
         {/* Submit CTA */}
@@ -68,7 +67,7 @@ export function Testimonials() {
           <Button
             onClick={() => setSubmitOpen(true)}
             variant="outline"
-            className="rounded-full border-emerald-500/40 bg-emerald-500/5 px-5 text-emerald-700 hover:bg-emerald-500/10 dark:text-emerald-400"
+            className="rounded-full border-[var(--hairline)] px-5 hover:border-[#101410]"
           >
             <MessageSquarePlus className="mr-2 h-4 w-4" />
             <Editable id="testimonials.leaveBtn" />
@@ -77,64 +76,58 @@ export function Testimonials() {
 
         {/* Testimonials grid */}
         {allTestimonials.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-green-500/15 bg-card p-12 text-center">
-            <Quote className="mx-auto mb-4 h-12 w-12 text-muted-foreground/30" />
-            <h3 className="text-lg font-semibold"><Editable id="testimonials.emptyTitle" /></h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+          <div className="mx-auto mt-12 max-w-2xl rounded-xl border border-[var(--hairline)] bg-white p-12 text-center">
+            <h3 className="text-lg font-medium text-[#101410]">
+              <Editable id="testimonials.emptyTitle" />
+            </h3>
+            <p className="mt-2 text-sm text-[var(--muted)]">
               <Editable id="testimonials.emptySub" />
             </p>
           </div>
         ) : (
           <Stagger className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {allTestimonials.map((tm, i) => (
-            <Reveal
-              asChild
-              key={tm.name + i}
-              className="group relative overflow-hidden rounded-2xl border border-green-500/15 bg-card p-6 shadow-soft transition-all hover:-translate-y-1.5 hover:shadow-card-hover"
-            >
-              <Quote className="absolute right-4 top-4 h-10 w-10 text-green-500/10 transition-colors group-hover:text-emerald-500/20" />
-
-              <div className="mb-3 flex items-center justify-between">
-                <div className="flex gap-1">
-                  {Array.from({ length: tm.rating }).map((_, j) => (
-                    <Star
-                      key={j}
-                      className="h-4 w-4 fill-lime-400 text-lime-400"
-                    />
-                  ))}
-                </div>
-                {tm.verified ? (
-                  <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
-                    <CheckCircle2 className="h-3 w-3" />
-                    {t("testimonials.verifiedWord")}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-[10px] font-medium text-green-600 dark:text-green-400">
-                    <CheckCircle2 className="h-3 w-3" />
-                    {t("testimonials.newWord")}
-                  </span>
-                )}
-              </div>
-
-              <p className="relative mb-5 text-sm leading-relaxed text-muted-foreground">
-                &ldquo;{tm.text}&rdquo;
-              </p>
-
-              <div className="flex items-center gap-3 border-t border-green-500/10 pt-4">
-                <div
-                  className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${tm.color} text-sm font-bold text-white shadow-soft`}
-                >
-                  {tm.avatar}
-                </div>
+              <Reveal
+                asChild
+                key={tm.name + i}
+                className="flex h-full flex-col rounded-xl border border-[var(--hairline)] bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
+              >
                 <div>
-                  <div className="font-semibold">{tm.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {tm.role} · {tm.company}
+                  <div className="mb-3 flex items-center justify-between">
+                    <div className="flex gap-1" aria-label={`${tm.rating} out of 5 stars`}>
+                      {Array.from({ length: tm.rating }).map((_, j) => (
+                        <Star
+                          key={j}
+                          className="h-4 w-4 fill-amber-400 text-amber-400"
+                        />
+                      ))}
+                    </div>
+                    <span className="flex items-center gap-1 rounded-full border border-[var(--hairline)] px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
+                      <CheckCircle2 className="h-3 w-3" />
+                      {tm.verified
+                        ? t("testimonials.verifiedWord")
+                        : t("testimonials.newWord")}
+                    </span>
+                  </div>
+
+                  <p className="mb-5 flex-1 text-sm leading-relaxed text-[#101410]">
+                    &ldquo;{tm.text}&rdquo;
+                  </p>
+
+                  <div className="flex items-center gap-3 border-t border-[var(--hairline)] pt-4">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[var(--hairline)] bg-[#F4F5F1] text-sm font-medium text-[#101410]">
+                      {tm.avatar}
+                    </div>
+                    <div>
+                      <div className="font-medium text-[#101410]">{tm.name}</div>
+                      <div className="font-mono text-[11px] uppercase tracking-wider text-[var(--muted)]">
+                        {tm.role} · {tm.company}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            ))}
           </Stagger>
         )}
 
@@ -145,13 +138,15 @@ export function Testimonials() {
             <Reveal
               asChild
               key={s.l}
-              className="glass rounded-2xl p-5 text-center shadow-soft"
+              className="rounded-xl border border-[var(--hairline)] bg-white p-5 text-center"
             >
-              <div className="text-2xl font-bold text-gradient-viridia sm:text-3xl">
-                {si === 0 ? visitorTestimonials.length.toString() : s.v}
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground sm:text-sm">
-                {s.l}
+              <div>
+                <div className="font-mono text-2xl font-medium text-[#101410] sm:text-3xl">
+                  {si === 0 ? visitorTestimonials.length.toString() : s.v}
+                </div>
+                <div className="mt-1 font-mono text-[11px] uppercase tracking-wider text-[var(--muted)]">
+                  {s.l}
+                </div>
               </div>
             </Reveal>
           ))}
@@ -171,11 +166,9 @@ export function Testimonials() {
   );
 }
 
-const colorMap = {
-  sky: "from-green-400 to-green-500",
-  pink: "from-emerald-400 to-emerald-500",
-  wood: "from-lime-500 to-lime-600",
-};
+function errMsg(e: unknown, fallback: string): string {
+  return e instanceof Error && e.message ? e.message : fallback;
+}
 
 function SubmitTestimonialModal({
   open,
@@ -232,9 +225,9 @@ function SubmitTestimonialModal({
         message: "",
       });
       onSubmitted();
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error(t("testimonials.submitFail"), {
-        description: err?.message || t("testimonials.submitFailSub"),
+        description: errMsg(err, t("testimonials.submitFailSub")),
       });
     } finally {
       setLoading(false);
@@ -243,15 +236,15 @@ function SubmitTestimonialModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-2xl border-green-500/20 p-0">
-        <DialogHeader className="border-b border-green-500/10 bg-gradient-to-r from-green-500/5 to-emerald-500/5 px-6 py-4">
-          <DialogTitle className="flex items-center gap-2 text-lg font-bold">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 text-white">
-              <MessageSquarePlus className="h-5 w-5" />
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto rounded-xl border border-[var(--hairline)] bg-white p-0">
+        <DialogHeader className="border-b border-[var(--hairline)] px-6 py-4">
+          <DialogTitle className="flex items-center gap-3 text-lg font-semibold text-[#101410]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--hairline)] bg-white">
+              <MessageSquarePlus className="h-5 w-5 text-[#101410]" />
             </span>
             <Editable id="testimonials.leaveBtn" />
           </DialogTitle>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-1 text-xs text-[var(--muted)]">
             <Editable id="testimonials.modalSub" />
           </p>
         </DialogHeader>
@@ -263,7 +256,7 @@ function SubmitTestimonialModal({
                 value={form.name}
                 onChange={(e) => set("name")(e.target.value)}
                 placeholder={t("testimonials.pName")}
-                className="rounded-xl"
+                className="rounded-lg border-[var(--hairline)] bg-white focus:border-[#101410]"
               />
             </Field>
             <Field label={t("testimonials.fRole")} required>
@@ -271,7 +264,7 @@ function SubmitTestimonialModal({
                 value={form.role}
                 onChange={(e) => set("role")(e.target.value)}
                 placeholder={t("testimonials.pRole")}
-                className="rounded-xl"
+                className="rounded-lg border-[var(--hairline)] bg-white focus:border-[#101410]"
               />
             </Field>
           </div>
@@ -282,7 +275,7 @@ function SubmitTestimonialModal({
                 value={form.company}
                 onChange={(e) => set("company")(e.target.value)}
                 placeholder={t("testimonials.pCompany")}
-                className="rounded-xl"
+                className="rounded-lg border-[var(--hairline)] bg-white focus:border-[#101410]"
               />
             </Field>
             <Field label={t("testimonials.fEmail")} required>
@@ -291,14 +284,16 @@ function SubmitTestimonialModal({
                 value={form.email}
                 onChange={(e) => set("email")(e.target.value)}
                 placeholder={t("testimonials.pEmail")}
-                className="rounded-xl"
+                className="rounded-lg border-[var(--hairline)] bg-white focus:border-[#101410]"
               />
             </Field>
           </div>
 
           {/* Rating */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold"><Editable id="testimonials.fRating" /></Label>
+            <Label className="font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
+              <Editable id="testimonials.fRating" />
+            </Label>
             <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((n) => (
                 <button
@@ -307,19 +302,19 @@ function SubmitTestimonialModal({
                   onClick={() => set("rating")(n)}
                   onMouseEnter={() => setHoverRating(n)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="rounded-md p-1 transition-transform hover:scale-110"
+                  className="rounded-md p-1"
                   aria-label={`Rate ${n} stars`}
                 >
                   <Star
                     className={`h-6 w-6 transition-colors ${
                       n <= (hoverRating || form.rating)
-                        ? "fill-lime-400 text-lime-400"
-                        : "fill-muted text-muted-foreground"
+                        ? "fill-amber-400 text-amber-400"
+                        : "fill-[#F4F5F1] text-[var(--muted)]"
                     }`}
                   />
                 </button>
               ))}
-              <span className="ml-2 text-sm font-medium text-muted-foreground">
+              <span className="ml-2 font-mono text-sm text-[var(--muted)]">
                 {form.rating} / 5
               </span>
             </div>
@@ -330,9 +325,9 @@ function SubmitTestimonialModal({
               value={form.message}
               onChange={(e) => set("message")(e.target.value)}
               placeholder={t("testimonials.pMessage")}
-              className="min-h-[120px] rounded-xl resize-none"
+              className="min-h-[120px] resize-none rounded-lg border-[var(--hairline)] bg-white focus:border-[#101410]"
             />
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 font-mono text-[11px] text-[var(--muted)]">
               {form.message.length} / 2000 {t("testimonials.charsWord")}
             </p>
           </Field>
@@ -342,7 +337,7 @@ function SubmitTestimonialModal({
               type="button"
               variant="outline"
               onClick={onClose}
-              className="flex-1 rounded-xl"
+              className="flex-1 rounded-full border-[var(--hairline)] hover:border-[#101410]"
               disabled={loading}
             >
               <Editable id="testimonials.cancelBtn" />
@@ -350,7 +345,7 @@ function SubmitTestimonialModal({
             <Button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-soft"
+              className="flex-1 rounded-full bg-[#101410] text-white hover:bg-black"
             >
               {loading ? (
                 <>
@@ -382,9 +377,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-semibold">
+      <Label className="font-mono text-xs uppercase tracking-wider text-[var(--muted)]">
         {label}
-        {required && <span className="ml-1 text-emerald-500">*</span>}
+        {required && <span className="ml-1 text-[#166534]">*</span>}
       </Label>
       {children}
     </div>

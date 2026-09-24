@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionHeading } from "../section-heading";
 import { Reveal, Stagger } from "../reveal";
@@ -18,28 +18,6 @@ interface Plan {
   popular: boolean;
 }
 
-
-const colorMap: Record<string, { border: string; bg: string; btn: string; check: string }> = {
-  sky: {
-    border: "border-green-500/30",
-    bg: "from-green-500/5 to-transparent",
-    btn: "bg-gradient-to-r from-green-500 to-green-600 text-white",
-    check: "text-green-500",
-  },
-  pink: {
-    border: "border-emerald-500/40",
-    bg: "from-emerald-500/10 to-green-500/5",
-    btn: "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-glow-green",
-    check: "text-emerald-500",
-  },
-  wood: {
-    border: "border-wood/30",
-    bg: "from-wood/10 to-transparent",
-    btn: "bg-gradient-to-r from-wood to-lime-700 text-white",
-    check: "text-wood",
-  },
-};
-
 export function Pricing() {
   const { tj } = useContent();
   const plans = tj<Plan[]>("pricing.plans");
@@ -47,76 +25,102 @@ export function Pricing() {
     document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
 
   return (
-    <section id="pricing" className="relative py-20 sm:py-28">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+    <section id="pricing" className="bg-white py-20 sm:py-28">
+      <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading ek="pricing" />
 
         <Editable id="pricing.plans" json label="Pricing plans" />
         <Stagger className="mt-14 grid gap-6 lg:grid-cols-3">
-          {plans.map((plan) => {
-            const colors = colorMap[plan.color];
-            return (
-              <Reveal
-                asChild
-                key={plan.name}
+          {plans.map((plan, i) => (
+            <Reveal asChild key={plan.name}>
+              <div
                 className={cn(
-                  "relative overflow-hidden rounded-2xl border bg-gradient-to-b p-6 shadow-soft transition-shadow hover:-translate-y-2 hover:shadow-card-hover",
-                  colors.border,
-                  colors.bg,
-                  plan.popular && "lg:scale-105"
+                  "relative flex h-full flex-col rounded-xl border p-7 transition-all hover:-translate-y-0.5",
+                  plan.popular
+                    ? "border-[#101410] bg-[#101410] text-white hover:shadow-[0_8px_24px_rgba(16,20,16,0.2)]"
+                    : "border-[#E6E8E2] bg-white hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
                 )}
               >
                 {plan.popular && (
-                  <div className="absolute right-4 top-4 flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 px-3 py-1 text-[11px] font-bold text-white">
-                    <Sparkles className="h-3 w-3" />
+                  <div className="absolute right-5 top-5 rounded-full bg-white px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#101410]">
                     <Editable id="pricing.popular" />
                   </div>
                 )}
 
-                <div className="mb-4 text-4xl">{plan.emoji}</div>
-                <h3 className="text-xl font-bold">{plan.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <div
+                  className={cn(
+                    "mb-4 font-mono text-xs font-medium tracking-widest",
+                    plan.popular ? "text-white/60" : "text-[#5F665F]"
+                  )}
+                >
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="font-display text-xl font-semibold tracking-tight">
+                  {plan.name}
+                </h3>
+                <p
+                  className={cn(
+                    "mt-1 text-sm",
+                    plan.popular ? "text-white/70" : "text-[#5F665F]"
+                  )}
+                >
                   {plan.description}
                 </p>
 
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gradient-viridia">
+                <div className="mt-5 flex items-baseline gap-1.5">
+                  <span className="font-display text-5xl font-semibold tracking-tight">
                     {plan.price}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span
+                    className={cn(
+                      "text-sm",
+                      plan.popular ? "text-white/60" : "text-[#5F665F]"
+                    )}
+                  >
                     {plan.period}
                   </span>
                 </div>
 
-                <ul className="mt-6 space-y-2.5">
+                <ul className="mt-7 flex-1 space-y-2.5">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className={cn("mt-0.5 h-4 w-4 shrink-0", colors.check)} />
-                      <span>{f}</span>
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <Check
+                        className={cn(
+                          "mt-0.5 h-4 w-4 shrink-0",
+                          plan.popular ? "text-white" : "text-[#166534]"
+                        )}
+                      />
+                      <span
+                        className={plan.popular ? "text-white/85" : "text-[#101410]/80"}
+                      >
+                        {f}
+                      </span>
                     </li>
                   ))}
                 </ul>
 
                 <Button
                   onClick={scrollToContact}
-                  className={cn(
-                    "mt-7 w-full rounded-full",
-                    plan.popular ? colors.btn : "border " + colors.border + " bg-card hover:bg-muted"
-                  )}
                   variant={plan.popular ? "default" : "outline"}
+                  className={cn(
+                    "mt-7 w-full rounded-full px-6 py-3 text-sm font-medium",
+                    plan.popular
+                      ? "bg-white text-[#101410] hover:bg-white/90"
+                      : "border-[#E6E8E2] bg-white text-[#101410] hover:border-[#101410] hover:bg-white"
+                  )}
                 >
                   <Editable id="pricing.getStarted" />
                 </Button>
-              </Reveal>
-            );
-          })}
+              </div>
+            </Reveal>
+          ))}
         </Stagger>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
+        <p className="mt-8 text-center text-sm text-[#5F665F]">
           <Editable id="pricing.footText" />{" "}
           <button
             onClick={scrollToContact}
-            className="font-semibold text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
+            className="font-semibold text-[#101410] underline underline-offset-4 hover:text-[#166534]"
           >
             <Editable id="pricing.footLink" />
           </button>

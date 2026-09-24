@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Mail, Loader2, CheckCircle2, Sparkles, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Mail, Loader2, CheckCircle2, BookOpen, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
+import { Reveal } from "../reveal";
 
 export function Newsletter() {
   const { t, tj } = useContent();
-  const stats = tj<{icon: string; text: string}[]>("newsletter.stats");
+  const stats = tj<{ icon: string; text: string }[]>("newsletter.stats");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
@@ -40,77 +39,65 @@ export function Newsletter() {
         description: t("newsletter.subscribedOkSub"),
       });
       setEmail("");
-    } catch (err: any) {
+    } catch (err) {
       toast.error(t("newsletter.subscribedFail"), {
-        description: err?.message || t("newsletter.subscribedFailSub"),
+        description:
+          err instanceof Error ? err.message : t("newsletter.subscribedFailSub"),
       });
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <section className="relative py-16 sm:py-20">
-      <div className="container mx-auto max-w-4xl px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-3xl border border-green-500/20 bg-gradient-to-br from-green-500/10 via-white/80 to-emerald-500/10 p-8 shadow-card-hover dark:from-green-500/10 dark:via-[#0d140d]/80 dark:to-emerald-500/10 sm:p-12"
-        >
-          {/* Decorative background */}
-          <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-emerald-500/15 blur-3xl" />
-          <div className="absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-green-500/15 blur-3xl" />
+  const statIcons = [BookOpen, Sparkles, CheckCircle2];
 
-          <div className="relative flex flex-col items-center gap-6 text-center">
-            {/* Icon badge */}
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 shadow-glow-green">
-              <Mail className="h-8 w-8 text-white" />
+  return (
+    <section className="bg-white py-20 sm:py-28">
+      <div className="mx-auto max-w-3xl px-5 sm:px-8">
+        <Reveal className="rounded-xl border border-[#E6E8E2] bg-[#F4F5F1] p-8 text-center sm:p-12">
+          <div className="flex flex-col items-center gap-5">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-[#E6E8E2] bg-white">
+              <Mail className="h-5 w-5 text-[#101410]" />
             </div>
 
             <div>
-              <h3 className="text-2xl font-bold sm:text-3xl">
+              <h3 className="font-display text-3xl font-semibold tracking-tight text-[#101410] sm:text-4xl">
                 <Editable id="newsletter.titleA" />{" "}
-                <span className="text-gradient-viridia"><Editable id="newsletter.titleB" /></span>
+                <Editable id="newsletter.titleB" />
               </h3>
-              <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[#5F665F] sm:text-base">
                 <Editable id="newsletter.sub" />
               </p>
             </div>
 
             <Editable id="newsletter.stats" json label="Stat badges" />
 
-            {/* Stats badges */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-              {stats.map((st, i) => (
-                <span key={i} className="flex items-center gap-1.5">
-                  {i === 0 ? <BookOpen className="h-3.5 w-3.5 text-green-500" />
-                   : i === 1 ? <Sparkles className="h-3.5 w-3.5 text-emerald-500" />
-                   : <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />}
-                  {st.text}
-                </span>
-              ))}
+            {/* Stat badges */}
+            <div className="flex flex-wrap items-center justify-center gap-4 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
+              {stats.map((st, i) => {
+                const Icon = statIcons[i % statIcons.length];
+                return (
+                  <span key={i} className="flex items-center gap-1.5">
+                    <Icon className="h-3.5 w-3.5 text-[#166534]" />
+                    {st.text}
+                  </span>
+                );
+              })}
             </div>
 
             {/* Form */}
             {subscribed ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-3 rounded-2xl border border-green-500/30 bg-green-500/10 px-6 py-4"
-              >
-                <CheckCircle2 className="h-6 w-6 text-green-500" />
+              <div className="flex items-center gap-3 rounded-xl border border-[#E6E8E2] bg-white px-6 py-4">
+                <CheckCircle2 className="h-6 w-6 text-[#166534]" />
                 <div className="text-left">
-                  <div className="font-semibold text-foreground">
+                  <div className="font-semibold text-[#101410]">
                     <Editable id="newsletter.subscribedTitle" />
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-[#5F665F]">
                     <Editable id="newsletter.subscribedSub" />
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ) : (
               <form
                 onSubmit={subscribe}
@@ -121,34 +108,34 @@ export function Newsletter() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("newsletter.emailPlaceholder")}
-                  className="rounded-full border-green-500/30 bg-white/80 px-5 py-3 text-sm shadow-soft dark:bg-[#16241a]/80"
+                  className="rounded-full border-[#E6E8E2] bg-white px-5 py-3 text-sm focus:border-[#101410]"
                   disabled={loading}
                 />
-                <Button
+                <button
                   type="submit"
                   disabled={loading}
-                  className="shrink-0 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-green"
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#101410] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-black disabled:opacity-60"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       <Editable id="newsletter.subscribing" />
                     </>
                   ) : (
                     <>
-                      <Mail className="mr-2 h-4 w-4" />
+                      <Mail className="h-4 w-4" />
                       <Editable id="newsletter.subscribe" />
                     </>
                   )}
-                </Button>
+                </button>
               </form>
             )}
 
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-[#5F665F]">
               <Editable id="newsletter.footNote" />
             </p>
           </div>
-        </motion.div>
+        </Reveal>
       </div>
     </section>
   );

@@ -49,7 +49,7 @@ const TYPE_STYLE: Record<string, string> = {
   BURST: "bg-purple-500/10 text-purple-500 border-purple-500/30",
   BLOCKED_HIT: "bg-slate-500/10 text-slate-500 border-slate-500/30",
   SUSPICIOUS: "bg-orange-500/10 text-orange-500 border-orange-500/30",
-  CONTENT_EDIT: "bg-sky-500/10 text-sky-600 border-sky-500/30",
+  CONTENT_EDIT: "bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30",
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -202,7 +202,7 @@ export function SecurityDashboard({
           { label: "Bursts blocked (24h)", value: s.bursts, icon: ShieldAlert, color: "text-purple-500" },
           { label: "IPs blocked", value: data?.blocked.length ?? 0, icon: Ban, color: "text-slate-500" },
         ].map((c) => (
-          <div key={c.label} className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+          <div key={c.label} className="rounded-2xl border border-[var(--hairline)] bg-card p-5 ">
             <div className={cn("mb-2 flex items-center gap-2", c.color)}>
               <c.icon className="h-5 w-5" />
               <span className="text-xs font-semibold uppercase tracking-wider">{c.label}</span>
@@ -226,7 +226,7 @@ export function SecurityDashboard({
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Event feed */}
-        <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft lg:col-span-2">
+        <div className="rounded-2xl border border-[var(--hairline)] bg-card p-5  lg:col-span-2">
           <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground">
             Attack feed — latest 100 events
           </h3>
@@ -252,14 +252,14 @@ export function SecurityDashboard({
             </div>
           ) : (
             <p className="py-10 text-center text-sm text-muted-foreground">
-              All quiet — no attacks recorded. 🎉
+              All quiet — no attacks recorded.
             </p>
           )}
         </div>
 
         {/* Blocked IPs + top offenders */}
         <div className="space-y-6">
-          <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+          <div className="rounded-2xl border border-[var(--hairline)] bg-card p-5 ">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Blocked IPs
             </h3>
@@ -306,7 +306,7 @@ export function SecurityDashboard({
             )}
           </div>
 
-          <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+          <div className="rounded-2xl border border-[var(--hairline)] bg-card p-5 ">
             <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Top offenders (24h)
             </h3>

@@ -5,24 +5,24 @@ import { Reveal } from "./reveal";
 import { Editable, useContentOptional } from "./content-editor";
 
 interface SectionHeadingProps {
-  /** Required when `ek` is not set; optional otherwise (loaded from registry). */
-  emoji?: string;
+  /** Optional mono eyebrow label above the headline. Defaults to the `ek` key. */
+  eyebrow?: string;
   /** Required when `ek` is not set; optional otherwise (loaded from registry). */
   title?: string;
   highlight?: string;
   subtitle?: string;
   className?: string;
   /**
-   * Visual-editor key prefix (e.g. "services"). When set, the emoji / title /
+   * Visual-editor key prefix (e.g. "services"). When set, the title /
    * highlight / subtitle are loaded from editable content keys
-   * `${ek}.emoji`, `${ek}.title`, `${ek}.highlight`, `${ek}.subtitle`,
+   * `${ek}.title`, `${ek}.highlight`, `${ek}.subtitle`,
    * each with its own pencil in edit mode.
    */
   ek?: string;
 }
 
 export function SectionHeading({
-  emoji,
+  eyebrow,
   title,
   highlight,
   subtitle,
@@ -31,24 +31,25 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   const content = useContentOptional();
   const editable = !!ek && !!content;
+  const eyebrowText = eyebrow ?? ek;
 
   return (
-    <Reveal className={cn("mx-auto max-w-2xl text-center", className)}>
-      <span className="mb-3 inline-block text-4xl">
-        {editable ? <Editable id={`${ek}.emoji`} /> : emoji}
-      </span>
-      <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+    <Reveal className={cn("max-w-2xl text-left", className)}>
+      {eyebrowText && (
+        <p className="mb-3 font-mono text-xs font-medium uppercase tracking-[0.2em] text-accent">
+          {eyebrowText}
+        </p>
+      )}
+      <h2 className="font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl">
         {editable ? <Editable id={`${ek}.title`} /> : title}{" "}
         {editable ? (
           <Editable
             id={`${ek}.highlight`}
             as="span"
-            className="text-gradient-viridia"
+            className="text-accent"
           />
         ) : (
-          highlight && (
-            <span className="text-gradient-viridia">{highlight}</span>
-          )
+          highlight && <span className="text-accent">{highlight}</span>
         )}
       </h2>
       {editable ? (
@@ -62,7 +63,10 @@ export function SectionHeading({
           </p>
         )
       )}
-      <div className="mx-auto mt-5 h-1 w-24 rounded-full bg-gradient-to-r from-green-400 via-emerald-400 to-wood" />
+      <span
+        aria-hidden="true"
+        className="mt-5 block h-[3px] w-8 rounded-full bg-accent"
+      />
     </Reveal>
   );
 }
