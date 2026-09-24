@@ -181,11 +181,32 @@ function highlightLine(line: string) {
         </span>
       );
     } else if (/^["'`].*["'`]$/.test(tok)) {
-      parts.push(
-        <span key={i} className="text-(--accent)">
-          {tok}
-        </span>
-      );
+      // Status value: render a CSS green dot instead of any emoji so the
+      // code block never shows emoji (DB overrides may still carry one).
+      if (tok.replace(/\s/g, "").includes("Availableforwork")) {
+        const quote = tok[0];
+        const inner = tok
+          .slice(1, -1)
+          .replace(/\u{1F7E2}/gu, "")
+          .trim();
+        parts.push(
+          <span key={i} className="text-(--accent)">
+            {quote}
+            <span
+              aria-hidden="true"
+              className="mx-1 inline-block h-2 w-2 rounded-full bg-green-500 align-middle"
+            />
+            {inner}
+            {quote}
+          </span>
+        );
+      } else {
+        parts.push(
+          <span key={i} className="text-(--accent)">
+            {tok}
+          </span>
+        );
+      }
     } else if (/^(name|role|location|skills|passion|status)$/.test(tok)) {
       parts.push(
         <span key={i} className="text-(--ink)">

@@ -25,7 +25,7 @@ import { Reveal } from "../reveal";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
-interface Purpose { id: string; label: string; icon: string; desc: string }
+interface Purpose { id: string; label: string; icon?: string; desc: string }
 
 const badgeIcons = [Video, Clock, Globe, CheckCircle2];
 

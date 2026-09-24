@@ -189,7 +189,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   ),
   F("hero.scroll", "Scroll indicator", "hero", "Scroll Down"),
   F("hero.cardTitle", "Photo card title", "hero", `${developer.name} — Developer`),
-  F("hero.cardBadge1", "Photo badge 1", "hero", "⚛️ React & Next.js"),
+  F("hero.cardBadge1", "Photo badge 1", "hero", "React & Next.js"),
   F("hero.cardBadge2", "Photo badge 2", "hero", "Full-Stack Dev"),
   F(
     "hero.cardStats",
@@ -232,7 +232,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   ),
 
   // ---------- About ----------
-  F("about.emoji", "Heading emoji", "about", "👋"),
   F("about.title", "Heading title", "about", "About"),
   F("about.highlight", "Heading highlight", "about", "Me"),
   F("about.subtitle", "Heading subtitle", "about", "Get to know the developer behind the code."),
@@ -242,7 +241,7 @@ export const CONTENT_FIELDS: ContentField[] = [
     "about.chips",
     "Floating chips (JSON)",
     "about",
-    J(["⚛️ React", "🚀 Next.js", "📘 TypeScript", "⚡ Node.js"]),
+    J(["React", "Next.js", "TypeScript", "Node.js"]),
     { json: true }
   ),
   F("about.skills", "Skill chips (JSON)", "about", J(developer.skills), { json: true }),
@@ -264,7 +263,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("about.code", "Code snippet", "about", developer.codeSnippet, { multiline: true }),
 
   // ---------- Services ----------
-  F("services.emoji", "Heading emoji", "services", "⚡"),
   F("services.title", "Heading title", "services", "What I"),
   F("services.highlight", "Heading highlight", "services", "Offer"),
   F(
@@ -277,7 +275,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("services.cta", "Card button", "services", "Learn More"),
 
   // ---------- Projects ----------
-  F("projects.emoji", "Heading emoji", "projects", "🚀"),
   F("projects.title", "Heading title", "projects", "Featured"),
   F("projects.highlight", "Heading highlight", "projects", "Projects"),
   F(
@@ -325,7 +322,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("projects.statsWord", "\"Repository Stats\"", "projects", "Repository Stats"),
 
   // ---------- Tech stack ----------
-  F("techstack.emoji", "Heading emoji", "techstack", "🛠️"),
   F("techstack.title", "Heading title", "techstack", "My"),
   F("techstack.highlight", "Heading highlight", "techstack", "Skills"),
   F(
@@ -337,7 +333,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("techstack.groups", "Skill groups (JSON)", "techstack", J(techStack), { json: true }),
 
   // ---------- Experience ----------
-  F("experience.emoji", "Heading emoji", "experience", "📈"),
   F("experience.title", "Heading title", "experience", "Career"),
   F("experience.highlight", "Heading highlight", "experience", "Timeline"),
   F(
@@ -351,7 +346,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("experience.ctaLink", "Bottom CTA link", "experience", "Let's connect →"),
 
   // ---------- GitHub profile ----------
-  F("github.emoji", "Heading emoji", "github", "🐙"),
   F("github.title", "Heading title", "github", "GitHub"),
   F("github.highlight", "Heading highlight", "github", "Profile"),
   F(
@@ -376,7 +370,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("github.fallbackCompany", "Fallback company", "github", "Freelance"),
 
   // ---------- Blog ----------
-  F("blog.emoji", "Heading emoji", "blog", "📝"),
   F("blog.title", "Heading title", "blog", "Latest"),
   F("blog.highlight", "Heading highlight", "blog", "Articles"),
   F(
@@ -412,7 +405,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("blog.tocTitle", "\"Table of Contents\"", "blog", "Table of Contents"),
 
   // ---------- Booking ----------
-  F("booking.emoji", "Heading emoji", "booking", "📅"),
   F("booking.title", "Heading title", "booking", "Book a"),
   F("booking.highlight", "Heading highlight", "booking", "Call"),
   F(
@@ -428,10 +420,10 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("booking.step1Title", "Step 1 title", "booking", "What would you like to discuss?"),
   F("booking.step1Sub", "Step 1 subtitle", "booking", "Choose the type of call that fits your needs."),
   F("booking.purposes", "Call purposes (JSON)", "booking", J([
-    { id: "consultation", label: "Project Consultation", icon: "💬", desc: "Discuss your project idea" },
-    { id: "code-review", label: "Code Review", icon: "🔍", desc: "Get feedback on your codebase" },
-    { id: "hiring", label: "Hire Me", icon: "🚀", desc: "Start a development project" },
-    { id: "mentorship", label: "Mentorship", icon: "🎓", desc: "Career guidance & advice" },
+    { id: "consultation", label: "Project Consultation", desc: "Discuss your project idea" },
+    { id: "code-review", label: "Code Review", desc: "Get feedback on your codebase" },
+    { id: "hiring", label: "Hire Me", desc: "Start a development project" },
+    { id: "mentorship", label: "Mentorship", desc: "Career guidance & advice" },
   ]), { json: true }),
   F("booking.step2Title", "Step 2 title", "booking", "Pick a date & time"),
   F("booking.step2Sub", "Step 2 subtitle (TZ appended)", "booking", "All times shown in your local timezone"),
@@ -451,7 +443,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("booking.pNotes", "Form: notes placeholder", "booking", "Anything you'd like me to know before the call?"),
   F("booking.confirmBtn", "\"Confirm Booking\" button", "booking", "Confirm Booking"),
   F("booking.bookingNow", "\"Booking...\" text", "booking", "Booking..."),
-  F("booking.successTitle", "Success title", "booking", "Booking Request Sent! 🎉"),
+  F("booking.successTitle", "Success title", "booking", "Booking Request Sent!"),
   F("booking.successPre", "Success line part 1", "booking", "Your"),
   F("booking.successMid1", "Success line part 2", "booking", "call for"),
   F("booking.successMid2", "Success line part 3", "booking", "at"),
@@ -461,14 +453,13 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("booking.bookAnother", "\"Book another call\"", "booking", "Book another call"),
   F("booking.nameEmailError", "Name/email error", "booking", "Please enter your name and email."),
   F("booking.invalidEmail", "Invalid email error", "booking", "Please enter a valid email address."),
-  F("booking.submitOk", "Submit success title", "booking", "📅 Booking request submitted!"),
+  F("booking.submitOk", "Submit success title", "booking", "Booking request submitted!"),
   F("booking.submitOkSub", "Submit success text", "booking", "I'll confirm the time via email within a few hours."),
   F("booking.submitFail", "Submit failure title", "booking", "Booking failed"),
   F("booking.submitFailSub", "Submit failure text", "booking", "Please try again."),
   F("booking.badges", "Trust badges (JSON)", "booking", J(["Google Meet / Zoom", "30-45 min sessions", "All timezones welcome", "Free consultation"]), { json: true }),
 
   // ---------- Pricing ----------
-  F("pricing.emoji", "Heading emoji", "pricing", "💎"),
   F("pricing.title", "Heading title", "pricing", "Pricing"),
   F("pricing.highlight", "Heading highlight", "pricing", "Plans"),
   F(
@@ -478,9 +469,9 @@ export const CONTENT_FIELDS: ContentField[] = [
     "Transparent pricing for every stage of your project. Custom quotes available on request."
   ),
   F("pricing.plans", "Pricing plans (JSON)", "pricing", J([
-    { name: "Starter", emoji: "🌱", price: "$499", period: "/ project", description: "Perfect for small websites & landing pages.", features: ["1-3 page website", "Responsive design", "Basic SEO setup", "Contact form", "1 round of revisions", "7-day delivery"], color: "sky", popular: false },
-    { name: "Professional", emoji: "🚀", price: "$1,499", period: "/ project", description: "Full-featured web app with backend & database.", features: ["Up to 10 pages / screens", "Custom backend & API", "Database design", "Authentication system", "Admin dashboard", "3 rounds of revisions", "30 days free support", "14-day delivery"], color: "pink", popular: true },
-    { name: "Enterprise", emoji: "🏢", price: "Custom", period: "", description: "SaaS products with scaling & ongoing support.", features: ["Unlimited pages / features", "Microservices architecture", "Payment integration (Stripe)", "Real-time features", "CI/CD pipeline", "Unlimited revisions", "90 days free support", "Dedicated support channel", "Flexible timeline"], color: "wood", popular: false },
+    { name: "Starter", price: "$499", period: "/ project", description: "Perfect for small websites & landing pages.", features: ["1-3 page website", "Responsive design", "Basic SEO setup", "Contact form", "1 round of revisions", "7-day delivery"], color: "sky", popular: false },
+    { name: "Professional", price: "$1,499", period: "/ project", description: "Full-featured web app with backend & database.", features: ["Up to 10 pages / screens", "Custom backend & API", "Database design", "Authentication system", "Admin dashboard", "3 rounds of revisions", "30 days free support", "14-day delivery"], color: "pink", popular: true },
+    { name: "Enterprise", price: "Custom", period: "", description: "SaaS products with scaling & ongoing support.", features: ["Unlimited pages / features", "Microservices architecture", "Payment integration (Stripe)", "Real-time features", "CI/CD pipeline", "Unlimited revisions", "90 days free support", "Dedicated support channel", "Flexible timeline"], color: "wood", popular: false },
   ]), { json: true }),
   F("pricing.popular", "\"POPULAR\" badge", "pricing", "POPULAR"),
   F("pricing.getStarted", "\"Get Started\" button", "pricing", "Get Started"),
@@ -488,7 +479,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("pricing.footLink", "Footnote link", "pricing", "Let's discuss your project →"),
 
   // ---------- Testimonials ----------
-  F("testimonials.emoji", "Heading emoji", "testimonials", "💬"),
   F("testimonials.title", "Heading title", "testimonials", "What Clients"),
   F("testimonials.highlight", "Heading highlight", "testimonials", "Say"),
   F(
@@ -525,13 +515,12 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("testimonials.submitting", "\"Submitting...\" text", "testimonials", "Submitting..."),
   F("testimonials.fillError", "Validation error", "testimonials", "Please fill in all required fields."),
   F("testimonials.shortError", "Too-short error", "testimonials", "Please write at least 10 characters in your message."),
-  F("testimonials.submitOk", "Submit success title", "testimonials", "🎉 Thank you for your testimonial!"),
+  F("testimonials.submitOk", "Submit success title", "testimonials", "Thank you for your testimonial!"),
   F("testimonials.submitOkSub", "Submit success text", "testimonials", "It will appear publicly after a quick review by Yaseen."),
   F("testimonials.submitFail", "Submit failure title", "testimonials", "Submission failed"),
   F("testimonials.submitFailSub", "Submit failure text", "testimonials", "Please try again later."),
 
   // ---------- FAQ ----------
-  F("faq.emoji", "Heading emoji", "faq", "❓"),
   F("faq.title", "Heading title", "faq", "Frequently Asked"),
   F("faq.highlight", "Heading highlight", "faq", "Questions"),
   F(
@@ -547,7 +536,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("faq.ctaContact", "CTA contact button", "faq", "Contact Me"),
 
   // ---------- Contact ----------
-  F("contact.emoji", "Heading emoji", "contact", "💬"),
   F("contact.title", "Heading title", "contact", "Let's Work"),
   F("contact.highlight", "Heading highlight", "contact", "Together"),
   F(
@@ -572,14 +560,14 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("contact.submitHire", "Hire submit button", "contact", "Submit Hiring Request"),
   F("contact.submitMessage", "Message submit button", "contact", "Send Message"),
   F("contact.fillError", "Validation error", "contact", "Please fill in all required fields."),
-  F("contact.hireOk", "Hire success title", "contact", "🎉 Request submitted!"),
+  F("contact.hireOk", "Hire success title", "contact", "Request submitted!"),
   F(
     "contact.hireOkSub",
     "Hire success text",
     "contact",
     "Thanks for reaching out. I'll review your project and respond within 24 hours."
   ),
-  F("contact.msgOk", "Message success title", "contact", "✉️ Message sent!"),
+  F("contact.msgOk", "Message success title", "contact", "Message sent!"),
   F(
     "contact.msgOkSub",
     "Message success text",
@@ -657,7 +645,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("newsletter.subscribedSub", "Subscribed text", "newsletter", "Watch your inbox for the next article."),
   F("newsletter.footNote", "Footnote", "newsletter", "Join 120+ developers and founders who trust my content."),
   F("newsletter.invalidEmail", "Invalid email error", "newsletter", "Please enter a valid email address."),
-  F("newsletter.subscribedOk", "Subscribe success title", "newsletter", "🎉 Subscribed successfully!"),
+  F("newsletter.subscribedOk", "Subscribe success title", "newsletter", "Subscribed successfully!"),
   F(
     "newsletter.subscribedOkSub",
     "Subscribe success text",
@@ -670,7 +658,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   // ---------- Chat widget ----------
   F("chat.openChat", "Open-chat aria label", "chat", "Open chat"),
   F("chat.onlineWord", "\"online\" word", "chat", "online"),
-  F("chat.onlineText", "Online status text", "chat", "🟢 Online · typically replies in minutes"),
+  F("chat.onlineText", "Online status text", "chat", "Online · typically replies in minutes"),
   F("chat.connecting", "\"Connecting...\" text", "chat", "Connecting..."),
   F("chat.minimize", "Minimize aria label", "chat", "Minimize"),
   F("chat.greeting", "Empty-chat greeting", "chat", "Hi! Send a message to start the conversation."),

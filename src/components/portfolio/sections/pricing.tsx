@@ -9,7 +9,6 @@ import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 interface Plan {
   name: string;
-  emoji: string;
   price: string;
   period: string;
   description: string;

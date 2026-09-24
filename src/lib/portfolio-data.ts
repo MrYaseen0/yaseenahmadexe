@@ -40,7 +40,7 @@ export const developer = {
     "PostgreSQL", "MongoDB"
   ],
   passion: "Building SaaS apps",
-  status: "🟢 Available for work"
+  status: "Available for work"
 };
 
 export default developer;`,
@@ -68,7 +68,6 @@ export const stats = [
 export const services = [
   {
     title: "Web Development",
-    emoji: "💻",
     description:
       "Building fast, responsive web applications with React, Next.js, and modern frameworks.",
     tags: ["React & Next.js", "TypeScript", "Performance"],
@@ -76,7 +75,6 @@ export const services = [
   },
   {
     title: "Mobile Development",
-    emoji: "📱",
     description:
       "Creating cross-platform mobile apps with React Native and modern mobile technologies.",
     tags: ["React Native", "iOS & Android", "Responsive UI"],
@@ -84,7 +82,6 @@ export const services = [
   },
   {
     title: "Backend Engineering",
-    emoji: "⚙️",
     description:
       "Designing scalable APIs and server architectures with Node.js and modern databases.",
     tags: ["Node.js & Express", "REST & GraphQL", "Microservices"],
@@ -92,7 +89,6 @@ export const services = [
   },
   {
     title: "Database Design",
-    emoji: "🗄️",
     description:
       "Structuring efficient databases with PostgreSQL, MongoDB, and modern ORMs.",
     tags: ["PostgreSQL", "MongoDB", "Prisma ORM"],
@@ -100,7 +96,6 @@ export const services = [
   },
   {
     title: "UI/UX Design",
-    emoji: "🎨",
     description:
       "Designing intuitive, beautiful interfaces with focus on user experience and accessibility.",
     tags: ["Figma & Design", "Tailwind CSS", "Accessibility"],
@@ -108,7 +103,6 @@ export const services = [
   },
   {
     title: "SaaS Architecture",
-    emoji: "🚀",
     description:
       "Building production-grade SaaS products with authentication, billing, and scaling.",
     tags: ["Auth & Billing", "Multi-tenancy", "CI/CD Pipelines"],
