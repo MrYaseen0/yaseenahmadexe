@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { verifyAdmin } from "@/lib/auth";
 
-// GET — aggregate visitor stats (privacy-respecting, anonymous counts only)
-export async function GET() {
+// Never statically cache: admin-only analytics data.
+export const dynamic = "force-dynamic";
+
+// GET — aggregate visitor stats (admin only: never expose to the public).
+export async function GET(request: Request) {
+  if (!verifyAdmin(request)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const now = new Date();
     const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);

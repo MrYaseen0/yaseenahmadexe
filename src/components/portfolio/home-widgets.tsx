@@ -20,10 +20,6 @@ const BackToTop = dynamic(
   () => import("@/components/portfolio/back-to-top").then((m) => m.BackToTop),
   { ssr: false }
 );
-const StatsWidget = dynamic(
-  () => import("@/components/portfolio/stats-widget").then((m) => m.StatsWidget),
-  { ssr: false }
-);
 const SectionTracker = dynamic(
   () =>
     import("@/components/portfolio/section-tracker").then(
@@ -39,7 +35,6 @@ export function HomeWidgets() {
       <ChatWidget />
       <CommandPalette />
       <BackToTop />
-      <StatsWidget />
     </>
   );
 }
