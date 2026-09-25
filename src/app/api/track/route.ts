@@ -23,7 +23,8 @@ export async function POST(request: Request) {
         "BLOCKED_HIT",
         ip,
         new URL(request.url).pathname,
-        "Request from blocked IP"
+        "Request from blocked IP",
+        request.headers.get("user-agent") || undefined
       );
     }
     return NextResponse.json({ success: false }, { status: 403 });
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   // 2) Burst guard: >300 hits/min from one IP is not a human — auto-block.
   const burst = rateLimit(`burst:${ip}`, { limit: 300, windowMs: 60_000 });
   if (!burst.ok) {
-    await logSecurityEvent("BURST", ip, "/api/track", "Auto-blocked: >300 requests/min");
+    await logSecurityEvent("BURST", ip, "/api/track", "Auto-blocked: >300 requests/min", request.headers.get("user-agent") || undefined);
     await blockIp(ip, "Auto-block: request burst (>300/min on /api/track)");
     return NextResponse.json({ success: false }, { status: 429 });
   }
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
   // 3) Normal rate limit: 60/min per IP.
   const limit = rateLimit(`track:${ip}`, { limit: 60, windowMs: 60_000 });
   if (!limit.ok) {
-    await logSecurityEvent("RATE_LIMIT", ip, "/api/track", "60/min exceeded");
+    await logSecurityEvent("RATE_LIMIT", ip, "/api/track", "60/min exceeded", request.headers.get("user-agent") || undefined);
     return NextResponse.json({ success: false }, { status: 429 });
   }
 

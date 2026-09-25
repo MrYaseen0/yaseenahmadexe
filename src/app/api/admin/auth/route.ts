@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
 import { verifyCredentials, signAdminToken, verifyAdmin } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { logSecurityEvent, isIpBlocked, shouldLogBlockedHit } from "@/lib/security";
+import { logSecurityEvent, isIpBlocked, shouldLogBlockedHit, logAudit } from "@/lib/security";
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -10,7 +9,7 @@ export async function POST(request: Request) {
   // Blocked IPs can't even attempt login.
   if (await isIpBlocked(ip)) {
     if (shouldLogBlockedHit(ip)) {
-      await logSecurityEvent("BLOCKED_HIT", ip, "/api/admin/auth", "Login attempt from blocked IP");
+      await logSecurityEvent("BLOCKED_HIT", ip, "/api/admin/auth", "Login attempt from blocked IP", request.headers.get("user-agent") || undefined);
     }
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
@@ -18,7 +17,7 @@ export async function POST(request: Request) {
   // Throttle login attempts to blunt credential brute-forcing.
   const limit = rateLimit(`admin-auth:${ip}`, { limit: 10, windowMs: 60_000 });
   if (!limit.ok) {
-    await logSecurityEvent("RATE_LIMIT", ip, "/api/admin/auth", "Login brute-force throttle (10/min)");
+    await logSecurityEvent("RATE_LIMIT", ip, "/api/admin/auth", "Login brute-force throttle (10/min)", request.headers.get("user-agent") || undefined);
     return NextResponse.json(
       { error: "Too many attempts. Please try again shortly." },
       { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
@@ -38,7 +37,7 @@ export async function POST(request: Request) {
 
     if (!verifyCredentials(email, password)) {
       // Log every failed login so brute-forcing shows up in the security feed.
-      await logSecurityEvent("FAILED_LOGIN", ip, "/api/admin/auth", `Failed login for ${String(email).slice(0, 80)}`);
+      await logSecurityEvent("FAILED_LOGIN", ip, "/api/admin/auth", `Failed login for ${String(email).slice(0, 80)}`, request.headers.get("user-agent") || undefined);
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
@@ -47,18 +46,14 @@ export async function POST(request: Request) {
 
     const token = signAdminToken(String(email).toLowerCase().trim());
 
-    // Log the admin login (best-effort).
-    try {
-      await db.visit.create({
-        data: {
-          section: "admin-login",
-          path: "/admin",
-          referrer: null,
-        },
-      });
-    } catch {
-      // ignore tracking errors
-    }
+    // Audit the successful admin login: IP + timestamp + device + geo/ISP.
+    await logAudit({
+      event: "ADMIN_LOGIN",
+      request,
+      actor: String(email).toLowerCase().trim(),
+      path: "/admin",
+      detail: "Admin login successful",
+    });
 
     return NextResponse.json({
       success: true,

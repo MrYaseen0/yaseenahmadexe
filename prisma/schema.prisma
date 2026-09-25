@@ -190,3 +190,31 @@ model SiteContent {
 
   @@index([category])
 }
+
+// Unified professional audit log: every admin login, admin page view, admin
+// action, and every attack event — enriched at write time with geo/ISP and a
+// stable device fingerprint. This is the single timeline shown in /admin.
+model AuditLog {
+  id        String   @id @default(cuid())
+  event     String   // ADMIN_LOGIN | ADMIN_LOGOUT | ADMIN_PAGE_VIEW | ADMIN_ACTION | CONTENT_EDIT | FAILED_LOGIN | RATE_LIMIT | BURST | BLOCKED_HIT | SUSPICIOUS
+  actor     String?  // admin email when known (logins / actions)
+  ip        String?  // raw IP — needed for security work
+  ipHash    String?  // sha256(ip) for correlation without showing raw IP everywhere
+  city      String?
+  region    String?
+  country   String?
+  isp       String?
+  device    String?  // Desktop | Mobile | Tablet
+  browser   String?
+  os        String?
+  deviceId  String?  // stable fingerprint: sha256(ip + user-agent), 16 chars
+  path      String?
+  detail    String?  // human-readable summary
+  createdAt DateTime @default(now())
+
+  @@index([event])
+  @@index([createdAt])
+  @@index([ip])
+  @@index([actor])
+  @@index([deviceId])
+}

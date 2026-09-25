@@ -2,11 +2,16 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 
-// GET — aggregated analytics data for charts (admin only)
+// GET — aggregated analytics data for charts (admin only).
+//
+// SPEED: daily series come from single indexed Postgres date_trunc queries
+// (3 queries) instead of one count-query per day (58 queries before).
 export async function GET(request: Request) {
   if (!verifyAdmin(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const dayKey = (d: Date) => d.toISOString().split("T")[0];
 
   try {
     const now = new Date();
@@ -24,58 +29,37 @@ export async function GET(request: Request) {
       return d;
     });
 
-    // Visits per day for last 7 days
-    const visits7d = await Promise.all(
-      days7.map(async (dayStart) => {
-        const dayEnd = new Date(dayStart);
-        dayEnd.setDate(dayEnd.getDate() + 1);
-        const count = await db.visit.count({
-          where: {
-            createdAt: { gte: dayStart, lt: dayEnd },
-          },
-        });
-        return {
-          date: dayStart.toISOString().split("T")[0],
-          label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
-          count,
-        };
-      })
-    );
+    // ---- Daily series: 3 indexed queries instead of 58 per-day counts ----
+    const visitRows = await db.$queryRaw<{ day: Date; count: number }[]>`
+      SELECT date_trunc('day', "createdAt") AS day, COUNT(*)::int AS count
+      FROM "Visit"
+      WHERE "createdAt" >= ${days30[0]}
+      GROUP BY 1 ORDER BY 1`;
+    const visitByDay = new Map(visitRows.map((r) => [dayKey(new Date(r.day)), r.count]));
 
-    // Visits per day for last 30 days
-    const visits30d = await Promise.all(
-      days30.map(async (dayStart) => {
-        const dayEnd = new Date(dayStart);
-        dayEnd.setDate(dayEnd.getDate() + 1);
-        const count = await db.visit.count({
-          where: {
-            createdAt: { gte: dayStart, lt: dayEnd },
-          },
-        });
-        return {
-          date: dayStart.toISOString().split("T")[0],
-          count,
-        };
-      })
-    );
+    const visits7d = days7.map((dayStart) => ({
+      date: dayKey(dayStart),
+      label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
+      count: visitByDay.get(dayKey(dayStart)) ?? 0,
+    }));
 
-    // Bookings per day for last 7 days
-    const bookings7d = await Promise.all(
-      days7.map(async (dayStart) => {
-        const dayEnd = new Date(dayStart);
-        dayEnd.setDate(dayEnd.getDate() + 1);
-        const count = await db.booking.count({
-          where: {
-            createdAt: { gte: dayStart, lt: dayEnd },
-          },
-        });
-        return {
-          date: dayStart.toISOString().split("T")[0],
-          label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
-          count,
-        };
-      })
-    );
+    const visits30d = days30.map((dayStart) => ({
+      date: dayKey(dayStart),
+      count: visitByDay.get(dayKey(dayStart)) ?? 0,
+    }));
+
+    const bookingRows = await db.$queryRaw<{ day: Date; count: number }[]>`
+      SELECT date_trunc('day', "createdAt") AS day, COUNT(*)::int AS count
+      FROM "Booking"
+      WHERE "createdAt" >= ${days7[0]}
+      GROUP BY 1 ORDER BY 1`;
+    const bookingByDay = new Map(bookingRows.map((r) => [dayKey(new Date(r.day)), r.count]));
+
+    const bookings7d = days7.map((dayStart) => ({
+      date: dayKey(dayStart),
+      label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
+      count: bookingByDay.get(dayKey(dayStart)) ?? 0,
+    }));
 
     // Section breakdown (pie chart data)
     const sectionCounts = await db.visit.groupBy({
@@ -84,19 +68,24 @@ export async function GET(request: Request) {
       orderBy: { _count: { section: "desc" } },
     });
 
-    // Booking purposes breakdown
-    const bookings = await db.booking.findMany();
-    const purposeMap: Record<string, number> = {};
-    bookings.forEach((b) => {
-      purposeMap[b.purpose] = (purposeMap[b.purpose] || 0) + 1;
-    });
-
-    // Testimonials by rating
-    const testimonials = await db.testimonial.findMany();
-    const ratingMap: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    testimonials.forEach((t) => {
-      ratingMap[t.rating] = (ratingMap[t.rating] || 0) + 1;
-    });
+    // Booking purposes + testimonial ratings: groupBy instead of full scans
+    const [purposeGroups, ratingGroups, bookingCount, testimonialCount, pendingCount] =
+      await Promise.all([
+        db.booking.groupBy({ by: ["purpose"], _count: { _all: true } }),
+        db.testimonial.groupBy({ by: ["rating"], _count: { _all: true } }),
+        db.booking.count(),
+        db.testimonial.count(),
+        db.booking.count({ where: { status: "pending" } }),
+      ]);
+    const bookingPurposes = purposeGroups.map((g) => ({
+      purpose: g.purpose,
+      count: g._count._all,
+    }));
+    const ratingDistribution = [1, 2, 3, 4, 5].map((rating) => ({
+      rating,
+      count:
+        ratingGroups.find((g) => g.rating === rating)?._count._all ?? 0,
+    }));
 
     // ---------- Vercel-style traffic breakdowns ----------
     // Each is best-effort: if the new columns don't exist yet (migration
@@ -114,28 +103,32 @@ export async function GET(request: Request) {
     let operatingSystems: { name: string; count: number }[] = [];
 
     try {
-      // Unique visitors + pageviews per day (last 7 days)
-      await Promise.all(
-        days7.map(async (dayStart, i) => {
-          const dayEnd = new Date(dayStart);
-          dayEnd.setDate(dayEnd.getDate() + 1);
-          const where = { createdAt: { gte: dayStart, lt: dayEnd } };
-          const [uniq, pvs] = await Promise.all([
-            db.visit.groupBy({ by: ["ipHash"], where }),
-            db.visit.count({ where: { ...where, isPageview: true } }),
-          ]);
-          visitors7d[i] = {
-            date: dayStart.toISOString().split("T")[0],
-            label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
-            visitors: uniq.filter((u) => u.ipHash).length,
-          };
-          pageviews7d[i] = {
-            date: dayStart.toISOString().split("T")[0],
-            label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
-            count: pvs,
-          };
-        })
+      // Unique visitors + pageviews per day (last 7 days): ONE indexed query.
+      const trafficRows = await db.$queryRaw<
+        { day: Date; visitors: number; pageviews: number }[]
+      >`
+        SELECT date_trunc('day', "createdAt") AS day,
+               COUNT(DISTINCT "ipHash")::int AS visitors,
+               SUM(CASE WHEN "isPageview" THEN 1 ELSE 0 END)::int AS pageviews
+        FROM "Visit"
+        WHERE "createdAt" >= ${weekAgo}
+        GROUP BY 1 ORDER BY 1`;
+      const trafficByDay = new Map(
+        trafficRows.map((r) => [dayKey(new Date(r.day)), r])
       );
+      days7.forEach((dayStart, i) => {
+        const t = trafficByDay.get(dayKey(dayStart));
+        visitors7d[i] = {
+          date: dayKey(dayStart),
+          label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
+          visitors: t?.visitors ?? 0,
+        };
+        pageviews7d[i] = {
+          date: dayKey(dayStart),
+          label: dayStart.toLocaleDateString("en-US", { weekday: "short" }),
+          count: t?.pageviews ?? 0,
+        };
+      });
 
       // Bounce rate: sessions (last 7d) with exactly one tracked event
       const sessionGroups = await db.visit.groupBy({
@@ -201,19 +194,13 @@ export async function GET(request: Request) {
         section: s.section,
         count: s._count._all,
       })),
-      bookingPurposes: Object.entries(purposeMap).map(([purpose, count]) => ({
-        purpose,
-        count,
-      })),
-      ratingDistribution: Object.entries(ratingMap).map(([rating, count]) => ({
-        rating: Number(rating),
-        count,
-      })),
+      bookingPurposes,
+      ratingDistribution,
       totals: {
         visits: visits30d.reduce((sum, d) => sum + d.count, 0),
-        bookings: bookings.length,
-        testimonials: testimonials.length,
-        pendingBookings: bookings.filter((b) => b.status === "pending").length,
+        bookings: bookingCount,
+        testimonials: testimonialCount,
+        pendingBookings: pendingCount,
       },
       // Vercel-style
       visitors7d,

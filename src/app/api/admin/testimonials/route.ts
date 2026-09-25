@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdmin } from "@/lib/auth";
+import { verifyAdmin, verifyToken } from "@/lib/auth";
+import { logAudit } from "@/lib/security";
 
 // GET — list ALL testimonials (including pending) for admin review
 export async function GET(request: Request) {
@@ -36,10 +37,21 @@ export async function PATCH(request: Request) {
       );
     }
 
+    const actor =
+      verifyToken(
+        (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "")
+      )?.email || "admin";
     if (action === "approve") {
       const updated = await db.testimonial.update({
         where: { id },
         data: { approved: true },
+      });
+      await logAudit({
+        event: "ADMIN_ACTION",
+        request,
+        actor,
+        path: "/api/admin/testimonials",
+        detail: `testimonial approved — "${String(updated.name).slice(0, 60)}" (${String(updated.email).slice(0, 60)})`,
       });
       return NextResponse.json({
         success: true,
@@ -47,7 +59,15 @@ export async function PATCH(request: Request) {
         testimonial: updated,
       });
     } else if (action === "delete") {
+      const doomed = await db.testimonial.findUnique({ where: { id } });
       await db.testimonial.delete({ where: { id } });
+      await logAudit({
+        event: "ADMIN_ACTION",
+        request,
+        actor,
+        path: "/api/admin/testimonials",
+        detail: `testimonial deleted — "${String(doomed?.name ?? "?").slice(0, 60)}" (${String(doomed?.email ?? "?").slice(0, 60)})`,
+      });
       return NextResponse.json({
         success: true,
         message: "Testimonial deleted",

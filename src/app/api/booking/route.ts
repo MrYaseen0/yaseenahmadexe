@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdmin } from "@/lib/auth";
+import { verifyAdmin, verifyToken } from "@/lib/auth";
+import { logAudit } from "@/lib/security";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { sendLeadNotification } from "@/lib/email";
 
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
     // and sendLeadNotification never throws so the response is unaffected.
     await sendLeadNotification({
       kind: "booking",
-      subject: `New booking: ${String(purpose).slice(0, 80)}`,
+      subject: `📅 New booking: ${String(purpose).slice(0, 80)}`,
       lines: [
         `Name: ${String(name)}`,
         `Email: ${String(email)}`,
@@ -103,14 +104,33 @@ export async function PATCH(request: Request) {
     if (!id || !action) {
       return NextResponse.json({ error: "id and action are required" }, { status: 400 });
     }
+    const actor =
+      verifyToken(
+        (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "")
+      )?.email || "admin";
     if (action === "delete") {
+      const doomed = await db.booking.findUnique({ where: { id: String(id) } });
       await db.booking.delete({ where: { id: String(id) } });
+      await logAudit({
+        event: "ADMIN_ACTION",
+        request,
+        actor,
+        path: "/api/booking",
+        detail: `booking deleted — "${String(doomed?.name ?? "?").slice(0, 60)}" (${String(doomed?.date ?? "?")} ${String(doomed?.time ?? "")})`,
+      });
       return NextResponse.json({ success: true });
     }
     if (action === "confirm" || action === "cancel") {
       const booking = await db.booking.update({
         where: { id: String(id) },
         data: { status: action === "confirm" ? "confirmed" : "cancelled" },
+      });
+      await logAudit({
+        event: "ADMIN_ACTION",
+        request,
+        actor,
+        path: "/api/booking",
+        detail: `booking ${action === "confirm" ? "confirmed" : "cancelled"} — "${String(booking.name).slice(0, 60)}" (${String(booking.date)} ${String(booking.time)})`,
       });
       return NextResponse.json({ success: true, booking });
     }

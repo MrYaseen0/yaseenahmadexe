@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin, verifyToken } from "@/lib/auth";
 import { getClientIp } from "@/lib/rate-limit";
+import { logAudit } from "@/lib/security";
 import {
   CONTENT_DEFAULTS,
   CONTENT_FIELDS,
@@ -139,10 +140,20 @@ export async function PUT(request: Request) {
           }),
         },
       });
-      return row;
+      return { row, isNew, prevValue: prev?.value ?? null };
     });
 
-    return NextResponse.json({ success: true, content: updated });
+    // Mirror into the unified audit timeline (enriched: geo/ISP/device).
+    const { row: updatedRow, isNew: wasNew, prevValue } = updated;
+    await logAudit({
+      event: "CONTENT_EDIT",
+      request,
+      actor: email,
+      path: "/api/admin/content",
+      detail: `content ${wasNew ? "created" : "updated"} key="${cleanKey}" — "${trunc(prevValue)}" → "${trunc(finalValue)}"`,
+    });
+
+    return NextResponse.json({ success: true, content: updatedRow });
   } catch (error: any) {
     console.error("Content update error:", error);
     return NextResponse.json(
@@ -206,6 +217,15 @@ export async function DELETE(request: Request) {
           }),
         },
       });
+    });
+
+    // Mirror into the unified audit timeline (enriched: geo/ISP/device).
+    await logAudit({
+      event: "CONTENT_EDIT",
+      request,
+      actor: email,
+      path: "/api/admin/content",
+      detail: `content deleted key="${cleanKey}" — "${trunc(prev.value)}" → default`,
     });
 
     return NextResponse.json({ success: true });

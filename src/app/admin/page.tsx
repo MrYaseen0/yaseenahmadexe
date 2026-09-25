@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import {
   Shield,
@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { TrafficDashboard } from "@/components/admin/traffic-dashboard";
 import { SecurityDashboard } from "@/components/admin/security-dashboard";
+import ActivityFeed from "@/components/admin/activity-feed";
 import {
   CONTENT_FIELDS,
   CONTENT_DEFAULTS,
@@ -42,10 +43,6 @@ import {
 } from "@/lib/content-fields";
 
 const TOKEN_STORAGE = "ya-admin-token";
-
-function errMsg(e: unknown): string {
-  return e instanceof Error && e.message ? e.message : "Action failed";
-}
 
 // Returns the stored admin token if it looks like a signed JWT
 // (header.payload.signature), otherwise "". Safe to call during SSR.
@@ -129,20 +126,33 @@ export default function AdminPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = (await res.json()) as { token?: string; error?: string };
+      const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Invalid credentials");
-      localStorage.setItem(TOKEN_STORAGE, data.token ?? "");
-      setToken(data.token ?? "");
+      localStorage.setItem(TOKEN_STORAGE, data.token);
+      setToken(data.token);
       setAuthed(true);
-      toast.success("Welcome back, Yaseen!");
-    } catch (err: unknown) {
-      toast.error("Login failed", { description: errMsg(err) });
+      toast.success("Welcome back, Yaseen! 🎉");
+    } catch (err: any) {
+      toast.error("Login failed", { description: err?.message });
     } finally {
       setLoading(false);
     }
   };
 
   const logout = () => {
+    // Audit the logout first (fire-and-forget, keepalive survives navigation).
+    const t = readStoredToken();
+    if (t) {
+      fetch("/api/admin/activity", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${t}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event: "ADMIN_LOGOUT", path: "/admin" }),
+        keepalive: true,
+      }).catch(() => {});
+    }
     localStorage.removeItem(TOKEN_STORAGE);
     setAuthed(false);
     setToken("");
@@ -152,18 +162,18 @@ export default function AdminPage() {
 
   if (!authed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FBFBF9] px-4">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-50 to-pink-50 px-4 dark:from-slate-950 dark:to-rose-950/40">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md rounded-2xl border border-[--hairline] bg-white p-8 shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
+          className="w-full max-w-md rounded-3xl border border-sky-500/20 bg-card p-8 shadow-card-hover"
         >
           <div className="mb-6 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#101410]">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-pink-500 shadow-glow-sky">
               <Lock className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-[#101410]">Admin Dashboard</h1>
-            <p className="mt-1 text-sm text-[#5F665F]">
+            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               Sign in with your admin credentials to manage your website.
             </p>
           </div>
@@ -171,13 +181,13 @@ export default function AdminPage() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="rounded-lg border-[--hairline] pl-9 focus-visible:border-[#101410]"
+                  className="rounded-xl pl-9"
                   required
                 />
               </div>
@@ -185,13 +195,13 @@ export default function AdminPage() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Password</Label>
               <div className="relative">
-                <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
+                <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="rounded-lg border-[--hairline] pl-9 focus-visible:border-[#101410]"
+                  className="rounded-xl pl-9"
                   required
                 />
               </div>
@@ -199,7 +209,7 @@ export default function AdminPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-[#101410] text-white hover:bg-black"
+              className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
             >
               {loading ? (
                 <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
@@ -210,7 +220,7 @@ export default function AdminPage() {
             </Button>
           </form>
           <div className="mt-6 text-center">
-            <a href="/" className="text-xs text-[#5F665F] hover:text-[#166534]">
+            <a href="/" className="text-xs text-muted-foreground hover:text-sky-600">
               ← Back to portfolio
             </a>
           </div>
@@ -240,6 +250,22 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
     }),
     [token]
   );
+
+  // Audit every admin panel visit: one ADMIN_PAGE_VIEW per login session.
+  // Fire-and-forget — the panel must never wait on its own audit log.
+  // (This component only renders when authenticated.)
+  const pageViewLogged = useRef<string>("");
+  useEffect(() => {
+    if (token && pageViewLogged.current !== token) {
+      pageViewLogged.current = token;
+      fetch("/api/admin/activity", {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ event: "ADMIN_PAGE_VIEW", path: "/admin" }),
+        keepalive: true,
+      }).catch(() => {});
+    }
+  }, [token, authHeaders]);
 
   // Pure fetch: no setState inside, so effects can await it without
   // synchronously triggering renders.
@@ -334,16 +360,16 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   };
 
   return (
-    <div className="min-h-screen bg-[#FBFBF9]">
-      <header className="sticky top-0 z-30 border-b border-[--hairline] bg-white">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50/50 to-pink-50/50 dark:from-slate-950 dark:to-rose-950/30">
+      <header className="sticky top-0 z-30 border-b border-sky-500/15 bg-card/80 backdrop-blur">
         <div className="container mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#101410]">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-pink-500">
               <Shield className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-[#101410] sm:text-lg">Admin Dashboard</h1>
-              <p className="text-[11px] text-[#5F665F]">Yaseen Ahmad</p>
+              <h1 className="text-base font-bold sm:text-lg">Admin Dashboard</h1>
+              <p className="text-[11px] text-muted-foreground">Yaseen Ahmad</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -357,7 +383,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
                 <span className="hidden sm:inline ml-1">View Site</span>
               </a>
             </Button>
-            <Button variant="outline" size="sm" onClick={onLogout} className="rounded-full border-[--hairline] hover:border-[#101410]">
+            <Button variant="outline" size="sm" onClick={onLogout} className="rounded-full">
               Logout
             </Button>
           </div>
@@ -366,39 +392,39 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
 
       <main className="container mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 rounded-full border border-[--hairline] bg-white p-1 sm:grid-cols-8">
-            <TabsTrigger value="analytics" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-8">
+            <TabsTrigger value="analytics" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <BarChart3 className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="content" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="content" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Edit3 className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Content</span>
             </TabsTrigger>
-            <TabsTrigger value="visual" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="visual" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Eye className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Visual</span>
             </TabsTrigger>
-            <TabsTrigger value="bookings" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="bookings" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Calendar className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Bookings</span>
               {analytics?.totals.pendingBookings ? (
-                <Badge className="ml-1 rounded-full bg-[#166534] text-white">{analytics.totals.pendingBookings}</Badge>
+                <Badge className="ml-1 bg-pink-500 text-white">{analytics.totals.pendingBookings}</Badge>
               ) : null}
             </TabsTrigger>
-            <TabsTrigger value="testimonials" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="testimonials" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <MessageSquare className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Reviews</span>
             </TabsTrigger>
-            <TabsTrigger value="subscribers" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="subscribers" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <MailIcon className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Emails</span>
             </TabsTrigger>
-            <TabsTrigger value="audit" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="audit" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <History className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Audit Log</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="rounded-full data-[state=active]:bg-[#101410] data-[state=active]:text-white">
+            <TabsTrigger value="security" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Shield className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Security</span>
             </TabsTrigger>
@@ -412,13 +438,13 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
               <div className="space-y-4" aria-label="Loading analytics">
                 <div className="grid gap-4 sm:grid-cols-3">
                   {[0, 1, 2].map((i) => (
-                    <div key={i} className="h-28 animate-pulse rounded-2xl bg-[#F4F5F1]" />
+                    <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted/40" />
                   ))}
                 </div>
-                <div className="h-64 animate-pulse rounded-2xl bg-[#F4F5F1]" />
+                <div className="h-64 animate-pulse rounded-2xl bg-muted/40" />
                 <div className="grid gap-4 sm:grid-cols-2">
                   {[0, 1].map((i) => (
-                    <div key={i} className="h-48 animate-pulse rounded-2xl bg-[#F4F5F1]" />
+                    <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted/40" />
                   ))}
                 </div>
               </div>
@@ -458,9 +484,9 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <SubscribersView subscribers={subscribers} />
           </TabsContent>
 
-          {/* Audit Log Tab — every content change, who / when / what */}
+          {/* Audit Log Tab — unified timeline: logins, page views, actions, attacks */}
           <TabsContent value="audit" className="mt-6">
-            <AuditLogView authHeaders={authHeaders} />
+            <ActivityFeed authHeaders={authHeaders} />
           </TabsContent>
 
           {/* Security Tab */}
@@ -512,12 +538,12 @@ function ContentEditor({
         headers: authHeaders,
         body: JSON.stringify({ key, value, category }),
       });
-      const data = (await res.json()) as { error?: string };
+      const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setContent({ ...content, [key]: { value, category } });
       toast.success(`Saved "${key}"`);
-    } catch (err: unknown) {
-      toast.error("Save failed", { description: errMsg(err) });
+    } catch (err: any) {
+      toast.error("Save failed", { description: err?.message });
     } finally {
       setSaving(null);
     }
@@ -536,14 +562,14 @@ function ContentEditor({
           headers: authHeaders,
         }
       );
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `Reset failed (${res.status})`);
       const next = { ...content };
       delete next[key];
       setContent(next);
       toast.success(`"${key}" reset to default`);
-    } catch (err: unknown) {
-      toast.error("Reset failed", { description: errMsg(err) });
+    } catch (err: any) {
+      toast.error("Reset failed", { description: err?.message });
     } finally {
       setSaving(null);
     }
@@ -554,17 +580,17 @@ function ContentEditor({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2 text-sm text-[#5F665F]">
-          <Edit3 className="h-4 w-4 text-[#166534]" />
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Edit3 className="h-4 w-4 text-sky-500" />
           {CONTENT_FIELDS.length} editable fields · {customizedCount} customized
         </div>
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search fields..."
-            className="rounded-full border-[--hairline] bg-white pl-9 focus-visible:border-[#101410]"
+            className="rounded-full pl-9"
           />
         </div>
       </div>
@@ -572,10 +598,10 @@ function ContentEditor({
       {groups.map((g) => (
         <div
           key={g.id}
-          className="rounded-2xl border border-[--hairline] bg-white p-5 shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
+          className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft"
         >
-          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#5F665F]">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#101410] text-[10px] font-bold text-white">
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-[10px] font-bold text-white">
               {g.fields.length}
             </span>
             {g.label}
@@ -606,8 +632,8 @@ function ContentEditor({
       ))}
 
       {groups.length === 0 && (
-        <div className="rounded-2xl border border-[--hairline] bg-white p-12 text-center text-[#5F665F]">
-          No fields match &ldquo;{query}&rdquo;
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          No fields match "{query}"
         </div>
       )}
     </div>
@@ -681,8 +707,8 @@ function RegistryField({
   return (
     <div className="space-y-1.5">
       <div className="flex flex-wrap items-center gap-2">
-        <Label className="text-xs font-semibold text-[#101410]">
-          {label} <span className="font-mono text-[#5F665F]">({fieldKey})</span>
+        <Label className="text-xs font-semibold">
+          {label} <span className="font-mono text-muted-foreground">({fieldKey})</span>
         </Label>
         {dirty && (
           <Badge className="rounded-full bg-amber-500/15 px-2 py-0 text-[9px] font-semibold text-amber-600">
@@ -690,17 +716,17 @@ function RegistryField({
           </Badge>
         )}
         {customized ? (
-          <Badge className="rounded-full bg-[#EAF3EC] px-2 py-0 text-[9px] font-semibold text-[#166534]">
+          <Badge className="rounded-full bg-pink-500/15 px-2 py-0 text-[9px] font-semibold text-pink-600">
             Customized
           </Badge>
         ) : (
-          <Badge variant="secondary" className="rounded-full bg-[#F4F5F1] px-2 py-0 text-[9px] text-[#5F665F]">
+          <Badge variant="secondary" className="rounded-full px-2 py-0 text-[9px]">
             Default
           </Badge>
         )}
         <button
           onClick={() => setShowDefault((v) => !v)}
-          className="text-[11px] text-[#166534] underline-offset-2 hover:underline"
+          className="text-[11px] text-sky-600 underline-offset-2 hover:underline"
         >
           {showDefault ? "Hide default" : "Show default"}
         </button>
@@ -717,7 +743,7 @@ function RegistryField({
             className={
               confirmReset
                 ? "ml-auto flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-600"
-                : "ml-auto flex items-center gap-1 text-[11px] text-[#5F665F] hover:text-red-500"
+                : "ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-500"
             }
           >
             <RotateCcw className="h-3 w-3" />{" "}
@@ -726,7 +752,7 @@ function RegistryField({
         )}
       </div>
       {showDefault && (
-        <pre className="max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-[#F4F5F1] p-2 font-mono text-[11px] text-[#5F665F]">
+        <pre className="max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-muted/40 p-2 font-mono text-[11px] text-muted-foreground">
           {defaultValue}
         </pre>
       )}
@@ -735,7 +761,7 @@ function RegistryField({
           <Textarea
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            className={cn("flex-1 rounded-lg border-[--hairline] font-mono text-xs focus-visible:border-[#101410]", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
+            className={cn("flex-1 font-mono text-xs", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
             rows={json ? 6 : 3}
             spellCheck={false}
           />
@@ -743,7 +769,7 @@ function RegistryField({
           <Input
             value={val}
             onChange={(e) => setVal(e.target.value)}
-            className={cn("flex-1 rounded-lg border-[--hairline] focus-visible:border-[#101410]", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
+            className={cn("flex-1", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
           />
         )}
         <Button
@@ -752,10 +778,10 @@ function RegistryField({
           disabled={saving || !dirty}
           title={dirty ? "Save this field" : "No changes to save"}
           className={cn(
-            "shrink-0 rounded-full text-white",
+            "shrink-0 rounded-xl text-white",
             dirty
-              ? "bg-[#166534] hover:bg-[#0f4a26]"
-              : "bg-[#101410] opacity-60 hover:opacity-80"
+              ? "bg-gradient-to-r from-amber-500 to-pink-500 shadow-glow-pink"
+              : "bg-gradient-to-r from-sky-500 to-pink-500 opacity-60"
           )}
         >
           {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
@@ -778,14 +804,14 @@ function VisualEditorView() {
   };
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-[--hairline] bg-white p-6 shadow-[0_8px_24px_rgba(16,20,16,0.06)] sm:p-8">
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft sm:p-8">
         <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#101410]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-pink-500 shadow-glow-sky">
             <Pencil className="h-7 w-7 text-white" />
           </div>
           <div className="flex-1">
-            <h3 className="text-lg font-bold text-[#101410]">Visual Editor</h3>
-            <p className="mt-1 text-sm text-[#5F665F]">
+            <h3 className="text-lg font-bold">Visual Editor</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
               Edit the portfolio exactly as visitors see it. Open the live page
               in edit mode — every headline, button, card, label, and list shows
               a <Pencil className="inline h-3 w-3" /> pencil. Changes save
@@ -797,20 +823,20 @@ function VisualEditorView() {
         <div className="mt-6 flex flex-wrap gap-3">
           <Button
             onClick={openVisual}
-            className="rounded-full bg-[#101410] text-white hover:bg-black"
+            className="rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
           >
             <Eye className="mr-2 h-4 w-4" /> Open Visual Editor
           </Button>
           <Button
             variant="outline"
             onClick={() => setEmbedded((v) => !v)}
-            className="rounded-full border-[--hairline] hover:border-[#101410]"
+            className="rounded-xl"
           >
             <FileJson className="mr-2 h-4 w-4" />
             {embedded ? "Hide embedded preview" : "Embed preview here"}
           </Button>
         </div>
-        <ul className="mt-6 list-disc space-y-1 pl-5 text-xs text-[#5F665F]">
+        <ul className="mt-6 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
           <li>Edit mode only activates with a valid admin session — visitors never see pencils.</li>
           <li>Text fields open a quick dialog; lists (navigation, services, FAQs, plans…) open a JSON editor.</li>
           <li>To undo a change, edit the field back or reset it to its default in the Content tab.</li>
@@ -818,9 +844,9 @@ function VisualEditorView() {
       </div>
 
       {embedded && (
-        <div className="overflow-hidden rounded-2xl border border-[--hairline] shadow-[0_8px_24px_rgba(16,20,16,0.06)]">
-          <div className="flex items-center justify-between border-b border-[--hairline] bg-[#F4F5F1] px-4 py-2">
-            <span className="font-mono text-xs text-[#5F665F]">/?edit=1</span>
+        <div className="overflow-hidden rounded-2xl border border-sky-500/20 shadow-soft">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-muted/40 px-4 py-2">
+            <span className="font-mono text-xs text-muted-foreground">/?edit=1</span>
             <Button size="sm" variant="ghost" onClick={openVisual} className="h-7 text-xs">
               Open in new tab <ExternalLink className="ml-1 h-3 w-3" />
             </Button>
@@ -831,236 +857,6 @@ function VisualEditorView() {
             className="h-[80vh] w-full bg-white"
           />
         </div>
-      )}
-    </div>
-  );
-}
-
-// ===== Audit Log =====
-// Shows CONTENT_EDIT security events: when, who (admin email), source IP,
-// action, content key, and previous → new value. Kept separate from the
-// Security tab's attack feed.
-interface ParsedAudit {
-  id: string;
-  createdAt: string;
-  ip: string;
-  actor: string;
-  action: string;
-  key: string;
-  oldValue: string | null;
-  newValue: string | null;
-  summary: string;
-}
-
-function AuditLogView({ authHeaders }: { authHeaders: Record<string, string> }) {
-  const [entries, setEntries] = useState<ParsedAudit[]>([]);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [query, setQuery] = useState("");
-  const [appliedQuery, setAppliedQuery] = useState("");
-  const [actionFilter, setActionFilter] = useState("");
-  const [expanded, setExpanded] = useState<string | null>(null);
-
-  const fetchPage = useCallback(
-    async (cursor?: string | null) => {
-      const params = new URLSearchParams({ limit: "50" });
-      if (appliedQuery) params.set("search", appliedQuery);
-      if (actionFilter) params.set("action", actionFilter);
-      if (cursor) params.set("cursor", cursor);
-      const res = await fetch(`/api/admin/audit?${params.toString()}`, {
-        headers: authHeaders,
-      });
-      const data = await res.json();
-      const page: ParsedAudit[] = (data.entries || []).map((e: ParsedAudit) => ({
-        ...e,
-        oldValue: e.oldValue == null ? null : String(e.oldValue),
-        newValue: e.newValue == null ? null : String(e.newValue),
-      }));
-      return { page, nextCursor: (data.nextCursor as string | null) || null };
-    },
-    [authHeaders, appliedQuery, actionFilter]
-  );
-
-  const load = useCallback(
-    async (cursor?: string | null) => {
-      if (cursor) setLoadingMore(true);
-      else setLoading(true);
-      try {
-        const { page, nextCursor } = await fetchPage(cursor);
-        setEntries((prev) => (cursor ? [...prev, ...page] : page));
-        setNextCursor(nextCursor);
-      } catch {
-        toast.error("Failed to load audit log");
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
-    },
-    [fetchPage]
-  );
-
-  // Initial fetch. All state updates happen after `await`, never
-  // synchronously inside the effect. Cancelled on unmount / refetch.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { page, nextCursor } = await fetchPage(null);
-        if (cancelled) return;
-        setEntries(page);
-        setNextCursor(nextCursor);
-      } catch {
-        if (!cancelled) toast.error("Failed to load audit log");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [fetchPage]);
-
-  const applyFilters = () => {
-    setNextCursor(null);
-    setAppliedQuery(query);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2 text-sm text-[#5F665F]">
-          <History className="h-4 w-4 text-[#166534]" />
-          {entries.length} recorded content change{entries.length === 1 ? "" : "s"}
-          {nextCursor && " — more available"}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <div className="relative flex-1 sm:w-56">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && applyFilters()}
-              placeholder="Search by key, editor, IP..."
-              className="rounded-full border-[--hairline] bg-white pl-9 focus-visible:border-[#101410]"
-            />
-          </div>
-          <select
-            value={actionFilter}
-            onChange={(e) => {
-              setActionFilter(e.target.value);
-              setNextCursor(null);
-            }}
-            className="rounded-full border border-[--hairline] bg-white px-3 py-2 text-sm text-[#101410]"
-            aria-label="Filter by action"
-          >
-            <option value="">All actions</option>
-            <option value="updated">Updated</option>
-            <option value="created">Created</option>
-            <option value="deleted">Deleted (reset to default)</option>
-          </select>
-          <Button variant="outline" size="sm" onClick={applyFilters} className="rounded-full border-[--hairline] hover:border-[#101410]">
-            Apply
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => load()} className="rounded-full border-[--hairline] hover:border-[#101410]">
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
-          </Button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="space-y-2" aria-label="Loading audit log">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-[#F4F5F1]" />
-          ))}
-        </div>
-      ) : entries.length === 0 ? (
-        <div className="rounded-2xl border border-[--hairline] bg-white p-12 text-center text-[#5F665F]">
-          <History className="mx-auto mb-3 h-10 w-10 text-[#5F665F]/40" />
-          {appliedQuery || actionFilter
-            ? "No entries match your filters."
-            : "No content changes recorded yet. Edits made through the Visual Editor or Content tab appear here."}
-        </div>
-      ) : (
-        <>
-          <div className="space-y-2">
-            {entries.map((e) => {
-              const isOpen = expanded === e.id;
-              const when = new Date(e.createdAt).toLocaleString("en-PK", {
-                timeZone: "Asia/Karachi",
-                day: "2-digit",
-                month: "short",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
-              return (
-                <div
-                  key={e.id}
-                  className="rounded-xl border border-[--hairline] bg-white p-4 shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
-                >
-                  <button
-                    onClick={() => setExpanded(isOpen ? null : e.id)}
-                    className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 text-left"
-                  >
-                    <Badge
-                      className={cn(
-                        "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-                        e.action === "deleted"
-                          ? "bg-red-500/15 text-red-600"
-                          : e.action === "created"
-                            ? "bg-[#EAF3EC] text-[#166534]"
-                            : "bg-[#F4F5F1] text-[#101410]"
-                      )}
-                    >
-                      {e.action === "deleted" ? "reset to default" : e.action}
-                    </Badge>
-                    <span className="font-mono text-xs font-bold text-[#101410]">{e.key}</span>
-                    <span className="text-xs text-[#5F665F]">{e.actor}</span>
-                    <span className="ml-auto text-xs text-[#5F665F]">{when} PKT</span>
-                  </button>
-                  {isOpen && (
-                    <div className="mt-3 space-y-2 border-t border-[--hairline] pt-3 text-xs">
-                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-[#5F665F]">
-                        <span>IP: <span className="font-mono text-[#101410]">{e.ip}</span></span>
-                        <span>Editor: <span className="font-medium text-[#101410]">{e.actor}</span></span>
-                      </div>
-                      {e.summary && <p className="text-[#5F665F]">{e.summary}</p>}
-                      {e.oldValue !== null && (
-                        <div>
-                          <div className="mb-1 font-semibold text-[#5F665F]">Previous value</div>
-                          <pre className="max-h-24 overflow-auto whitespace-pre-wrap rounded-lg bg-red-500/5 p-2 font-mono text-[11px] text-[#101410]/80">
-                            {e.oldValue}
-                          </pre>
-                        </div>
-                      )}
-                      {e.newValue !== null && (
-                        <div>
-                          <div className="mb-1 font-semibold text-[#5F665F]">New value</div>
-                          <pre className="max-h-24 overflow-auto whitespace-pre-wrap rounded-lg bg-[#EAF3EC]/50 p-2 font-mono text-[11px] text-[#101410]/80">
-                            {e.newValue}
-                          </pre>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {nextCursor && (
-            <div className="text-center">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => load(nextCursor)}
-                disabled={loadingMore}
-                className="rounded-full border-[--hairline] hover:border-[#101410]"
-              >
-                {loadingMore ? "Loading..." : "Load older entries"}
-              </Button>
-            </div>
-          )}
-        </>
       )}
     </div>
   );
@@ -1087,7 +883,7 @@ function BookingsView({
         headers: authHeaders,
         body: JSON.stringify({ id, action }),
       });
-      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Action failed");
       toast.success(
         action === "confirm"
@@ -1098,8 +894,8 @@ function BookingsView({
       );
       setConfirmDelete(null);
       onChanged();
-    } catch (err: unknown) {
-      toast.error("Action failed", { description: errMsg(err) });
+    } catch (err: any) {
+      toast.error("Action failed", { description: err?.message });
     } finally {
       setActing(null);
     }
@@ -1120,15 +916,15 @@ function BookingsView({
     status === "pending"
       ? "bg-amber-500/15 text-amber-600"
       : status === "confirmed"
-        ? "bg-[#EAF3EC] text-[#166534]"
+        ? "bg-green-500/15 text-green-600"
         : status === "cancelled"
           ? "bg-red-500/15 text-red-600"
-          : "bg-[#F4F5F1] text-[#5F665F]";
+          : "bg-muted text-muted-foreground";
 
   if (bookings.length === 0) {
     return (
-      <div className="rounded-2xl border border-[--hairline] bg-white p-12 text-center text-[#5F665F]">
-        <Calendar className="mx-auto mb-3 h-10 w-10 text-[#5F665F]/40" />
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+        <Calendar className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
         No bookings yet
       </div>
     );
@@ -1143,8 +939,8 @@ function BookingsView({
             className={cn(
               "rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors",
               statusFilter === s
-                ? "bg-[#101410] text-white"
-                : "bg-white border border-[--hairline] text-[#5F665F] hover:text-[#101410]"
+                ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                : "bg-muted text-muted-foreground hover:text-foreground"
             )}
           >
             {s} ({counts[s]})
@@ -1152,7 +948,7 @@ function BookingsView({
         ))}
       </div>
       {shown.length === 0 ? (
-        <div className="rounded-2xl border border-[--hairline] bg-white p-12 text-center text-[#5F665F]">
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
           No {statusFilter} bookings
         </div>
       ) : (
@@ -1160,30 +956,30 @@ function BookingsView({
           {shown.map((b) => (
             <div
               key={b.id}
-              className="rounded-2xl border border-[--hairline] bg-white p-4 shadow-[0_8px_24px_rgba(16,20,16,0.06)]"
+              className="rounded-2xl border border-sky-500/15 bg-card p-4 shadow-soft"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-bold text-[#101410]">{b.name}</h4>
+                    <h4 className="font-bold">{b.name}</h4>
                     <Badge className={cn("rounded-full px-2 py-0.5 text-[10px] capitalize", statusBadge(b.status))}>
                       {b.status}
                     </Badge>
                   </div>
-                  <p className="text-sm text-[#5F665F]">{b.email}</p>
+                  <p className="text-sm text-muted-foreground">{b.email}</p>
                 </div>
-                <div className="text-right text-xs text-[#5F665F]">
-                  <div className="font-semibold text-[#101410]">{b.purpose}</div>
+                <div className="text-right text-xs text-muted-foreground">
+                  <div className="font-semibold text-foreground">{b.purpose}</div>
                   <div>{b.date} at {b.time}</div>
                   <div>{b.timezone}</div>
                 </div>
               </div>
               {b.notes && (
-                <p className="mt-2 rounded-lg bg-[#F4F5F1] p-2 text-xs text-[#5F665F]">
+                <p className="mt-2 rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
                   <strong>Notes:</strong> {b.notes}
                 </p>
               )}
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[--hairline] pt-3">
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-sky-500/10 pt-3">
                 <div className="flex flex-wrap gap-2">
                   {b.status === "pending" && (
                     <>
@@ -1191,7 +987,7 @@ function BookingsView({
                         size="sm"
                         onClick={() => act(b.id, "confirm")}
                         disabled={acting === b.id}
-                        className="rounded-full bg-[#166534] text-white hover:bg-[#0f4a26]"
+                        className="rounded-full bg-green-500 text-white hover:bg-green-600"
                       >
                         {acting === b.id ? (
                           <RefreshCw className="h-3.5 w-3.5 animate-spin" />
@@ -1235,12 +1031,12 @@ function BookingsView({
                     </span>
                   </Button>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] text-[#5F665F]">
+                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                   <span>Submitted {new Date(b.createdAt).toLocaleString()}</span>
                   <a
                     href={`/api/booking/calendar?date=${b.date}&time=${encodeURIComponent(b.time)}&purpose=${encodeURIComponent(b.purpose)}&name=${encodeURIComponent(b.name)}&email=${encodeURIComponent(b.email)}`}
                     download
-                    className="text-[#166534] hover:underline"
+                    className="text-sky-600 hover:underline"
                   >
                     Download .ics
                   </a>
@@ -1266,8 +1062,8 @@ function TestimonialsView({
 }) {
   if (testimonials.length === 0) {
     return (
-      <div className="rounded-2xl border border-[--hairline] bg-white p-12 text-center text-[#5F665F]">
-        <MessageSquare className="mx-auto mb-3 h-10 w-10 text-[#5F665F]/40" />
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+        <MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
         No testimonials yet
       </div>
     );
@@ -1275,25 +1071,25 @@ function TestimonialsView({
   return (
     <div className="space-y-3">
       {testimonials.map((t) => (
-        <div key={t.id} className="rounded-2xl border border-[--hairline] bg-white p-4 shadow-[0_8px_24px_rgba(16,20,16,0.06)]">
+        <div key={t.id} className="rounded-2xl border border-sky-500/15 bg-card p-4 shadow-soft">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <h4 className="font-bold text-[#101410]">{t.name}</h4>
+                <h4 className="font-bold">{t.name}</h4>
                 <Badge className={cn(
                   "rounded-full px-2 py-0.5 text-[10px]",
-                  t.approved ? "bg-[#EAF3EC] text-[#166534]" : "bg-amber-500/15 text-amber-600"
+                  t.approved ? "bg-green-500/15 text-green-600" : "bg-amber-500/15 text-amber-600"
                 )}>
                   {t.approved ? "Approved" : "Pending"}
                 </Badge>
-                <span className="font-mono text-xs text-[#5F665F]">{t.rating}/5</span>
+                <span className="text-xs text-muted-foreground">{"⭐".repeat(t.rating)}</span>
               </div>
-              <p className="text-sm text-[#5F665F]">{t.role}{t.company ? ` · ${t.company}` : ""}</p>
-              <p className="mt-1 text-xs text-[#5F665F]">{t.email}</p>
+              <p className="text-sm text-muted-foreground">{t.role}{t.company ? ` · ${t.company}` : ""}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t.email}</p>
             </div>
             {!t.approved && (
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => onApprove(t.id)} className="rounded-full bg-[#166534] text-white hover:bg-[#0f4a26]">
+                <Button size="sm" onClick={() => onApprove(t.id)} className="rounded-full bg-green-500 text-white hover:bg-green-600">
                   <Check className="h-3.5 w-3.5" />
                   <span className="ml-1 hidden sm:inline">Approve</span>
                 </Button>
@@ -1303,8 +1099,8 @@ function TestimonialsView({
               </div>
             )}
           </div>
-          <p className="mt-2 rounded-lg bg-[#F4F5F1] p-3 text-sm text-[#101410]">&ldquo;{t.message}&rdquo;</p>
-          <div className="mt-2 text-[11px] text-[#5F665F]">
+          <p className="mt-2 rounded-lg bg-muted/30 p-3 text-sm">&ldquo;{t.message}&rdquo;</p>
+          <div className="mt-2 text-[11px] text-muted-foreground">
             Submitted {new Date(t.createdAt).toLocaleString()}
           </div>
         </div>
@@ -1322,26 +1118,26 @@ function SubscribersView({ subscribers }: { subscribers: Subscriber[] }) {
   };
 
   return (
-    <div className="rounded-2xl border border-[--hairline] bg-white p-5 shadow-[0_8px_24px_rgba(16,20,16,0.06)]">
+    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-[#101410]">
-          <MailIcon className="h-4 w-4 text-[#166534]" />
+        <h3 className="flex items-center gap-2 text-sm font-bold">
+          <MailIcon className="h-4 w-4 text-sky-500" />
           Newsletter Subscribers ({subscribers.length})
         </h3>
         {subscribers.length > 0 && (
-          <Button size="sm" variant="outline" onClick={copyEmails} className="rounded-full border-[--hairline] hover:border-[#101410]">
+          <Button size="sm" variant="outline" onClick={copyEmails} className="rounded-full">
             Copy all
           </Button>
         )}
       </div>
       {subscribers.length === 0 ? (
-        <p className="text-sm text-[#5F665F]">No subscribers yet</p>
+        <p className="text-sm text-muted-foreground">No subscribers yet</p>
       ) : (
         <div className="space-y-2">
           {subscribers.map((s) => (
-            <div key={s.id} className="flex items-center justify-between rounded-lg border border-[--hairline] bg-[#FBFBF9] p-3 text-sm">
-              <span className="font-medium text-[#101410]">{s.email}</span>
-              <span className="text-xs text-[#5F665F]">
+            <div key={s.id} className="flex items-center justify-between rounded-lg border border-sky-500/10 bg-muted/20 p-3 text-sm">
+              <span className="font-medium">{s.email}</span>
+              <span className="text-xs text-muted-foreground">
                 {new Date(s.createdAt).toLocaleDateString()}
               </span>
             </div>

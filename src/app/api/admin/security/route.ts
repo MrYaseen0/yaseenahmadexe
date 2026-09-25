@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
-import { blockIp, unblockIp } from "@/lib/security";
+import { blockIp, unblockIp, logAudit } from "@/lib/security";
+import { verifyToken } from "@/lib/auth";
 
 // GET — security overview for the admin dashboard (admin only).
 // Returns recent attack events, 24h stats, top offending IPs, blocked list.
@@ -81,6 +82,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "ip is required" }, { status: 400 });
     }
     await blockIp(ip.trim().slice(0, 45), String(reason || "Blocked manually from admin").slice(0, 200));
+    await logAudit({
+      event: "ADMIN_ACTION",
+      request,
+      actor: verifyToken((request.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""))?.email || "admin",
+      path: "/api/admin/security",
+      detail: `IP blocked manually — ${ip.trim().slice(0, 45)} (${String(reason || "no reason").slice(0, 120)})`,
+    });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Failed to block IP" }, { status: 500 });
@@ -97,5 +105,12 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "ip is required" }, { status: 400 });
   }
   await unblockIp(ip);
+  await logAudit({
+    event: "ADMIN_ACTION",
+    request,
+    actor: verifyToken((request.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""))?.email || "admin",
+    path: "/api/admin/security",
+    detail: `IP unblocked — ${ip.slice(0, 45)}`,
+  });
   return NextResponse.json({ success: true });
 }
