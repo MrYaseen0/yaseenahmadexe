@@ -322,8 +322,49 @@ export const faqs = [
   },
 ];
 
-// Project preview image mapping (for GitHub repos by name keywords)
+// Real per-repo preview images (auto-generated 2026-09-28).
+// game-booster: actual app screenshot from the repo; system-design-reference: real PDF handbook cover;
+// all others: GitHub-generated social card for the real repository (name, description, language, stars).
+const REAL_PROJECT_PREVIEWS: Record<string, string> = {
+  "yaseenahmadexe": "/assets/projects/real/yaseenahmadexe.jpg",
+  "game-booster": "/assets/projects/real/game-booster.jpg",
+  "system-design-reference": "/assets/projects/real/system-design-reference.jpg",
+  "qec-page-new": "/assets/projects/real/qec-page-new.jpg",
+  "mryaseen0": "/assets/projects/real/mryaseen0.jpg",
+  "automated-documentation-generator-an-researh-based-project": "/assets/projects/real/automated-documentation-generator-an-researh-based-project.jpg",
+  "loadstrom": "/assets/projects/real/loadstrom.jpg",
+  "ytube": "/assets/projects/real/ytube.jpg",
+  "uncensored-llm-server": "/assets/projects/real/uncensored-llm-server.jpg",
+  "btc-trade-analysis": "/assets/projects/real/btc-trade-analysis.jpg",
+  "xau-bot": "/assets/projects/real/xau-bot.jpg",
+  "cdgai-tasks-summer-internship": "/assets/projects/real/cdgai-tasks-summer-internship.jpg",
+  "cecos-": "/assets/projects/real/cecos-.jpg",
+  "arena-breakout-3d": "/assets/projects/real/arena-breakout-3d.jpg",
+  "studyflow-your-academic-command-center": "/assets/projects/real/studyflow-your-academic-command-center.jpg",
+  "gitnova": "/assets/projects/real/gitnova.jpg",
+  "-bitanas-salon-peshawar": "/assets/projects/real/-bitanas-salon-peshawar.jpg",
+  "fyp": "/assets/projects/real/fyp.jpg",
+  "ecomerce-website-clone-": "/assets/projects/real/ecomerce-website-clone-.jpg",
+  "cisco-project-lab": "/assets/projects/real/cisco-project-lab.jpg",
+  "face-tend": "/assets/projects/real/face-tend.jpg",
+  "ironlife-gym-manager-by-yaseen-ahmad": "/assets/projects/real/ironlife-gym-manager-by-yaseen-ahmad.jpg",
+  "yaseen-ahmad-lab-tasks-software-construction-and-develpment-lab": "/assets/projects/real/yaseen-ahmad-lab-tasks-software-construction-and-develpment-lab.jpg",
+  "emotion-based-music-recommendation-system": "/assets/projects/real/emotion-based-music-recommendation-system.jpg",
+  "student-attendance-system": "/assets/projects/real/student-attendance-system.jpg",
+  "face-recognition-attendance-system": "/assets/projects/real/face-recognition-attendance-system.jpg",
+  "ecomewithyaseen": "/assets/projects/real/ecomewithyaseen.jpg",
+};
+
+// Project preview image: real per-repo image when known, otherwise the
+// keyword-based mockup as a last resort.
 export function getProjectPreview(repoName: string): string {
+  const key = (repoName || "").toLowerCase();
+  if (REAL_PROJECT_PREVIEWS[key]) return REAL_PROJECT_PREVIEWS[key];
+  return getMockupPreview(repoName);
+}
+
+// Legacy keyword-based mockup mapping (fallback only).
+function getMockupPreview(repoName: string): string {
   const name = (repoName || "").toLowerCase();
   if (
     name.includes("saas") ||
@@ -379,3 +420,4 @@ export function getProjectPreview(repoName: string): string {
     return "/assets/projects/task-mgmt.png";
   return "/assets/projects/default-project.png";
 }
+
