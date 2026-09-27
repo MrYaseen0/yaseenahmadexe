@@ -1,4 +1,5 @@
 import dynamic from "next/dynamic";
+import { AnimatedBackground } from "@/components/portfolio/animated-background";
 import { ScrollProgress } from "@/components/portfolio/scroll-progress";
 import { Navbar } from "@/components/portfolio/navbar";
 import { ContentProvider } from "@/components/portfolio/content-editor";
@@ -52,6 +53,7 @@ const Faq = dynamic(
 export default function Home() {
   return (
     <ContentProvider>
+      <AnimatedBackground />
       <ScrollProgress />
       <Navbar />
       <main className="relative flex min-h-screen flex-col">

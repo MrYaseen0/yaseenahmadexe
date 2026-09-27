@@ -1,32 +1,31 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function Marquee() {
   const { tj } = useContent();
   const items = tj<string[]>("marquee.items");
   return (
-    <section aria-label="Highlights" className="border-y border-(--hairline) bg-white py-4">
-      <style>{`@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }`}</style>
+    <section className="relative border-y border-sky-500/10 bg-gradient-to-r from-sky-500/5 via-pink-500/5 to-wood/5 py-6">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-background to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-background to-transparent" />
       <Editable id="marquee.items" json label="Marquee items" />
       <div className="flex overflow-hidden">
-        <div
-          className="flex shrink-0 items-center motion-reduce:animate-none"
-          style={{ animation: "marquee 40s linear infinite" }}
+        <motion.div
+          className="flex shrink-0 items-center gap-8 pr-8"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
         >
-          {[0, 1].map((copy) => (
-            <div key={copy} className="flex shrink-0 items-center" aria-hidden={copy === 1}>
-              {items.map((item) => (
-                <span key={`${copy}-${item}`} className="flex shrink-0 items-center">
-                  <span className="whitespace-nowrap font-mono text-xs uppercase tracking-[0.2em] text-(--muted)">
-                    {item}
-                  </span>
-                  <span className="mx-6 inline-block h-1 w-1 shrink-0 rounded-full bg-(--accent)" />
-                </span>
-              ))}
+          {[...items, ...items].map((item, i) => (
+            <div key={i} className="flex items-center gap-8">
+              <span className="whitespace-nowrap text-xl font-bold text-muted-foreground/60">
+                {item}
+              </span>
+              <span className="text-2xl text-pink-500/40">✦</span>
             </div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

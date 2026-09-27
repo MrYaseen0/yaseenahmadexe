@@ -66,10 +66,6 @@ export function useContentOptional(): ContentContextValue | null {
   return useContext(ContentContext);
 }
 
-function errorMessage(e: unknown, fallback: string): string {
-  return e instanceof Error && e.message ? e.message : fallback;
-}
-
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [loaded, setLoaded] = useState(false);
@@ -81,15 +77,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then((r) => r.json())
       .then((d) => {
         const map: Record<string, string> = {};
-        const contents = d?.contents as Record<string, unknown> | undefined;
-        for (const [k, v] of Object.entries(contents ?? {})) {
-          if (
-            typeof v === "object" &&
-            v !== null &&
-            typeof (v as { value?: unknown }).value === "string"
-          ) {
-            map[k] = (v as { value: string }).value;
-          }
+        const contents = d?.contents ?? {};
+        for (const [k, v] of Object.entries<any>(contents)) {
+          if (typeof v?.value === "string") map[k] = v.value;
         }
         setOverrides(map);
       })
@@ -212,11 +202,11 @@ function EditModeBar() {
     window.location.href = u.toString();
   };
   return (
-    <div className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-3 border-b border-[--hairline] bg-white px-4 py-2.5 text-sm text-[#101410] shadow-[0_4px_16px_rgba(16,20,16,0.08)]">
+    <div className="fixed inset-x-0 top-0 z-[100] flex items-center justify-center gap-3 border-b border-sky-500/30 bg-slate-950/95 px-4 py-2.5 text-sm text-white backdrop-blur">
       <span className="flex items-center gap-2">
-        <ShieldCheck className="h-4 w-4 text-[#166534]" />
+        <ShieldCheck className="h-4 w-4 text-green-400" />
         <span className="font-semibold">Edit mode</span>
-        <span className="hidden text-[#5F665F] sm:inline">
+        <span className="hidden text-white/70 sm:inline">
           — click any <Pencil className="inline h-3 w-3" /> pencil to edit that
           text live. Every change saves instantly and is audit-logged.
         </span>
@@ -225,13 +215,13 @@ function EditModeBar() {
         href="/admin"
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-full border border-[--hairline] px-3 py-1 text-xs font-medium text-[#101410] transition-colors hover:border-[#101410]"
+        className="rounded-full border border-white/20 px-3 py-1 text-xs font-medium hover:bg-white/10"
       >
         Audit log
       </a>
       <button
         onClick={exit}
-        className="flex items-center gap-1 rounded-full bg-[#101410] px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-black"
+        className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-medium hover:bg-white/20"
       >
         <X className="h-3 w-3" /> Exit
       </button>
@@ -315,8 +305,8 @@ export function Editable({
       await reset(id);
       setConfirmReset(false);
       setOpen(false);
-    } catch (e: unknown) {
-      setError(errorMessage(e, "Reset failed"));
+    } catch (e: any) {
+      setError(e?.message || "Reset failed");
     } finally {
       setSaving(false);
     }
@@ -337,8 +327,8 @@ export function Editable({
     try {
       await save(id, v);
       setOpen(false);
-    } catch (e: unknown) {
-      setError(errorMessage(e, "Save failed"));
+    } catch (e: any) {
+      setError(e?.message || "Save failed");
     } finally {
       setSaving(false);
     }
@@ -355,11 +345,11 @@ export function Editable({
           <DialogTitle className="flex items-center gap-2">
             <Pencil className="h-4 w-4" /> Edit: {title}
             {customized ? (
-              <span className="rounded-full bg-[#EAF3EC] px-2 py-0.5 text-[10px] font-semibold text-[#166534]">
+              <span className="rounded-full bg-pink-500/15 px-2 py-0.5 text-[10px] font-semibold text-pink-600">
                 Customized
               </span>
             ) : (
-              <span className="rounded-full bg-[#F4F5F1] px-2 py-0.5 text-[10px] font-semibold text-[#5F665F]">
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 Default
               </span>
             )}
@@ -378,14 +368,14 @@ export function Editable({
           <Textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="min-h-[280px] rounded-lg border-[--hairline] font-mono text-xs focus-visible:border-[#101410]"
+            className="min-h-[280px] font-mono text-xs"
             spellCheck={false}
           />
         ) : isMultiline ? (
           <Textarea
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="min-h-[140px] rounded-lg border-[--hairline] focus-visible:border-[#101410]"
+            className="min-h-[140px]"
           />
         ) : (
           <Input
@@ -394,14 +384,13 @@ export function Editable({
             onKeyDown={(e) => {
               if (e.key === "Enter") doSave();
             }}
-            className="rounded-lg border-[--hairline] focus-visible:border-[#101410]"
           />
         )}
         {!isJson && (
-          <div className="flex items-center justify-between text-[11px] text-[#5F665F]">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
             <span>{draft.length} characters</span>
             {dirty && (
-              <span className="font-semibold text-[#166534]">
+              <span className="font-semibold text-amber-600">
                 ● Unsaved changes
               </span>
             )}
@@ -418,7 +407,7 @@ export function Editable({
                 className={
                   confirmReset
                     ? "text-red-600 hover:bg-red-500/10 hover:text-red-700"
-                    : "text-[#5F665F]"
+                    : "text-muted-foreground"
                 }
               >
                 {confirmReset ? "Click again to confirm reset" : "Reset to default"}
@@ -426,14 +415,10 @@ export function Editable({
             )}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setOpen(false)} className="rounded-full">
+            <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={doSave}
-              disabled={saving || (!dirty && !isJson)}
-              className="rounded-full bg-[#101410] text-white hover:bg-black"
-            >
+            <Button onClick={doSave} disabled={saving || (!dirty && !isJson)}>
               {saving ? "Saving…" : "Save change"}
             </Button>
           </div>
@@ -442,10 +427,9 @@ export function Editable({
     </Dialog>
   );
 
-  const tagName = (as || "span") as string;
-
   if (!editMode) {
-    return createElement(tagName, { className, style }, value);
+    const Tag = (as || "span") as any;
+    return createElement(Tag, { className, style }, value);
   }
 
   if (isJson || buttonOnly) {
@@ -454,7 +438,7 @@ export function Editable({
         <div className="my-2 flex justify-center">
           <button
             onClick={openEditor}
-            className="flex items-center gap-1.5 rounded-full border border-dashed border-[--hairline] bg-white px-3 py-1.5 text-xs font-semibold text-[#101410] shadow-[0_4px_16px_rgba(16,20,16,0.08)] transition-colors hover:border-[#101410]"
+            className="flex items-center gap-1.5 rounded-full border border-dashed border-sky-500/50 bg-sky-500/10 px-3 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-500/20 dark:text-sky-300"
           >
             {isJson ? (
               <ListTree className="h-3.5 w-3.5" />
@@ -469,14 +453,15 @@ export function Editable({
     );
   }
 
+  const Tag = (as || "span") as any;
   return (
-    <span className="relative rounded-sm transition-all hover:bg-[#F4F5F1] hover:outline hover:outline-2 hover:outline-dashed hover:outline-[#166534] hover:outline-offset-2">
-      {createElement(tagName, { className, style }, value)}
+    <span className="relative rounded-sm transition-all hover:bg-sky-500/10 hover:outline hover:outline-2 hover:outline-dashed hover:outline-sky-400 hover:outline-offset-2">
+      {createElement(Tag, { className, style }, value)}
       <button
         onClick={openEditor}
         title={`Edit: ${title}`}
         aria-label={`Edit ${title}`}
-        className="absolute -right-2 -top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-[#101410] text-white opacity-70 shadow hover:opacity-100"
+        className="absolute -right-2 -top-2 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-sky-500 text-white opacity-70 shadow hover:opacity-100"
       >
         <Pencil className="h-3 w-3" />
       </button>

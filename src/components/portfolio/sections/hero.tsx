@@ -1,352 +1,321 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
-import { motion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, Play, Facebook, Linkedin, Instagram, MessageCircle } from "lucide-react";
-import { useContent } from "@/components/portfolio/content-editor";
-
-/**
- * VIRIDIA-inspired hero.
- * Dark field-green full-screen hero: huge wide-tracked title, field tagline,
- * Discover / Connect actions, photo bleeding in from the right, and a bottom
- * bar with showreel + mission/vision + socials.
- *
- * The desktop photo carries a "move the light to reveal" spotlight: the photo
- * sits dark by default and a radial spotlight mask follows the cursor (smoothed
- * via rAF), revealing the bright photo only inside the light circle.
- */
-
-type LightPos = { x: number; y: number };
-
-const SPOTLIGHT_HOME = { xPct: 0.62, yPct: 0.38 };
-const SPOTLIGHT_CSS =
-  "radial-gradient(circle 260px at var(--mx, 62%) var(--my, 38%), black 0%, transparent 70%)";
-
-function setLightVars(photo: HTMLDivElement, glow: HTMLDivElement, x: number, y: number): void {
-  photo.style.setProperty("--mx", `${x.toFixed(1)}px`);
-  photo.style.setProperty("--my", `${y.toFixed(1)}px`);
-  glow.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-}
-
-/**
- * Tracks the cursor across the whole hero section and drives the spotlight
- * with a smoothed rAF loop. Direct DOM style updates only — no re-renders
- * on mousemove. On touch devices the light drifts on its own; with
- * prefers-reduced-motion it stays parked at a static position.
- */
-function useLightReveal() {
-  const photoRef = useRef<HTMLDivElement | null>(null);
-  const glowRef = useRef<HTMLDivElement | null>(null);
-  const target = useRef<LightPos>({ x: 0, y: 0 });
-  const smooth = useRef<LightPos>({ x: 0, y: 0 });
-  const started = useRef(false);
-  const [hintVisible, setHintVisible] = useState(true);
-
-  useEffect(() => {
-    const photo = photoRef.current;
-    const glow = glowRef.current;
-    if (!photo || !glow) return;
-
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const rect = photo.getBoundingClientRect();
-    const home: LightPos = {
-      x: rect.width * SPOTLIGHT_HOME.xPct,
-      y: rect.height * SPOTLIGHT_HOME.yPct,
-    };
-    target.current = { ...home };
-    smooth.current = { ...home };
-
-    if (reduced) {
-      setLightVars(photo, glow, home.x, home.y);
-      return;
-    }
-
-    const coarse = window.matchMedia("(hover: none)").matches;
-    const t0 = performance.now();
-    let raf = 0;
-
-    const tick = (now: number): void => {
-      let tx = target.current.x;
-      let ty = target.current.y;
-      if (coarse && !started.current) {
-        // touch: drift the light on a slow lissajous path
-        const r = photo.getBoundingClientRect();
-        const t = (now - t0) / 1000;
-        tx = r.width * (0.5 + 0.32 * Math.sin(t * 0.7));
-        ty = r.height * (0.5 + 0.3 * Math.sin(t * 1.05 + 1.3));
-      }
-      const s = smooth.current;
-      s.x += (tx - s.x) * 0.12;
-      s.y += (ty - s.y) * 0.12;
-      setLightVars(photo, glow, s.x, s.y);
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
-    let hintTimer = 0;
-    if (coarse) {
-      // no cursor on touch, so retire the hint on its own
-      hintTimer = window.setTimeout(() => setHintVisible(false), 6000);
-    }
-
-    return () => {
-      cancelAnimationFrame(raf);
-      if (hintTimer) window.clearTimeout(hintTimer);
-    };
-  }, []);
-
-  const onSectionMouseMove = (e: ReactMouseEvent<HTMLElement>): void => {
-    const photo = photoRef.current;
-    if (!photo) return;
-    const rect = photo.getBoundingClientRect();
-    target.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    if (!started.current) {
-      started.current = true;
-      setHintVisible(false);
-    }
-  };
-
-  return { photoRef, glowRef, hintVisible, onSectionMouseMove };
-}
-
-function XIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-    </svg>
-  );
-}
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+import {
+  ArrowDown,
+  Github,
+  MapPin,
+  Sparkles,
+  Code2,
+  Star,
+  GitFork,
+  FileText,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { PuzzlePhoto } from "@/components/portfolio/puzzle-photo";
+import { Editable, useContent } from "@/components/portfolio/content-editor";
 
 export function Hero() {
-  const { tj } = useContent();
+  const { t, tj } = useContent();
   const socials = tj<Record<string, string>>("socials.links");
-  const { photoRef, glowRef, hintVisible, onSectionMouseMove } = useLightReveal();
+  const quickStats = tj<{ v: string; l: string }[]>("hero.quickStats");
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+
+  const yPhoto = useTransform(scrollYProgress, [0, 1], [0, 120]);
+  const yText = useTransform(scrollYProgress, [0, 1], [0, 60]);
 
   const scrollTo = (href: string) =>
     document.querySelector(href)?.scrollIntoView({ behavior: "smooth" });
 
-  const socialItems = [
-    { label: "Facebook", href: socials.facebook, Icon: Facebook },
-    { label: "LinkedIn", href: socials.linkedin, Icon: Linkedin },
-    { label: "Instagram", href: "https://instagram.com/yaseenahmadexe", Icon: Instagram },
-    { label: "X", href: socials.twitter, Icon: XIcon },
-  ];
-
   return (
     <section
       id="home"
-      onMouseMove={onSectionMouseMove}
-      className="viridia-hero relative flex min-h-screen flex-col overflow-hidden bg-[#0a0f0a] text-white"
+      ref={ref}
+      className="relative flex min-h-screen items-start overflow-hidden pt-24 pb-16 md:items-center"
     >
-      {/* ---- Background: dark field-green gradients ---- */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-[linear-gradient(115deg,#0a0f0a_0%,#0d140d_35%,#16241a_70%,#1a2a1a_100%)]" />
-        <div className="viridia-drift absolute -left-40 top-1/4 h-[34rem] w-[34rem] rounded-full bg-green-500/10 blur-[140px]" />
-        <div className="viridia-drift absolute bottom-0 right-1/4 h-[28rem] w-[28rem] rounded-full bg-emerald-400/[0.07] blur-[120px]" style={{ animationDelay: "-7s" }} />
-        {/* low green light wrapping the frame */}
-        <div className="viridia-frame absolute inset-0" />
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-green-400/[0.06] to-transparent" />
-      </div>
-
-      {/* ---- Photo: right side, fading into the field, with light-reveal spotlight ---- */}
-      <motion.div
-        ref={photoRef}
-        initial={{ opacity: 0, x: 60 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-none absolute inset-y-0 right-0 hidden w-[46%] md:block [mask-image:linear-gradient(to_right,transparent_0%,black_28%,black_100%)]"
-        style={{
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, black 28%, black 100%)",
-        }}
-      >
-        {/* dark base layer: low-light default state */}
-        <img
-          src="/assets/yaseen-viridia.png"
-          alt="Yaseen Ahmad"
-          className="h-full w-full object-cover object-top [filter:brightness(0.22)_saturate(0.35)]"
-          loading="eager"
-        />
-        {/* bright reveal layer: visible only inside the spotlight circle */}
-        <img
-          src="/assets/yaseen-viridia.png"
-          alt=""
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover object-top"
-          style={{ maskImage: SPOTLIGHT_CSS, WebkitMaskImage: SPOTLIGHT_CSS }}
-          loading="eager"
-        />
-        {/* soft green glow that travels with the cursor */}
-        <div ref={glowRef} className="absolute left-0 top-0 h-0 w-0">
-          <div className="h-[480px] w-[480px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-green-400/[0.13] blur-[100px]" />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f0a] via-transparent to-[#0a0f0a]/40" />
-        <div className="absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-[#0d140d] to-transparent" />
-        {/* one-time hint, fades forever after the first mousemove */}
-        <div
-          className={`absolute bottom-28 left-8 transition-opacity duration-700 ${
-            hintVisible ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <p className="text-[11px] font-medium uppercase tracking-[0.3em] text-white/40">
-            ○ Move the light to reveal
-          </p>
-        </div>
-      </motion.div>
-
-      {/* ---- Main content ---- */}
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 pb-40 pt-32 sm:px-8 md:pb-44 md:pt-36">
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.35em] text-green-300/80"
-        >
-          <span className="h-px w-10 bg-green-400/60" />
-          Full-Stack Developer
-        </motion.p>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[clamp(3.8rem,13vw,11rem)] font-black leading-[0.95] tracking-[0.06em] text-white drop-shadow-[0_0_40px_rgba(74,222,128,0.25)]"
-        >
-          YASEEN
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-6 max-w-xl text-base leading-relaxed text-white/70 sm:text-lg"
-        >
-          I Build. I Ship. I Scale. Step into the field with full-stack built for
-          low light and high stakes.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.55 }}
-          className="mt-9 flex flex-wrap items-center gap-5"
-        >
-          {/* Discover pill */}
-          <button
-            onClick={() => scrollTo("#projects")}
-            className="group flex items-center gap-3 rounded-full border border-white/20 bg-white/[0.04] py-2 pl-7 pr-2 backdrop-blur transition-all duration-300 hover:border-green-400/50 hover:bg-white/[0.08]"
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid items-start gap-8 md:items-center md:gap-10 md:grid-cols-2 lg:grid-cols-12">
+          {/* Left: text */}
+          <motion.div
+            style={{ y: yText }}
+            className="md:col-span-1 lg:col-span-7"
           >
-            <span className="text-sm font-semibold tracking-wide text-white">Discover</span>
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/15 transition-all duration-300 group-hover:bg-green-400 group-hover:text-black">
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-            </span>
-          </button>
+            <div className="animate-fade-in-up">
+              <Badge
+                variant="secondary"
+                className="mb-5 gap-1.5 rounded-full border-sky-500/30 bg-sky-500/10 px-3 py-1 text-sky-700 dark:text-sky-300"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+                <Editable id="brand.status" />
+              </Badge>
+            </div>
 
-          {/* Connect */}
-          <button
-            onClick={() => scrollTo("#contact")}
-            className="group flex items-center gap-3 rounded-full py-2 pl-1 pr-4 transition-colors"
-          >
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/[0.04] backdrop-blur transition-all duration-300 group-hover:border-green-400/50 group-hover:bg-green-400/15">
-              <MessageCircle className="h-4 w-4 text-green-300" />
-            </span>
-            <span className="text-sm font-semibold tracking-wide text-white/85 transition-colors group-hover:text-white">
-              Connect With Us
-            </span>
-          </button>
-        </motion.div>
+            <h1 className="animate-fade-in-up delay-100 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+              <span className="block text-muted-foreground"><Editable id="hero.greeting" /></span>
+              <span className="mt-2 block text-gradient-sky-pink">
+                <Editable id="brand.name" />
+              </span>
+            </h1>
 
-        {/* Mobile photo */}
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.65 }}
-          className="mt-10 md:hidden"
-        >
-          <div className="overflow-hidden rounded-3xl border border-green-400/20 shadow-[0_0_60px_rgba(74,222,128,0.15)]">
-            <img
-              src="/assets/yaseen-viridia.png"
-              alt="Yaseen Ahmad"
-              className="h-72 w-full object-cover object-top"
-              loading="eager"
-            />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ---- Bottom bar ---- */}
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.9, delay: 0.7 }}
-        className="relative z-10 border-t border-white/10 bg-black/45 backdrop-blur-xl md:absolute md:inset-x-0 md:bottom-0"
-      >
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 sm:px-8 md:flex-row md:items-center md:gap-6 md:py-5">
-          {/* Showreel */}
-          <button
-            onClick={() => scrollTo("#projects")}
-            className="group flex shrink-0 items-center gap-3"
-          >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-white/[0.04] transition-all duration-300 group-hover:border-green-400/60 group-hover:bg-green-400/15">
-              <Play className="ml-0.5 h-4 w-4 fill-white text-white" />
-            </span>
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-white/80 transition-colors group-hover:text-white">
-              Play Showreel
-            </span>
-          </button>
-
-          <div className="hidden h-10 w-px bg-white/10 md:block" />
-
-          {/* Point 1 */}
-          <div className="flex flex-1 items-start gap-3">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 text-[10px] font-bold text-white/60">
-              1
-            </span>
-            <p className="text-xs leading-relaxed text-white/55">
-              To build full-stack products that move with the business — engineered for
-              low light, hard deadlines and long days in production.
+            <p className="animate-fade-in-up delay-200 mt-6 max-w-xl text-lg text-muted-foreground sm:text-xl">
+              <Editable id="brand.tagline" />{" "}
+              <span className="font-semibold text-foreground">
+                <Editable id="brand.role" />
+              </span>{" "}
+              <Editable id="hero.specializing" />{" "}
+              <span className="font-semibold text-pink-600 dark:text-pink-400">
+                <Editable id="hero.stack" />
+              </span>
+              <Editable id="hero.stackTail" />
             </p>
-          </div>
 
-          <div className="hidden h-10 w-px bg-white/10 md:block" />
+            <div className="animate-fade-in-up delay-300 mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4 text-sky-500" />
+                <Editable id="brand.location" />
+              </span>
+              <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
+              <span className="flex items-center gap-1.5">
+                <Code2 className="h-4 w-4 text-pink-500" />
+                <Editable id="brand.jobTitle" />
+              </span>
+            </div>
 
-          {/* Point 2 */}
-          <div className="flex flex-1 items-start gap-3">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/20 text-[10px] font-bold text-white/60">
-              2
-            </span>
-            <p className="text-xs leading-relaxed text-white/55">
-              To be the standard in field-ready software, turning clean architecture
-              into products you would use anywhere — not just anywhere hostile.
-            </p>
-          </div>
-
-          {/* Arrow + socials */}
-          <div className="flex shrink-0 items-center gap-4">
-            <button
-              onClick={() => scrollTo("#about")}
-              aria-label="Scroll to about section"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/[0.04] transition-all duration-300 hover:border-green-400/60 hover:bg-green-400/15"
-            >
-              <ArrowUpRight className="h-4 w-4 text-white" />
-            </button>
-            <div className="flex items-center gap-3">
-              {socialItems.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="text-white/50 transition-all duration-200 hover:scale-110 hover:text-green-300"
+            <div className="animate-fade-in-up delay-400 mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+              {/* Primary actions */}
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  onClick={() => scrollTo("#contact")}
+                  size="lg"
+                  className="group rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-8 text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
                 >
-                  <Icon className="h-[18px] w-[18px]" />
-                </a>
+                  <Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+                  <Editable id="nav.hire" />
+                </Button>
+                <Button
+                  onClick={() => scrollTo("#projects")}
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full border-sky-500/50 px-7 font-semibold hover:border-pink-500/60 hover:bg-sky-500/5"
+                >
+                  <Editable id="hero.ctaWork" />
+                </Button>
+              </div>
+
+              {/* Divider */}
+              <div className="hidden h-8 w-px bg-gradient-to-b from-sky-500/30 to-pink-500/30 sm:block" />
+
+              {/* Utility links */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  onClick={() => scrollTo("#pricing")}
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full text-muted-foreground hover:text-foreground"
+                >
+                  <Editable id="hero.linkPricing" />
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full text-muted-foreground hover:text-foreground"
+                >
+                  <a href={socials.github} target="_blank" rel="noopener noreferrer">
+                    <Github className="mr-1.5 h-4 w-4" />
+                    <Editable id="hero.linkGithub" />
+                  </a>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="rounded-full text-wood hover:bg-wood/5"
+                >
+                  <a href="/api/resume" target="_blank" rel="noopener noreferrer">
+                    <FileText className="mr-1.5 h-4 w-4" />
+                    <Editable id="hero.linkResume" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick stats */}
+            <div className="animate-fade-in-up delay-500 mt-10 grid grid-cols-3 gap-3">
+              {quickStats.map((s) => (
+                <div
+                  key={s.l}
+                  className="glass rounded-2xl p-3 text-center shadow-soft"
+                >
+                  <div className="text-xl font-bold text-gradient-sky-pink sm:text-2xl">
+                    {s.v}
+                  </div>
+                  <div className="mt-0.5 text-[11px] font-medium text-muted-foreground sm:text-xs">
+                    {s.l}
+                  </div>
+                </div>
               ))}
             </div>
+          </motion.div>
+
+          {/* Right: 3D photo card */}
+          <motion.div
+            style={{ y: yPhoto }}
+            className="md:col-span-1 lg:col-span-5"
+          >
+            <HeroPhotoCard />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.button
+        onClick={() => scrollTo("#about")}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 8, 0] }}
+        transition={{ opacity: { duration: 0.6, delay: 1.2 }, y: { duration: 2, repeat: Infinity } }}
+        className="absolute bottom-6 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-muted-foreground sm:flex"
+        aria-label={t("a11y.scrollDown")}
+      >
+        <span className="text-xs font-medium uppercase tracking-widest">
+          <Editable id="hero.scroll" />
+        </span>
+        <ArrowDown className="h-4 w-4" />
+      </motion.button>
+    </section>
+  );
+}
+
+function HeroPhotoCard() {
+  const { t, tj } = useContent();
+  const cardStats = tj<{ label: string; value: string }[]>("hero.cardStats");
+  return (
+    <>
+      {/* Mobile: clean simple card — no decorations, no 3D */}
+      <div className="sm:hidden">
+        <div className="overflow-hidden rounded-2xl border border-white/40 bg-white shadow-glow-sky">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+            </div>
+            <span className="font-mono text-[11px] font-medium text-muted-foreground">
+              <Editable id="hero.cardTitle" />
+            </span>
+            <span className="text-sm">⚛️</span>
+          </div>
+          <div className="relative aspect-[3/4] overflow-hidden">
+            <PuzzlePhoto
+              src="/assets/dev-photo.jpg"
+              alt={`${t("brand.name")} — ${t("brand.role")}`}
+              className="h-full w-full"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
+            <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+              <Editable id="hero.cardBadge1" />
+            </div>
+            <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
+              <Editable id="hero.cardBadge2" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
+            {cardStats.map((cs, i) => (
+              <GithubStat
+                key={cs.label}
+                icon={[<Code2 key="c" className="h-3.5 w-3.5" />, <Star key="s" className="h-3.5 w-3.5" />, <GitFork key="g" className="h-3.5 w-3.5" />][i % 3]}
+                label={cs.label}
+                value={cs.value}
+              />
+            ))}
           </div>
         </div>
-      </motion.div>
-    </section>
+      </div>
+
+      {/* Desktop: full fancy card with decorations and 3D */}
+      <div className="hidden animate-fade-in-scale delay-300 relative mx-auto perspective-2000 sm:block sm:max-w-sm">
+        <motion.div
+          className="absolute -left-6 -top-6 h-20 w-20 rounded-full border-2 border-dashed border-sky-500/40"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        />
+        <motion.div
+          className="absolute -bottom-6 -right-6 h-16 w-16 rounded-full border-2 border-pink-500/40"
+          animate={{ rotate: -360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        />
+        <div className="absolute -inset-4 rounded-[2.5rem] bg-gradient-to-br from-sky-500/30 via-pink-500/20 to-wood/20 blur-2xl" />
+        <motion.div
+          whileHover={{ rotateY: 8, rotateX: -4, scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          className="transform-3d relative overflow-hidden rounded-[2rem] border border-white/40 bg-white shadow-glow-sky"
+        >
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-50 to-pink-50 px-4 py-2.5">
+            <div className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-green-400" />
+            </div>
+            <span className="font-mono text-[11px] font-medium text-muted-foreground">
+              <Editable id="hero.cardTitle" />
+            </span>
+            <span className="text-sm">⚛️</span>
+          </div>
+          <div className="relative aspect-[4/5] overflow-hidden">
+            <PuzzlePhoto
+              src="/assets/dev-photo.jpg"
+              alt={`${t("brand.name")} — ${t("brand.role")}`}
+              className="h-full w-full"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-sky-900/50 via-transparent to-transparent" />
+            <div className="animate-slide-in-left delay-700 absolute left-3 top-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-sky-700 dark:text-sky-300">
+              <Editable id="hero.cardBadge1" />
+            </div>
+            <div className="animate-slide-in-right delay-700 absolute bottom-3 right-3 glass rounded-xl px-3 py-1.5 text-xs font-semibold text-pink-700 dark:text-pink-300">
+              <Editable id="hero.cardBadge2" />
+            </div>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-sky-500/10 bg-white/80 text-center">
+            {cardStats.map((cs, i) => (
+              <GithubStat
+                key={cs.label}
+                icon={[<Code2 key="c" className="h-3.5 w-3.5" />, <Star key="s" className="h-3.5 w-3.5" />, <GitFork key="g" className="h-3.5 w-3.5" />][i % 3]}
+                label={cs.label}
+                value={cs.value}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </div>
+    </>
+  );
+}
+
+function GithubStat({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-0.5 px-2 py-2.5">
+      <span className="flex items-center gap-1 text-muted-foreground">
+        {icon}
+        <span className="text-[10px] uppercase tracking-wider">{label}</span>
+      </span>
+      <span className="text-sm font-bold text-foreground">{value}</span>
+    </div>
   );
 }

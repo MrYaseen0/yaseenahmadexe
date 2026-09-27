@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import {
   Calendar,
   Clock,
@@ -25,7 +26,7 @@ import { Reveal } from "../reveal";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
 
-interface Purpose { id: string; label: string; icon?: string; desc: string }
+interface Purpose { id: string; label: string; icon: string; desc: string }
 
 const badgeIcons = [Video, Clock, Globe, CheckCircle2];
 
@@ -41,6 +42,10 @@ export function Booking() {
   const [purpose, setPurpose] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
   const [form, setForm] = useState({ name: "", email: "", notes: "" });
   const [loading, setLoading] = useState(false);
   const [booked, setBooked] = useState(false);
@@ -100,10 +105,9 @@ export function Booking() {
       toast.success(t("booking.submitOk"), {
         description: t("booking.submitOkSub"),
       });
-    } catch (err) {
+    } catch (err: any) {
       toast.error(t("booking.submitFail"), {
-        description:
-          err instanceof Error ? err.message : t("booking.submitFailSub"),
+        description: err?.message || t("booking.submitFailSub"),
       });
     } finally {
       setLoading(false);
@@ -120,19 +124,19 @@ export function Booking() {
   };
 
   return (
-    <section id="booking" className="bg-white py-20 sm:py-28">
-      <div className="mx-auto max-w-5xl px-5 sm:px-8">
+    <section id="booking" className="relative py-20 sm:py-28">
+      <div className="container mx-auto max-w-5xl px-4 sm:px-6">
         <SectionHeading ek="booking" />
 
-        <Reveal className="mt-12 overflow-hidden rounded-xl border border-[#E6E8E2] bg-white">
+        <Reveal className="mt-12 overflow-hidden rounded-3xl border border-sky-500/20 bg-card shadow-card-hover">
           {/* Status bar */}
-          <div className="flex items-center justify-between border-b border-[#E6E8E2] bg-[#F4F5F1] px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-gradient-to-r from-sky-500/5 to-pink-500/5 px-4 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#166534] opacity-60" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#166534]" />
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
               </span>
-              <span className="text-sm font-semibold text-[#101410]">
+              <span className="text-sm font-semibold text-foreground">
                 <Editable id="booking.available" />
               </span>
             </div>
@@ -143,13 +147,13 @@ export function Booking() {
                 { n: 3, label: t("booking.step3") },
               ].map((s, i) => (
                 <div key={s.n} className="flex items-center gap-2">
-                  {i > 0 && <div className="h-px w-6 bg-[#E6E8E2]" />}
+                  {i > 0 && <div className="h-px w-6 bg-sky-500/30" />}
                   <div
                     className={cn(
-                      "flex h-7 w-7 items-center justify-center rounded-full font-mono text-xs font-medium transition-all",
+                      "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all",
                       step >= s.n
-                        ? "bg-[#101410] text-white"
-                        : "border border-[#E6E8E2] bg-white text-[#5F665F]"
+                        ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+                        : "bg-muted text-muted-foreground"
                     )}
                   >
                     {step > s.n ? <CheckCircle2 className="h-4 w-4" /> : s.n}
@@ -157,7 +161,7 @@ export function Booking() {
                   <span
                     className={cn(
                       "hidden text-xs font-medium sm:block",
-                      step >= s.n ? "text-[#101410]" : "text-[#5F665F]"
+                      step >= s.n ? "text-foreground" : "text-muted-foreground"
                     )}
                   >
                     {s.label}
@@ -213,12 +217,13 @@ export function Booking() {
         </Reveal>
 
         {/* Trust badges */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
           {badges.map((b, i) => {
             const Icon = badgeIcons[i % badgeIcons.length];
+            const colors = ["text-sky-500", "text-pink-500", "text-wood", "text-green-500"];
             return (
               <span key={i} className="flex items-center gap-1.5">
-                <Icon className="h-3.5 w-3.5 text-[#166534]" />
+                <Icon className={cn("h-3.5 w-3.5", colors[i % colors.length])} />
                 {b}
               </span>
             );
@@ -241,33 +246,31 @@ function Step1Purpose({
   const purposes = tj<Purpose[]>("booking.purposes");
   return (
     <div>
-      <h3 className="mb-1 font-display text-xl font-semibold tracking-tight text-[#101410]">
-        <Editable id="booking.step1Title" />
-      </h3>
-      <p className="mb-5 text-sm text-[#5F665F]">
+      <h3 className="mb-1 text-lg font-bold"><Editable id="booking.step1Title" /></h3>
+      <p className="mb-5 text-sm text-muted-foreground">
         <Editable id="booking.step1Sub" />
       </p>
       <div className="mb-2">
         <Editable id="booking.purposes" json buttonOnly label="Call purposes (list)" />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        {purposes.map((p, i) => (
+        {purposes.map((p) => (
           <button
             key={p.id}
             onClick={() => setPurpose(p.id)}
             className={cn(
-              "group flex items-start gap-4 rounded-xl border p-4 text-left transition-all hover:-translate-y-0.5",
+              "group flex items-start gap-4 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5",
               purpose === p.id
-                ? "border-[#101410] bg-[#F4F5F1]"
-                : "border-[#E6E8E2] bg-white hover:border-[#101410]"
+                ? "border-pink-500/40 bg-gradient-to-br from-sky-500/10 to-pink-500/10 shadow-soft"
+                : "border-sky-500/15 hover:border-sky-500/30 hover:bg-muted/30"
             )}
           >
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-[#E6E8E2] bg-white font-mono text-xs font-medium text-[#5F665F]">
-              {String(i + 1).padStart(2, "0")}
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white text-2xl shadow-soft dark:bg-slate-800">
+              {p.icon}
             </span>
             <div>
-              <div className="font-semibold text-[#101410]">{p.label}</div>
-              <div className="text-xs text-[#5F665F]">{p.desc}</div>
+              <div className="font-semibold text-foreground">{p.label}</div>
+              <div className="text-xs text-muted-foreground">{p.desc}</div>
             </div>
           </button>
         ))}
@@ -296,18 +299,16 @@ function Step2DateTime({
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   return (
     <div>
-      <h3 className="mb-1 font-display text-xl font-semibold tracking-tight text-[#101410]">
-        <Editable id="booking.step2Title" />
-      </h3>
-      <p className="mb-5 text-sm text-[#5F665F]">
+      <h3 className="mb-1 text-lg font-bold"><Editable id="booking.step2Title" /></h3>
+      <p className="mb-5 text-sm text-muted-foreground">
         <Editable id="booking.step2Sub" /> ({tz}).
       </p>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Date picker */}
         <div>
-          <Label className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
-            <Calendar className="h-3.5 w-3.5" />
+          <Label className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
+            <Calendar className="h-3.5 w-3.5 text-sky-500" />
             <Editable id="booking.selectDate" />
           </Label>
           <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-7">
@@ -317,35 +318,30 @@ function Step2DateTime({
                 onClick={() => !d.disabled && setSelectedDate(d.iso)}
                 disabled={d.disabled}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-lg border p-2 transition-all",
+                  "flex flex-col items-center gap-0.5 rounded-xl border p-2 transition-all",
                   selectedDate === d.iso
-                    ? "border-[#101410] bg-[#101410] text-white"
+                    ? "border-pink-500/40 bg-gradient-to-br from-sky-500/15 to-pink-500/15 shadow-soft"
                     : d.disabled
-                    ? "cursor-not-allowed border-[#E6E8E2] bg-[#F4F5F1] opacity-40"
-                    : "border-[#E6E8E2] bg-white hover:border-[#101410]"
+                    ? "cursor-not-allowed border-muted/30 bg-muted/20 opacity-40"
+                    : "border-sky-500/15 hover:border-sky-500/30 hover:bg-muted/30"
                 )}
               >
-                <span
-                  className={cn(
-                    "font-mono text-[10px] uppercase tracking-wide",
-                    selectedDate === d.iso ? "text-white/70" : "text-[#5F665F]"
-                  )}
-                >
+                <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                   {d.weekday}
                 </span>
-                <span className="text-base font-semibold">{d.day}</span>
+                <span className="text-base font-bold text-foreground">{d.day}</span>
               </button>
             ))}
           </div>
-          <p className="mt-2 text-[11px] text-[#5F665F]">
+          <p className="mt-2 text-[11px] text-muted-foreground">
             <Editable id="booking.fridayNote" />
           </p>
         </div>
 
         {/* Time picker */}
         <div>
-          <Label className="mb-2 flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
-            <Clock className="h-3.5 w-3.5" />
+          <Label className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
+            <Clock className="h-3.5 w-3.5 text-pink-500" />
             <Editable id="booking.selectTime" />
           </Label>
           {selectedDate ? (
@@ -355,10 +351,10 @@ function Step2DateTime({
                   key={t}
                   onClick={() => setSelectedTime(t)}
                   className={cn(
-                    "rounded-lg border px-3 py-2 font-mono text-sm transition-all",
+                    "rounded-lg border px-3 py-2 text-sm font-medium transition-all",
                     selectedTime === t
-                      ? "border-[#101410] bg-[#101410] text-white"
-                      : "border-[#E6E8E2] bg-white text-[#101410] hover:border-[#101410]"
+                      ? "border-pink-500/40 bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
+                      : "border-sky-500/15 hover:border-sky-500/30 hover:bg-muted/30"
                   )}
                 >
                   {t}
@@ -366,7 +362,7 @@ function Step2DateTime({
               ))}
             </div>
           ) : (
-            <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-[#E6E8E2] p-4 text-center text-sm text-[#5F665F]">
+            <div className="flex h-full min-h-[120px] items-center justify-center rounded-xl border border-dashed border-sky-500/20 p-4 text-center text-sm text-muted-foreground">
               <Editable id="booking.dateFirst" />
             </div>
           )}
@@ -374,7 +370,7 @@ function Step2DateTime({
       </div>
 
       <div className="mt-6 flex justify-between">
-        <Button variant="ghost" onClick={onBack} className="rounded-full hover:bg-[#F4F5F1]">
+        <Button variant="ghost" onClick={onBack} className="rounded-full">
           <ChevronLeft className="mr-1 h-4 w-4" />
           <Editable id="booking.backBtn" />
         </Button>
@@ -414,24 +410,22 @@ function Step3Details({
 
   return (
     <div>
-      <h3 className="mb-1 font-display text-xl font-semibold tracking-tight text-[#101410]">
-        <Editable id="booking.step3Title" />
-      </h3>
-      <p className="mb-5 text-sm text-[#5F665F]">
+      <h3 className="mb-1 text-lg font-bold"><Editable id="booking.step3Title" /></h3>
+      <p className="mb-5 text-sm text-muted-foreground">
         <Editable id="booking.step3Sub" />
       </p>
 
       {/* Summary card */}
-      <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-[#E6E8E2] bg-[#F4F5F1] p-4">
-        <Badge className="rounded-full bg-[#101410] px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-white hover:bg-[#101410]">
+      <div className="mb-5 flex flex-wrap items-center gap-3 rounded-xl border border-sky-500/20 bg-gradient-to-r from-sky-500/5 to-pink-500/5 p-4">
+        <Badge className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white">
           {purposesMap[purpose] || purpose}
         </Badge>
-        <span className="flex items-center gap-1.5 text-sm font-medium text-[#101410]">
-          <Calendar className="h-4 w-4 text-[#5F665F]" />
+        <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+          <Calendar className="h-4 w-4 text-sky-500" />
           {dateLabel}
         </span>
-        <span className="flex items-center gap-1.5 text-sm font-medium text-[#101410]">
-          <Clock className="h-4 w-4 text-[#5F665F]" />
+        <span className="flex items-center gap-1.5 text-sm font-medium text-foreground">
+          <Clock className="h-4 w-4 text-pink-500" />
           {selectedTime}
         </span>
       </div>
@@ -439,24 +433,24 @@ function Step3Details({
       <div className="grid gap-4 sm:grid-cols-2">
         <Field labelId="booking.fName" required>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
+            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={form.name}
               onChange={(e) => set("name")(e.target.value)}
               placeholder={t("booking.pName")}
-              className="rounded-lg border-[#E6E8E2] bg-white pl-9 focus:border-[#101410]"
+              className="rounded-xl pl-9"
             />
           </div>
         </Field>
         <Field labelId="booking.fEmail" required>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5F665F]" />
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               type="email"
               value={form.email}
               onChange={(e) => set("email")(e.target.value)}
               placeholder={t("booking.pEmail")}
-              className="rounded-lg border-[#E6E8E2] bg-white pl-9 focus:border-[#101410]"
+              className="rounded-xl pl-9"
             />
           </div>
         </Field>
@@ -464,25 +458,25 @@ function Step3Details({
 
       <Field labelId="booking.fNotes" className="mt-4">
         <div className="relative">
-          <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-[#5F665F]" />
+          <MessageSquare className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Textarea
             value={form.notes}
             onChange={(e) => set("notes")(e.target.value)}
             placeholder={t("booking.pNotes")}
-            className="min-h-[80px] rounded-lg border-[#E6E8E2] bg-white pl-9 focus:border-[#101410] resize-none"
+            className="min-h-[80px] rounded-xl pl-9 resize-none"
           />
         </div>
       </Field>
 
       <div className="mt-6 flex justify-between">
-        <Button variant="ghost" onClick={onBack} className="rounded-full hover:bg-[#F4F5F1]">
+        <Button variant="ghost" onClick={onBack} className="rounded-full">
           <ChevronLeft className="mr-1 h-4 w-4" />
           <Editable id="booking.backBtn" />
         </Button>
         <Button
           onClick={onSubmit}
           disabled={loading}
-          className="rounded-full bg-[#101410] px-6 py-3 text-sm font-medium text-white hover:bg-black"
+          className="rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-white shadow-soft"
         >
           {loading ? (
             <>
@@ -536,18 +530,20 @@ function SuccessView({
   })}`;
 
   return (
-    <div className="flex flex-col items-center gap-4 py-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full border border-[#E6E8E2] bg-[#F4F5F1]">
-        <CheckCircle2 className="h-8 w-8 text-[#166534]" />
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex flex-col items-center gap-4 py-8 text-center"
+    >
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/15">
+        <CheckCircle2 className="h-8 w-8 text-green-500" />
       </div>
       <div>
-        <h3 className="font-display text-xl font-semibold tracking-tight text-[#101410]">
-          <Editable id="booking.successTitle" />
-        </h3>
-        <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-[#5F665F]">
-          <Editable id="booking.successPre" /> <strong className="text-[#101410]">{purposeLabel}</strong>{" "}
+        <h3 className="text-xl font-bold text-foreground"><Editable id="booking.successTitle" /></h3>
+        <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
+          <Editable id="booking.successPre" /> <strong>{purposeLabel}</strong>{" "}
           <Editable id="booking.successMid1" />{" "}
-          <strong className="text-[#101410]">{dateLabel}</strong> <Editable id="booking.successMid2" /> <strong className="text-[#101410]">{time}</strong>{" "}
+          <strong>{dateLabel}</strong> <Editable id="booking.successMid2" /> <strong>{time}</strong>{" "}
           <Editable id="booking.successPost" />{" "}
           <Editable id="booking.successSub" />
         </p>
@@ -558,7 +554,7 @@ function SuccessView({
         <a
           href={calendarUrl}
           download
-          className="inline-flex items-center gap-2 rounded-full bg-[#101410] px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-black"
+          className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 to-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-glow-pink"
         >
           <CalendarPlus className="h-4 w-4" />
           <Editable id="booking.addCalendar" />
@@ -566,17 +562,17 @@ function SuccessView({
         <Button
           onClick={onReset}
           variant="outline"
-          className="rounded-full border-[#E6E8E2] bg-white hover:border-[#101410]"
+          className="rounded-full border-sky-500/30"
         >
           <Editable id="booking.bookAnother" />
         </Button>
       </div>
 
-      <div className="mt-2 flex items-center gap-2 rounded-full border border-[#E6E8E2] bg-[#F4F5F1] px-4 py-2 text-xs text-[#5F665F]">
-        <Mail className="h-3.5 w-3.5 text-[#166534]" />
+      <div className="mt-2 flex items-center gap-2 rounded-full border border-sky-500/20 bg-muted/30 px-4 py-2 text-xs text-muted-foreground">
+        <Mail className="h-3.5 w-3.5 text-sky-500" />
         <Editable id="brand.email" />
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -595,9 +591,9 @@ function Field({
 }) {
   return (
     <div className={cn("space-y-1.5", className)}>
-      <Label className="font-mono text-[11px] uppercase tracking-wider text-[#5F665F]">
+      <Label className="text-xs font-semibold">
         {labelId ? <Editable id={labelId} /> : label}
-        {required && <span className="ml-1 text-[#166534]">*</span>}
+        {required && <span className="ml-1 text-pink-500">*</span>}
       </Label>
       {children}
     </div>

@@ -1,30 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider } from "@/components/portfolio/theme-provider";
 import { faqs } from "@/lib/portfolio-data";
 
-const fontSans = Inter({
-  variable: "--font-sans",
+const geistSans = Geist({
+  variable: "--font-geist-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
 });
 
-const fontDisplay = Fraunces({
-  variable: "--font-display",
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
   subsets: ["latin"],
-  weight: ["600"],
-  display: "swap",
-});
-
-const fontMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  display: "swap",
 });
 
 // Responsive mobile viewport: render at the device width so phones get the
@@ -293,7 +283,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -309,12 +299,19 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} font-sans bg-[#FBFBF9] text-[#101410] antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground min-h-screen overflow-x-hidden`}
       >
-        {children}
-        <Toaster />
-        <SonnerToaster richColors position="bottom-right" />
-        <Analytics />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+          <SonnerToaster richColors position="bottom-right" />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );

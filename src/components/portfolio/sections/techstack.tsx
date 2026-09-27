@@ -1,28 +1,22 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { SectionHeading } from "../section-heading";
 import { Reveal, Stagger } from "../reveal";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
 
-interface Skill {
-  name: string;
-  level: number;
-}
-
 export function TechStack() {
   const { tj } = useContent();
-  const techStack = tj<Record<string, Skill[]>>("techstack.groups");
+  const techStack = tj<Record<string, { name: string; level: number }[]>>("techstack.groups");
   return (
-    <section id="techstack" className="relative border-t border-(--hairline) bg-white py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+    <section id="techstack" className="relative py-20 sm:py-28">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading ek="techstack" />
 
         <Editable id="techstack.groups" json label="Skill groups" />
-        <Stagger className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" gap={0.12}>
+        <Stagger className="mt-14 grid gap-6 lg:grid-cols-3" gap={0.12}>
           {Object.entries(techStack).map(([category, skills]) => (
-            <Reveal asChild key={category}>
-              <SkillGroup category={category} skills={skills} />
-            </Reveal>
+            <SkillColumn key={category} category={category} skills={skills} />
           ))}
         </Stagger>
       </div>
@@ -30,24 +24,64 @@ export function TechStack() {
   );
 }
 
-function SkillGroup({ category, skills }: { category: string; skills: Skill[] }) {
+function SkillColumn({
+  category,
+  skills,
+}: {
+  category: string;
+  skills: { name: string; level: number }[];
+}) {
   return (
-    <div className="rounded-xl border border-(--hairline) bg-white p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)]">
-      {/* Mono eyebrow label */}
-      <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-(--accent)">
-        {category}
-      </h3>
+    <Reveal
+      asChild
+      className="glass rounded-2xl border border-sky-500/15 p-6 shadow-soft"
+    >
+      <div className="mb-5 flex items-center gap-2">
+        <div className="h-8 w-1.5 rounded-full bg-gradient-to-b from-sky-400 to-pink-400" />
+        <h3 className="text-lg font-bold">{category}</h3>
+      </div>
 
-      {/* Tech chips — static grid, no brand-color explosions */}
-      <div className="mt-5 flex flex-wrap gap-2">
-        {skills.map((s) => (
-          <span
-            key={s.name}
-            className="rounded-full border border-(--hairline) bg-white px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-(--muted) transition-colors hover:border-[#101410] hover:text-(--ink)"
-          >
-            {s.name}
-          </span>
+      <div className="space-y-4">
+        {skills.map((s, i) => (
+          <SkillBar key={s.name} skill={s} delay={i * 0.08} />
         ))}
+      </div>
+    </Reveal>
+  );
+}
+
+function SkillBar({
+  skill,
+  delay,
+}: {
+  skill: { name: string; level: number };
+  delay: number;
+}) {
+  const reduced = useReducedMotion() ?? false;
+
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between text-sm">
+        <span className="font-medium">{skill.name}</span>
+        <span className="font-mono text-xs font-bold text-pink-600 dark:text-pink-400">
+          {skill.level}%
+        </span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-muted">
+        <motion.div
+          className="relative h-full rounded-full bg-gradient-to-r from-sky-400 via-pink-400 to-wood"
+          style={{ transformOrigin: "left" }}
+          initial={{ width: 0 }}
+          whileInView={{ width: `${skill.level}%` }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{
+            duration: reduced ? 0.2 : 1.1,
+            delay: reduced ? 0 : delay,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          <div className="absolute inset-0 animate-gradient bg-gradient-to-r from-transparent via-white/40 to-transparent bg-[length:200%_100%]" />
+        </motion.div>
       </div>
     </div>
   );
