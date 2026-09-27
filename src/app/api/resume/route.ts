@@ -160,18 +160,18 @@ export async function GET() {
 </head>
 <body>
   <div class="print-bar">
-    <button onclick="window.print()">💾 Save as PDF / Print</button>
+    <button onclick="window.print()">Save as PDF / Print</button>
   </div>
   <div class="page">
     <header>
       <h1>${developer.name}</h1>
       <div class="role">${developer.role} · MERN Stack & SaaS Specialist</div>
       <div class="contact">
-        <span>✉️ ${developer.email}</span>
-        <span>📱 ${developer.phone}</span>
-        <span>📍 ${developer.location}</span>
-        <span>🌐 ${developer.website}</span>
-        <span>💻 github.com/${developer.githubUsername}</span>
+        <span>Email: ${developer.email}</span>
+        <span>Phone: ${developer.phone}</span>
+        <span>Location: ${developer.location}</span>
+        <span>Web: ${developer.website}</span>
+        <span>GitHub: github.com/${developer.githubUsername}</span>
       </div>
     </header>
 
@@ -188,7 +188,7 @@ export async function GET() {
     <div class="skills">
       • 50+ Projects Delivered · 30+ Happy Clients · 3+ Years Experience<br/>
       • 1.2K+ GitHub Stars · 1K+ Followers · 100% Client Satisfaction<br/>
-      • Status: <strong style="color:#16a34a">🟢 ${developer.status}</strong>
+      • Status: <strong style="color:#16a34a"><span style="display:inline-block;width:8px;height:8px;border-radius:9999px;background:#16a34a;margin-right:6px"></span>${developer.status}</strong>
     </div>
 
     <footer>

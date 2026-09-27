@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     // and sendLeadNotification never throws so the response is unaffected.
     await sendLeadNotification({
       kind: "hire",
-      subject: `💼 New hire request: ${String(projectType).slice(0, 80)}`,
+      subject: `New hire request: ${String(projectType).slice(0, 80)}`,
       lines: [
         `Name: ${String(name)}`,
         `Email: ${String(email)}`,

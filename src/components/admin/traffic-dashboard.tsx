@@ -42,7 +42,7 @@ function StatCard({
   color: string;
 }) {
   return (
-    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+    <div className="rounded-2xl border border-[var(--hairline)] bg-card p-5 ">
       <div className="text-sm font-medium text-muted-foreground">{label}</div>
       <div className="mt-1 flex items-center gap-2">
         <Icon className={`h-5 w-5 ${color}`} />
@@ -63,7 +63,7 @@ function RankedPanel({
 }) {
   const max = Math.max(...rows.map((r) => r.count), 1);
   return (
-    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+    <div className="rounded-2xl border border-[var(--hairline)] bg-card p-5 ">
       <h3 className="mb-1 text-sm font-bold uppercase tracking-wider text-muted-foreground">
         {title}
       </h3>
@@ -82,7 +82,7 @@ function RankedPanel({
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-sky-500 to-pink-500"
+                  className="h-full rounded-full bg-[var(--accent)]"
                   style={{ width: `${(r.count / max) * 100}%` }}
                 />
               </div>
@@ -124,7 +124,7 @@ export function TrafficDashboard({ analytics }: { analytics: TrafficAnalytics })
           icon={Users}
           label="Visitors"
           value={totalVisitors.toLocaleString()}
-          color="text-sky-500"
+          color="text-[var(--accent)]"
         />
         <StatCard
           icon={Eye}
@@ -141,7 +141,7 @@ export function TrafficDashboard({ analytics }: { analytics: TrafficAnalytics })
       </div>
 
       {/* Visitors chart — last 7 days */}
-      <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+      <div className="rounded-2xl border border-[var(--hairline)] bg-card p-5 ">
         <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-muted-foreground">
           Visitors — Last 7 Days
         </h3>

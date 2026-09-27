@@ -130,7 +130,7 @@ export function PuzzlePhoto({
                   }}
                 />
                 {/* piece border for puzzle feel */}
-                <div className="absolute inset-0 border border-white/30 shadow-inner" />
+                <div className="absolute inset-0 border border-white/40 shadow-inner" />
               </motion.div>
             ))}
           </div>
@@ -152,7 +152,7 @@ export function PuzzlePhoto({
             {/* Diagonal crack 1 */}
             <motion.path
               d="M 10 20 L 35 45 L 30 55 L 55 75 L 50 90"
-              stroke="rgba(255,255,255,0.9)"
+              stroke="rgba(16,20,16,0.55)"
               strokeWidth="0.4"
               fill="none"
               initial={{ pathLength: 0 }}
@@ -162,7 +162,7 @@ export function PuzzlePhoto({
             {/* Diagonal crack 2 */}
             <motion.path
               d="M 90 15 L 65 40 L 70 50 L 45 70 L 55 95"
-              stroke="rgba(255,255,255,0.9)"
+              stroke="rgba(16,20,16,0.55)"
               strokeWidth="0.4"
               fill="none"
               initial={{ pathLength: 0 }}
@@ -172,7 +172,7 @@ export function PuzzlePhoto({
             {/* Horizontal crack */}
             <motion.path
               d="M 0 48 L 25 50 L 50 47 L 75 51 L 100 49"
-              stroke="rgba(255,255,255,0.7)"
+              stroke="rgba(16,20,16,0.4)"
               strokeWidth="0.3"
               fill="none"
               initial={{ pathLength: 0 }}
@@ -182,7 +182,7 @@ export function PuzzlePhoto({
             {/* Branch crack */}
             <motion.path
               d="M 35 45 L 50 35 L 60 30"
-              stroke="rgba(255,255,255,0.6)"
+              stroke="rgba(16,20,16,0.35)"
               strokeWidth="0.25"
               fill="none"
               initial={{ pathLength: 0 }}
@@ -191,7 +191,7 @@ export function PuzzlePhoto({
             />
             <motion.path
               d="M 65 40 L 80 55 L 88 65"
-              stroke="rgba(255,255,255,0.6)"
+              stroke="rgba(16,20,16,0.35)"
               strokeWidth="0.25"
               fill="none"
               initial={{ pathLength: 0 }}
