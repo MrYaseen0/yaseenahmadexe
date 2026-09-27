@@ -171,13 +171,27 @@ export function Footer() {
           <p className="text-xs text-white/50">
             © 2026 Yaseen Ahmad. All rights reserved.
           </p>
-          <button
-            onClick={scrollTop}
-            className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-medium text-white/70 transition-all hover:border-white/40 hover:text-white"
-          >
-            <ArrowUp className="h-3.5 w-3.5" />
-            Back to top
-          </button>
+          <div className="flex items-center gap-4">
+            <a
+              href="/privacy"
+              className="text-xs text-white/50 transition-colors hover:text-white"
+            >
+              Privacy
+            </a>
+            <a
+              href="/terms"
+              className="text-xs text-white/50 transition-colors hover:text-white"
+            >
+              Terms
+            </a>
+            <button
+              onClick={scrollTop}
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-4 py-2 text-xs font-medium text-white/70 transition-all hover:border-white/40 hover:text-white"
+            >
+              <ArrowUp className="h-3.5 w-3.5" />
+              Back to top
+            </button>
+          </div>
         </div>
       </div>
     </footer>

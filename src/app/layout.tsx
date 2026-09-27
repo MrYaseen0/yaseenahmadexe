@@ -4,6 +4,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { CookieBanner } from "@/components/portfolio/cookie-banner";
 import { faqs } from "@/lib/portfolio-data";
 
 const fontSans = Inter({
@@ -315,6 +316,7 @@ export default function RootLayout({
         <Toaster />
         <SonnerToaster richColors position="bottom-right" />
         <Analytics />
+        <CookieBanner />
       </body>
     </html>
   );

@@ -1,12 +1,27 @@
 import type { MetadataRoute } from "next";
 
+const SITE = "https://yaseenahmadexe.vercel.app";
+
 export default function sitemap(): MetadataRoute.Sitemap {
+  const now = new Date();
   return [
     {
-      url: "https://yaseenahmadexe.vercel.app",
-      lastModified: new Date(),
+      url: SITE,
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 1,
+    },
+    {
+      url: `${SITE}/privacy`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    {
+      url: `${SITE}/terms`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
   ];
 }

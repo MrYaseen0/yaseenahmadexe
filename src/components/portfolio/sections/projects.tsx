@@ -225,7 +225,11 @@ export function Projects() {
         {/* Source badge */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2 font-mono text-xs text-[var(--muted)]">
           <Github className="h-3.5 w-3.5" />
-          <span>
+          <span className="inline-flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#166534] opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#166534]" />
+            </span>
             <Editable id="projects.liveFrom" />{" "}
             <a
               href={t("socials.github")}
@@ -265,10 +269,11 @@ export function Projects() {
             className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
             <AnimatePresence mode="popLayout">
-              {sorted.map((repo) => (
+              {sorted.map((repo, i) => (
                 <ProjectCard
                   key={repo.id}
                   repo={repo}
+                  index={i}
                   onDocs={() => setReadmeRepo(repo)}
                   onDetails={() => setDetailRepo(repo)}
                 />
@@ -313,41 +318,59 @@ function ProjectCard({
   repo,
   onDocs,
   onDetails,
+  index,
 }: {
   repo: Repo;
   onDocs: () => void;
   onDetails: () => void;
+  index: number;
 }) {
   const liveDemo =
     repo.homepage && repo.homepage.trim() !== "" ? repo.homepage : null;
+  const preview = getProjectPreview(repo.name);
+  const description =
+    repo.description && !/no description/i.test(repo.description)
+      ? repo.description
+      : "Open-source project — explore the code and documentation on GitHub.";
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.35, delay: Math.min(index * 0.04, 0.28) }}
       className="h-full"
     >
-      <article className="flex h-full flex-col rounded-xl border border-[var(--hairline)] bg-white p-6 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(16,20,16,0.06)]">
-        <div className="mb-1 flex items-start justify-between gap-3">
-          <h3 className="font-medium leading-snug text-[#101410]">
-            {repo.name.replace(/-/g, " ").replace(/_/g, " ")}
-          </h3>
+      <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-[var(--hairline)] bg-white transition-all duration-300 hover:-translate-y-1.5 hover:border-[#101410]/25 hover:shadow-[0_20px_48px_rgba(16,20,16,0.12)]">
+        {/* Preview banner */}
+        <div className="relative aspect-[16/9] shrink-0 overflow-hidden border-b border-[var(--hairline)] bg-[#F4F5F1]">
+          <Image
+            src={preview}
+            alt={`${repo.name} project preview`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#101410]/35 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          <span className="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-[#101410] backdrop-blur">
+            {repo.category}
+          </span>
           {repo.featured && (
-            <span className="shrink-0 rounded-full border border-[var(--hairline)] px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[var(--muted)]">
+            <span className="absolute right-4 top-4 rounded-full bg-[#101410]/90 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-white backdrop-blur">
               <Editable id="projects.featuredBadge" />
             </span>
           )}
         </div>
-        <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-[var(--muted)]">
-          {repo.category}
-        </p>
 
-        <p className="mb-4 line-clamp-2 text-sm leading-relaxed text-[var(--muted)]">
-          {repo.description}
-        </p>
+        <div className="flex flex-1 flex-col p-6">
+          <h3 className="font-medium leading-snug text-[#101410] transition-colors group-hover:text-[#166534]">
+            {repo.name.replace(/-/g, " ").replace(/_/g, " ")}
+          </h3>
+
+          <p className="mb-4 mt-2 line-clamp-2 text-sm leading-relaxed text-[var(--muted)]">
+            {description}
+          </p>
 
         {/* topics */}
         {repo.topics.length > 0 && (
@@ -420,6 +443,7 @@ function ProjectCard({
               </a>
             )}
           </div>
+        </div>
         </div>
       </article>
     </motion.div>

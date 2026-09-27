@@ -325,16 +325,57 @@ export const faqs = [
 // Project preview image mapping (for GitHub repos by name keywords)
 export function getProjectPreview(repoName: string): string {
   const name = (repoName || "").toLowerCase();
-  if (name.includes("saas") || name.includes("dashboard")) return "/assets/projects/saas-dashboard.png";
+  if (
+    name.includes("saas") ||
+    name.includes("dashboard") ||
+    name.includes("trading") ||
+    name.includes("trade") ||
+    name.includes("bot") ||
+    name.includes("analytics") ||
+    name.includes("tracker")
+  )
+    return "/assets/projects/saas-dashboard.png";
   if (name.includes("ecommerce") || name.includes("ecom") || name.includes("shop") || name.includes("store"))
     return "/assets/projects/ecommerce.png";
-  if (name.includes("ai") || name.includes("openai") || name.includes("content") || name.includes("gpt"))
+  if (
+    name.includes("ai") ||
+    name.includes("openai") ||
+    name.includes("content") ||
+    name.includes("gpt") ||
+    name.includes("llm") ||
+    name.includes("music") ||
+    name.includes("emotion")
+  )
     return "/assets/projects/ai-content.png";
-  if (name.includes("social") || name.includes("chat") || name.includes("message"))
+  if (
+    name.includes("social") ||
+    name.includes("chat") ||
+    name.includes("message") ||
+    name.includes("tube") ||
+    name.includes("video") ||
+    name.includes("stream")
+  )
     return "/assets/projects/social-app.png";
-  if (name.includes("portfolio") || name.includes("template") || name.includes("generator"))
+  if (
+    name.includes("portfolio") ||
+    name.includes("template") ||
+    name.includes("generator") ||
+    name.includes("yaseenahmadexe") ||
+    name.includes("profile") ||
+    name.includes("salon")
+  )
     return "/assets/projects/portfolio-gen.png";
-  if (name.includes("task") || name.includes("kanban") || name.includes("manage") || name.includes("project"))
+  if (
+    name.includes("task") ||
+    name.includes("kanban") ||
+    name.includes("manage") ||
+    name.includes("project") ||
+    name.includes("lab") ||
+    name.includes("attendance") ||
+    name.includes("system") ||
+    name.includes("school") ||
+    name.includes("gym")
+  )
     return "/assets/projects/task-mgmt.png";
   return "/assets/projects/default-project.png";
 }
