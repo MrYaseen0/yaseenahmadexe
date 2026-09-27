@@ -282,12 +282,19 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
     const subData = await subRes.json();
     const analyticsData = await analyticsRes.json();
     const contentData = await contentRes.json();
+    // A 401 means the stored token is dead — signal the caller to log out
+    // instead of rendering error bodies as if they were real data.
+    const unauthorized = [bookingRes, testRes, subRes, analyticsRes].some(
+      (r) => r.status === 401
+    );
     return {
       bookings: bookingData.bookings || [],
       testimonials: testData.testimonials || [],
       subscribers: subData.subscribers || [],
-      analytics: analyticsData,
+      analytics:
+        analyticsRes.ok && analyticsData?.totals ? analyticsData : null,
       content: contentData.contents || {},
+      unauthorized,
     };
   }, [token]);
 
@@ -305,20 +312,30 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      applyAllData(await fetchAllData());
+      const d = await fetchAllData();
+      if (d.unauthorized) {
+        onLogout();
+        return;
+      }
+      applyAllData(d);
     } catch {
       toast.error("Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, [fetchAllData, applyAllData]);
+  }, [fetchAllData, applyAllData, onLogout]);
 
   useEffect(() => {
     let dead = false;
     (async () => {
       try {
         const d = await fetchAllData();
-        if (!dead) applyAllData(d);
+        if (dead) return;
+        if (d.unauthorized) {
+          onLogout();
+          return;
+        }
+        applyAllData(d);
       } catch {
         if (!dead) toast.error("Failed to load data");
       }
@@ -326,7 +343,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
     return () => {
       dead = true;
     };
-  }, [fetchAllData, applyAllData]);
+  }, [fetchAllData, applyAllData, onLogout]);
 
   const approveTestimonial = async (id: string) => {
     try {
@@ -408,8 +425,8 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <TabsTrigger value="bookings" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <Calendar className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Bookings</span>
-              {analytics?.totals.pendingBookings ? (
-                <Badge className="ml-1 bg-pink-500 text-white">{analytics.totals.pendingBookings}</Badge>
+              {analytics?.totals?.pendingBookings ? (
+                <Badge className="ml-1 bg-pink-500 text-white">{analytics?.totals?.pendingBookings}</Badge>
               ) : null}
             </TabsTrigger>
             <TabsTrigger value="testimonials" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
