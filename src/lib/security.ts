@@ -271,21 +271,35 @@ export async function isIpBlocked(ip: string): Promise<boolean> {
   await ensureSecurityColumns();
   const now = Date.now();
   if (!blockedCache || now - blockedCache.at > 60_000) {
+    let rows: { ip: string }[] | null = null;
     try {
       // Expiry-aware: timed blocks (e.g. 24h login lockouts) lift automatically.
-      const rows = await db.$queryRawUnsafe<{ ip: string }[]>(
+      rows = await db.$queryRawUnsafe<{ ip: string }[]>(
         `SELECT "ip" FROM "BlockedIp" WHERE "expiresAt" IS NULL OR "expiresAt" > NOW()`
       );
-      blockedCache = { ips: new Set(rows.map((r) => r.ip)), at: now };
-      // Best-effort prune of expired rows so the table can't grow forever.
-      void db
-        .$executeRawUnsafe(
-          `DELETE FROM "BlockedIp" WHERE "expiresAt" IS NOT NULL AND "expiresAt" <= NOW()`
-        )
-        .catch(() => {});
     } catch {
-      return false; // fail open on DB error — blocking is best-effort
+      rows = null;
     }
+    if (!rows) {
+      // Fallback for DBs where the expiresAt column is missing: enforce every
+      // listed block (timed ones just won't auto-expire). Fail CLOSED here —
+      // a block must never silently vanish because of a schema lag.
+      // (Raw SELECT without the new column so it works on the old schema too.)
+      try {
+        rows = await db.$queryRawUnsafe<{ ip: string }[]>(
+          `SELECT "ip" FROM "BlockedIp"`
+        );
+      } catch {
+        return false; // fail open only if the DB itself is unreachable
+      }
+    }
+    blockedCache = { ips: new Set(rows.map((r) => r.ip)), at: now };
+    // Best-effort prune of expired rows so the table can't grow forever.
+    void db
+      .$executeRawUnsafe(
+        `DELETE FROM "BlockedIp" WHERE "expiresAt" IS NOT NULL AND "expiresAt" <= NOW()`
+      )
+      .catch(() => {});
   }
   return blockedCache.ips.has(ip);
 }
