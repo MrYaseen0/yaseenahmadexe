@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitDb, getClientIp } from "@/lib/rate-limit";
 
 // Subscribe abuse policy:
-//  - per IP: max 5 subscribes per 10 minutes
+//  - per IP: max 5 subscribes per 10 minutes (DB-backed, cross-instance)
 //  - per email: one subscription only — a second subscribe returns 409
 const PER_IP_LIMIT = 5;
 const PER_IP_WINDOW_MS = 10 * 60_000;
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const limit = rateLimit(`subscribe:${ip}`, { limit: PER_IP_LIMIT, windowMs: PER_IP_WINDOW_MS });
+  const limit = await rateLimitDb(`subscribe:${ip}`, { limit: PER_IP_LIMIT, windowMs: PER_IP_WINDOW_MS });
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please slow down and try again shortly." },

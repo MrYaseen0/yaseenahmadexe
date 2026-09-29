@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitDb, getClientIp } from "@/lib/rate-limit";
 import { sendLeadNotification } from "@/lib/email";
 
 // Contact-form abuse policy:
-//  - per IP: max 5 messages per 10 minutes (bulk-spam guard)
+//  - per IP: max 5 messages per 10 minutes (bulk-spam guard, DB-backed so it
+//    holds across all serverless instances)
 //  - per sender email: max 3 messages total (one person can't flood the inbox)
 const PER_IP_LIMIT = 5;
 const PER_IP_WINDOW_MS = 10 * 60_000;
@@ -13,7 +14,7 @@ const PER_EMAIL_LIMIT = 3;
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const limit = rateLimit(`contact:${ip}`, { limit: PER_IP_LIMIT, windowMs: PER_IP_WINDOW_MS });
+  const limit = await rateLimitDb(`contact:${ip}`, { limit: PER_IP_LIMIT, windowMs: PER_IP_WINDOW_MS });
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many messages from this network. Please try again in a few minutes." },

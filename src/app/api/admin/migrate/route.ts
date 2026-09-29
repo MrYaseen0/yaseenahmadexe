@@ -34,6 +34,9 @@ const DDL = [
   `ALTER TABLE "BlockedIp" ADD COLUMN IF NOT EXISTS "expiresAt" TIMESTAMP(3)`,
   `CREATE INDEX IF NOT EXISTS "BlockedIp_expiresAt_idx" ON "BlockedIp"("expiresAt")`,
   `CREATE INDEX IF NOT EXISTS "ContactMessage_email_idx" ON "ContactMessage"("email")`,
+  // 2026-09-29: DB-backed cross-instance rate limiter hit log.
+  `CREATE TABLE IF NOT EXISTS "RateHit" ("id" TEXT NOT NULL PRIMARY KEY, "key" TEXT NOT NULL, "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP)`,
+  `CREATE INDEX IF NOT EXISTS "RateHit_key_createdAt_idx" ON "RateHit"("key", "createdAt")`,
 ];
 
 export async function POST(request: NextRequest) {

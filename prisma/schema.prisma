@@ -28,6 +28,17 @@ model Post {
   updatedAt DateTime @updatedAt
 }
 
+// Raw hit log for the DB-backed sliding-window rate limiter (see
+// src/lib/rate-limit.ts). Rows are pruned automatically; table is created
+// IF NOT EXISTS at runtime so it works without a manual migration.
+model RateHit {
+  id        String   @id @default(cuid())
+  key       String
+  createdAt DateTime @default(now())
+
+  @@index([key, createdAt])
+}
+
 // Contact messages sent through the website form
 model ContactMessage {
   id        String   @id @default(cuid())
