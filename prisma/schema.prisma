@@ -41,6 +41,7 @@ model ContactMessage {
 
   @@index([createdAt])
   @@index([read])
+  @@index([email])
 }
 
 // Hiring requests with project details
@@ -174,10 +175,13 @@ model SecurityEvent {
 
 // Manually or automatically blocked IPs
 model BlockedIp {
-  id        String   @id @default(cuid())
-  ip        String   @unique
+  id        String    @id @default(cuid())
+  ip        String    @unique
   reason    String?
-  createdAt DateTime @default(now())
+  expiresAt DateTime? // null = permanent (manual block); set = auto-unblock time
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
 }
 
 // Editable site content (key-value store for dynamic website data)

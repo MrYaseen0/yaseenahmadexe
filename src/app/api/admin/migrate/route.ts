@@ -30,6 +30,10 @@ const DDL = [
   `CREATE INDEX IF NOT EXISTS "AuditLog_ipHash_createdAt_idx" ON "AuditLog"("ipHash", "createdAt")`,
   `CREATE INDEX IF NOT EXISTS "AuditLog_deviceId_createdAt_idx" ON "AuditLog"("deviceId", "createdAt")`,
   `CREATE INDEX IF NOT EXISTS "AuditLog_createdAt_idx" ON "AuditLog"("createdAt")`,
+  // 2026-09-29: timed IP blocks (24h admin-login lockout) + per-email contact cap.
+  `ALTER TABLE "BlockedIp" ADD COLUMN IF NOT EXISTS "expiresAt" TIMESTAMP(3)`,
+  `CREATE INDEX IF NOT EXISTS "BlockedIp_expiresAt_idx" ON "BlockedIp"("expiresAt")`,
+  `CREATE INDEX IF NOT EXISTS "ContactMessage_email_idx" ON "ContactMessage"("email")`,
 ];
 
 export async function POST(request: NextRequest) {

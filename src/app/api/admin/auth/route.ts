@@ -1,7 +1,26 @@
 import { NextResponse } from "next/server";
 import { verifyCredentials, signAdminToken, verifyAdmin } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { logSecurityEvent, isIpBlocked, shouldLogBlockedHit, logAudit } from "@/lib/security";
+import {
+  logSecurityEvent,
+  isIpBlocked,
+  shouldLogBlockedHit,
+  logAudit,
+  blockIp,
+  recentFailedLogins,
+  clearFailedLogins,
+} from "@/lib/security";
+
+// Admin login brute-force policy:
+//  - fast lane: max 5 attempts per 5 minutes per IP (in-memory, per instance)
+//  - hard lane: 5 FAILED logins inside a rolling 5-minute window (DB-backed,
+//    works across serverless instances) → IP blocked for 24 hours.
+// A successful login clears the failed-attempt counter, so the owner's own
+// typos never lock him out. Manual blocks can be lifted early from the
+// admin Security tab; timed lockouts expire automatically.
+const FAIL_WINDOW_MS = 5 * 60_000;
+const FAIL_LIMIT = 5;
+const LOCKOUT_MS = 24 * 60 * 60_000;
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
@@ -15,9 +34,9 @@ export async function POST(request: Request) {
   }
 
   // Throttle login attempts to blunt credential brute-forcing.
-  const limit = rateLimit(`admin-auth:${ip}`, { limit: 10, windowMs: 60_000 });
+  const limit = rateLimit(`admin-auth:${ip}`, { limit: 5, windowMs: FAIL_WINDOW_MS });
   if (!limit.ok) {
-    await logSecurityEvent("RATE_LIMIT", ip, "/api/admin/auth", "Login brute-force throttle (10/min)", request.headers.get("user-agent") || undefined);
+    await logSecurityEvent("RATE_LIMIT", ip, "/api/admin/auth", "Login brute-force throttle (5/5min)", request.headers.get("user-agent") || undefined);
     return NextResponse.json(
       { error: "Too many attempts. Please try again shortly." },
       { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
@@ -38,11 +57,31 @@ export async function POST(request: Request) {
     if (!verifyCredentials(email, password)) {
       // Log every failed login so brute-forcing shows up in the security feed.
       await logSecurityEvent("FAILED_LOGIN", ip, "/api/admin/auth", `Failed login for ${String(email).slice(0, 80)}`, request.headers.get("user-agent") || undefined);
+
+      // Hard lane: 5th failure inside the rolling 5-minute window → 24h block.
+      const fails = await recentFailedLogins(ip, FAIL_WINDOW_MS);
+      if (fails >= FAIL_LIMIT) {
+        const until = new Date(Date.now() + LOCKOUT_MS);
+        await blockIp(
+          ip,
+          `Admin login lockout: ${FAIL_LIMIT} failed attempts in 5 minutes (auto-expires 24h)`,
+          until
+        );
+        await logSecurityEvent("LOCKOUT", ip, "/api/admin/auth", `IP blocked for 24h after ${fails} failed logins`, request.headers.get("user-agent") || undefined);
+        return NextResponse.json(
+          { error: "Too many failed login attempts. This IP is blocked for 24 hours." },
+          { status: 403 }
+        );
+      }
+
       return NextResponse.json(
         { error: "Invalid credentials" },
         { status: 401 }
       );
     }
+
+    // Success clears the strike counter.
+    await clearFailedLogins(ip, FAIL_WINDOW_MS);
 
     const token = signAdminToken(String(email).toLowerCase().trim());
 

@@ -23,6 +23,7 @@ import {
   Search,
   FileJson,
   Pencil,
+  Inbox,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +82,17 @@ interface Testimonial {
 interface Subscriber {
   id: string;
   email: string;
+  createdAt: string;
+}
+
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  website: string | null;
+  read: boolean;
   createdAt: string;
 }
 
@@ -236,6 +248,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [content, setContent] = useState<ContentMap>({});
   const [loading, setLoading] = useState(true);
@@ -270,27 +283,30 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
   // Pure fetch: no setState inside, so effects can await it without
   // synchronously triggering renders.
   const fetchAllData = useCallback(async () => {
-    const [bookingRes, testRes, subRes, analyticsRes, contentRes] = await Promise.all([
+    const [bookingRes, testRes, subRes, msgRes, analyticsRes, contentRes] = await Promise.all([
       fetch("/api/booking", { headers: authHeaders }),
       fetch("/api/admin/testimonials", { headers: authHeaders }),
       fetch("/api/admin/subscribers", { headers: authHeaders }),
+      fetch("/api/contact", { headers: authHeaders }),
       fetch("/api/admin/analytics", { headers: authHeaders }),
       fetch("/api/admin/content"),
     ]);
     const bookingData = await bookingRes.json();
     const testData = await testRes.json();
     const subData = await subRes.json();
+    const msgData = await msgRes.json();
     const analyticsData = await analyticsRes.json();
     const contentData = await contentRes.json();
     // A 401 means the stored token is dead — signal the caller to log out
     // instead of rendering error bodies as if they were real data.
-    const unauthorized = [bookingRes, testRes, subRes, analyticsRes].some(
+    const unauthorized = [bookingRes, testRes, subRes, msgRes, analyticsRes].some(
       (r) => r.status === 401
     );
     return {
       bookings: bookingData.bookings || [],
       testimonials: testData.testimonials || [],
       subscribers: subData.subscribers || [],
+      messages: msgData.messages || [],
       analytics:
         analyticsRes.ok && analyticsData?.totals ? analyticsData : null,
       content: contentData.contents || {},
@@ -303,6 +319,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
       setBookings(d.bookings);
       setTestimonials(d.testimonials);
       setSubscribers(d.subscribers);
+      setMessages(d.messages);
       setAnalytics(d.analytics);
       setContent(d.content);
     },
@@ -409,7 +426,7 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
 
       <main className="container mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-9">
             <TabsTrigger value="analytics" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <BarChart3 className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
@@ -436,6 +453,15 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
             <TabsTrigger value="subscribers" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <MailIcon className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Emails</span>
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Inbox className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Messages</span>
+              {messages.some((m) => !m.read) ? (
+                <Badge className="ml-1 bg-sky-500 text-white">
+                  {messages.filter((m) => !m.read).length}
+                </Badge>
+              ) : null}
             </TabsTrigger>
             <TabsTrigger value="audit" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
               <History className="mr-1.5 h-4 w-4" />
@@ -499,6 +525,11 @@ function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => vo
           {/* Subscribers Tab */}
           <TabsContent value="subscribers" className="mt-6">
             <SubscribersView subscribers={subscribers} />
+          </TabsContent>
+
+          {/* Contact Messages Tab — inbox receipt for the contact form */}
+          <TabsContent value="messages" className="mt-6">
+            <MessagesView messages={messages} setMessages={setMessages} authHeaders={authHeaders} />
           </TabsContent>
 
           {/* Audit Log Tab — unified timeline: logins, page views, actions, attacks */}
@@ -1157,6 +1188,149 @@ function SubscribersView({ subscribers }: { subscribers: Subscriber[] }) {
               <span className="text-xs text-muted-foreground">
                 {new Date(s.createdAt).toLocaleDateString()}
               </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Contact Messages View (inbox receipt for the contact form) =====
+function MessagesView({
+  messages,
+  setMessages,
+  authHeaders,
+}: {
+  messages: ContactMessage[];
+  setMessages: (m: ContactMessage[]) => void;
+  authHeaders: Record<string, string>;
+}) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const unreadCount = messages.filter((m) => !m.read).length;
+
+  const markRead = async (id: string, read: boolean) => {
+    try {
+      const res = await fetch("/api/contact", {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ id, read }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      setMessages(messages.map((m) => (m.id === id ? { ...m, read } : m)));
+      toast.success(read ? "Marked as read" : "Marked as unread");
+    } catch {
+      toast.error("Failed to update message");
+    }
+  };
+
+  const markAllRead = async () => {
+    for (const m of messages.filter((x) => !x.read)) {
+      try {
+        await fetch("/api/contact", {
+          method: "PATCH",
+          headers: authHeaders,
+          body: JSON.stringify({ id: m.id, read: true }),
+        });
+      } catch {
+        // best-effort
+      }
+    }
+    setMessages(messages.map((m) => ({ ...m, read: true })));
+    toast.success("All messages marked as read");
+  };
+
+  return (
+    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="flex items-center gap-2 text-sm font-bold">
+          <Inbox className="h-4 w-4 text-sky-500" />
+          Contact Messages ({messages.length}
+          {unreadCount > 0 ? `, ${unreadCount} unread` : ""})
+        </h3>
+        {unreadCount > 0 && (
+          <Button size="sm" variant="outline" onClick={markAllRead} className="rounded-full">
+            <Check className="mr-1.5 h-3.5 w-3.5" /> Mark all read
+          </Button>
+        )}
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Every contact-form email lands here as a receipt. Limits: max 3 messages per
+        sender email, max 5 per 10 minutes from one network.
+      </p>
+      {messages.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No messages yet</p>
+      ) : (
+        <div className="space-y-2">
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={`rounded-lg border p-3 text-sm ${
+                m.read
+                  ? "border-sky-500/10 bg-muted/20"
+                  : "border-sky-500/40 bg-sky-500/5"
+              }`}
+            >
+              <button
+                onClick={() => setOpenId(openId === m.id ? null : m.id)}
+                className="flex w-full items-center justify-between gap-2 text-left"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  {!m.read && (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+                  )}
+                  <span className={`truncate font-medium ${m.read ? "" : "font-bold"}`}>
+                    {m.subject}
+                  </span>
+                  <span className="hidden truncate text-xs text-muted-foreground sm:inline">
+                    — {m.name} &lt;{m.email}&gt;
+                  </span>
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {new Date(m.createdAt).toLocaleDateString()}
+                </span>
+              </button>
+              {openId === m.id && (
+                <div className="mt-3 space-y-2 border-t border-sky-500/10 pt-3">
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{m.name}</span> ·{" "}
+                    <a href={`mailto:${m.email}`} className="text-sky-500 hover:underline">
+                      {m.email}
+                    </a>{" "}
+                    · {new Date(m.createdAt).toLocaleString()}
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm">{m.message}</p>
+                  <div className="flex gap-2 pt-1">
+                    {m.read ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => markRead(m.id, false)}
+                        className="rounded-full"
+                      >
+                        Mark unread
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => markRead(m.id, true)}
+                        className="rounded-full"
+                      >
+                        <Check className="mr-1.5 h-3.5 w-3.5" /> Mark read
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => (window.location.href = `mailto:${m.email}?subject=${encodeURIComponent("Re: " + m.subject)}`)}
+                      className="rounded-full"
+                    >
+                      Reply
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

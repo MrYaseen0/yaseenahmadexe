@@ -65,6 +65,7 @@ export type SecurityEventType =
   | "RATE_LIMIT"
   | "BURST"
   | "BLOCKED_HIT"
+  | "LOCKOUT"
   | "SUSPICIOUS"
   | "CONTENT_EDIT";
 
@@ -110,6 +111,7 @@ export type AuditEventType =
   | "RATE_LIMIT"
   | "BURST"
   | "BLOCKED_HIT"
+  | "LOCKOUT"
   | "SUSPICIOUS";
 
 interface GeoInfo {
@@ -236,15 +238,51 @@ export async function logAudit(input: AuditInput): Promise<void> {
 
 // ---- IP blocking ----
 
+// Best-effort DDL for the timed-block + per-email-cap columns. Runs once per
+// serverless instance so the 24h login lockout works even if the admin
+// migrate endpoint was never called for this deploy. Never throws.
+let columnsEnsured: Promise<void> | null = null;
+
+function ensureSecurityColumns(): Promise<void> {
+  if (!columnsEnsured) {
+    columnsEnsured = (async () => {
+      try {
+        await db.$executeRawUnsafe(
+          `ALTER TABLE "BlockedIp" ADD COLUMN IF NOT EXISTS "expiresAt" TIMESTAMP(3)`
+        );
+        await db.$executeRawUnsafe(
+          `CREATE INDEX IF NOT EXISTS "BlockedIp_expiresAt_idx" ON "BlockedIp"("expiresAt")`
+        );
+        await db.$executeRawUnsafe(
+          `CREATE INDEX IF NOT EXISTS "ContactMessage_email_idx" ON "ContactMessage"("email")`
+        );
+      } catch {
+        // best-effort — callers have raw-query fallbacks below
+      }
+    })();
+  }
+  return columnsEnsured;
+}
+
 // In-memory cache of blocked IPs (60s TTL) so every request doesn't hit the DB.
 let blockedCache: { ips: Set<string>; at: number } | null = null;
 
 export async function isIpBlocked(ip: string): Promise<boolean> {
+  await ensureSecurityColumns();
   const now = Date.now();
   if (!blockedCache || now - blockedCache.at > 60_000) {
     try {
-      const rows = await db.blockedIp.findMany({ select: { ip: true } });
+      // Expiry-aware: timed blocks (e.g. 24h login lockouts) lift automatically.
+      const rows = await db.$queryRawUnsafe<{ ip: string }[]>(
+        `SELECT "ip" FROM "BlockedIp" WHERE "expiresAt" IS NULL OR "expiresAt" > NOW()`
+      );
       blockedCache = { ips: new Set(rows.map((r) => r.ip)), at: now };
+      // Best-effort prune of expired rows so the table can't grow forever.
+      void db
+        .$executeRawUnsafe(
+          `DELETE FROM "BlockedIp" WHERE "expiresAt" IS NOT NULL AND "expiresAt" <= NOW()`
+        )
+        .catch(() => {});
     } catch {
       return false; // fail open on DB error — blocking is best-effort
     }
@@ -256,17 +294,40 @@ export function invalidateBlockedCache(): void {
   blockedCache = null;
 }
 
-export async function blockIp(ip: string, reason: string): Promise<void> {
+/**
+ * Block an IP. `expiresAt` set → timed block that lifts automatically
+ * (24h admin-login lockout). Omitted → permanent manual block.
+ */
+export async function blockIp(
+  ip: string,
+  reason: string,
+  expiresAt?: Date
+): Promise<void> {
+  await ensureSecurityColumns();
   try {
-    await db.blockedIp.upsert({
-      where: { ip },
-      update: { reason },
-      create: { ip, reason },
-    });
-    invalidateBlockedCache();
+    await db.$executeRawUnsafe(
+      `INSERT INTO "BlockedIp"("id","ip","reason","expiresAt","createdAt")
+       VALUES ($1, $2, $3, $4, NOW())
+       ON CONFLICT("ip") DO UPDATE SET "reason" = EXCLUDED."reason", "expiresAt" = EXCLUDED."expiresAt"`,
+      crypto.randomUUID(),
+      ip,
+      reason,
+      expiresAt ?? null
+    );
   } catch {
-    // ignore
+    // Fallback for very old DBs where the expiresAt column is missing:
+    // block permanently via Prisma so some protection still applies.
+    try {
+      await db.blockedIp.upsert({
+        where: { ip },
+        update: { reason },
+        create: { ip, reason },
+      });
+    } catch {
+      // ignore
+    }
   }
+  invalidateBlockedCache();
 }
 
 export async function unblockIp(ip: string): Promise<void> {
@@ -288,4 +349,30 @@ export function shouldLogBlockedHit(ip: string): boolean {
   if (now - last < 5 * 60_000) return false;
   lastBlockedLog.set(ip, now);
   return true;
+}
+
+// ---- Admin login lockout support ----
+
+/** Failed admin logins from this IP inside the rolling window. DB-backed so it works across serverless instances. */
+export async function recentFailedLogins(ip: string, windowMs: number): Promise<number> {
+  try {
+    const since = new Date(Date.now() - windowMs);
+    return await db.securityEvent.count({
+      where: { type: "FAILED_LOGIN", ip, createdAt: { gte: since } },
+    });
+  } catch {
+    return 0; // fail open on DB error — the in-memory throttle still gates
+  }
+}
+
+/** A successful login clears the strike counter: typos don't lock the owner out. */
+export async function clearFailedLogins(ip: string, windowMs: number): Promise<void> {
+  try {
+    const since = new Date(Date.now() - windowMs);
+    await db.securityEvent.deleteMany({
+      where: { type: "FAILED_LOGIN", ip, createdAt: { gte: since } },
+    });
+  } catch {
+    // ignore — logging hygiene must never break login
+  }
 }
