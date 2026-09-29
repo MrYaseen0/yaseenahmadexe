@@ -22,7 +22,7 @@ export function About() {
               <div className="relative overflow-hidden rounded-xl border border-(--hairline)">
                 <Image
                   src="/assets/dev-photo.jpg"
-                  alt={t("brand.name")}
+                  alt={`${t("brand.name")} — Full-Stack Developer and Software Engineer in Peshawar, Pakistan`}
                   width={640}
                   height={800}
                   sizes="(max-width: 1024px) 100vw, 512px"
