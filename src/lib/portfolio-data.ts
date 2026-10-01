@@ -326,33 +326,33 @@ export const faqs = [
 // game-booster: actual app screenshot from the repo; system-design-reference: real PDF handbook cover;
 // all others: GitHub-generated social card for the real repository (name, description, language, stars).
 const REAL_PROJECT_PREVIEWS: Record<string, string> = {
-  "yaseenahmadexe": "/assets/projects/real/yaseenahmadexe.jpg",
-  "game-booster": "/assets/projects/real/game-booster.jpg",
-  "system-design-reference": "/assets/projects/real/system-design-reference.jpg",
-  "qec-page-new": "/assets/projects/real/qec-page-new.jpg",
-  "mryaseen0": "/assets/projects/real/mryaseen0.jpg",
-  "automated-documentation-generator-an-researh-based-project": "/assets/projects/real/automated-documentation-generator-an-researh-based-project.jpg",
-  "loadstrom": "/assets/projects/real/loadstrom.jpg",
-  "ytube": "/assets/projects/real/ytube.jpg",
-  "uncensored-llm-server": "/assets/projects/real/uncensored-llm-server.jpg",
-  "btc-trade-analysis": "/assets/projects/real/btc-trade-analysis.jpg",
-  "xau-bot": "/assets/projects/real/xau-bot.jpg",
-  "cdgai-tasks-summer-internship": "/assets/projects/real/cdgai-tasks-summer-internship.jpg",
-  "cecos-": "/assets/projects/real/cecos-.jpg",
-  "arena-breakout-3d": "/assets/projects/real/arena-breakout-3d.jpg",
-  "studyflow-your-academic-command-center": "/assets/projects/real/studyflow-your-academic-command-center.jpg",
-  "gitnova": "/assets/projects/real/gitnova.jpg",
-  "-bitanas-salon-peshawar": "/assets/projects/real/-bitanas-salon-peshawar.jpg",
-  "fyp": "/assets/projects/real/fyp.jpg",
-  "ecomerce-website-clone-": "/assets/projects/real/ecomerce-website-clone-.jpg",
-  "cisco-project-lab": "/assets/projects/real/cisco-project-lab.jpg",
-  "face-tend": "/assets/projects/real/face-tend.jpg",
-  "ironlife-gym-manager-by-yaseen-ahmad": "/assets/projects/real/ironlife-gym-manager-by-yaseen-ahmad.jpg",
-  "yaseen-ahmad-lab-tasks-software-construction-and-develpment-lab": "/assets/projects/real/yaseen-ahmad-lab-tasks-software-construction-and-develpment-lab.jpg",
-  "emotion-based-music-recommendation-system": "/assets/projects/real/emotion-based-music-recommendation-system.jpg",
-  "student-attendance-system": "/assets/projects/real/student-attendance-system.jpg",
-  "face-recognition-attendance-system": "/assets/projects/real/face-recognition-attendance-system.jpg",
-  "ecomewithyaseen": "/assets/projects/real/ecomewithyaseen.jpg",
+  "yaseenahmadexe": "/assets/projects/real/yaseenahmadexe.webp",
+  "game-booster": "/assets/projects/real/game-booster.webp",
+  "system-design-reference": "/assets/projects/real/system-design-reference.webp",
+  "qec-page-new": "/assets/projects/real/qec-page-new.webp",
+  "mryaseen0": "/assets/projects/real/mryaseen0.webp",
+  "automated-documentation-generator-an-researh-based-project": "/assets/projects/real/automated-documentation-generator-an-researh-based-project.webp",
+  "loadstrom": "/assets/projects/real/loadstrom.webp",
+  "ytube": "/assets/projects/real/ytube.webp",
+  "uncensored-llm-server": "/assets/projects/real/uncensored-llm-server.webp",
+  "btc-trade-analysis": "/assets/projects/real/btc-trade-analysis.webp",
+  "xau-bot": "/assets/projects/real/xau-bot.webp",
+  "cdgai-tasks-summer-internship": "/assets/projects/real/cdgai-tasks-summer-internship.webp",
+  "cecos-": "/assets/projects/real/cecos-.webp",
+  "arena-breakout-3d": "/assets/projects/real/arena-breakout-3d.webp",
+  "studyflow-your-academic-command-center": "/assets/projects/real/studyflow-your-academic-command-center.webp",
+  "gitnova": "/assets/projects/real/gitnova.webp",
+  "-bitanas-salon-peshawar": "/assets/projects/real/-bitanas-salon-peshawar.webp",
+  "fyp": "/assets/projects/real/fyp.webp",
+  "ecomerce-website-clone-": "/assets/projects/real/ecomerce-website-clone-.webp",
+  "cisco-project-lab": "/assets/projects/real/cisco-project-lab.webp",
+  "face-tend": "/assets/projects/real/face-tend.webp",
+  "ironlife-gym-manager-by-yaseen-ahmad": "/assets/projects/real/ironlife-gym-manager-by-yaseen-ahmad.webp",
+  "yaseen-ahmad-lab-tasks-software-construction-and-develpment-lab": "/assets/projects/real/yaseen-ahmad-lab-tasks-software-construction-and-develpment-lab.webp",
+  "emotion-based-music-recommendation-system": "/assets/projects/real/emotion-based-music-recommendation-system.webp",
+  "student-attendance-system": "/assets/projects/real/student-attendance-system.webp",
+  "face-recognition-attendance-system": "/assets/projects/real/face-recognition-attendance-system.webp",
+  "ecomewithyaseen": "/assets/projects/real/ecomewithyaseen.webp",
 };
 
 // Project preview image: real per-repo image when known, otherwise the
@@ -375,9 +375,9 @@ function getMockupPreview(repoName: string): string {
     name.includes("analytics") ||
     name.includes("tracker")
   )
-    return "/assets/projects/saas-dashboard.png";
+    return "/assets/projects/saas-dashboard.avif";
   if (name.includes("ecommerce") || name.includes("ecom") || name.includes("shop") || name.includes("store"))
-    return "/assets/projects/ecommerce.png";
+    return "/assets/projects/ecommerce.avif";
   if (
     name.includes("ai") ||
     name.includes("openai") ||
@@ -387,7 +387,7 @@ function getMockupPreview(repoName: string): string {
     name.includes("music") ||
     name.includes("emotion")
   )
-    return "/assets/projects/ai-content.png";
+    return "/assets/projects/ai-content.avif";
   if (
     name.includes("social") ||
     name.includes("chat") ||
@@ -396,7 +396,7 @@ function getMockupPreview(repoName: string): string {
     name.includes("video") ||
     name.includes("stream")
   )
-    return "/assets/projects/social-app.png";
+    return "/assets/projects/social-app.avif";
   if (
     name.includes("portfolio") ||
     name.includes("template") ||
@@ -405,7 +405,7 @@ function getMockupPreview(repoName: string): string {
     name.includes("profile") ||
     name.includes("salon")
   )
-    return "/assets/projects/portfolio-gen.png";
+    return "/assets/projects/portfolio-gen.avif";
   if (
     name.includes("task") ||
     name.includes("kanban") ||
@@ -417,7 +417,7 @@ function getMockupPreview(repoName: string): string {
     name.includes("school") ||
     name.includes("gym")
   )
-    return "/assets/projects/task-mgmt.png";
-  return "/assets/projects/default-project.png";
+    return "/assets/projects/task-mgmt.avif";
+  return "/assets/projects/default-project.avif";
 }
 

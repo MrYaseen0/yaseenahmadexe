@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import Image from "next/image";
 import {
   Calendar,
   Clock,
@@ -552,11 +553,13 @@ function ArticleModal({
 
                 {/* Author footer */}
                 <div className="mt-6 flex items-center gap-3 rounded-xl border border-[#E6E8E2] bg-white p-4">
-                  <img
-                    src="/assets/dev-avatar.png"
+                  <Image
+                    src="/assets/dev-avatar.avif"
                     alt={t("brand.name")}
-                    className="h-12 w-12 rounded-full border border-[#E6E8E2]"
+                    width={96}
+                    height={96}
                     loading="lazy"
+                    className="h-12 w-12 rounded-full border border-[#E6E8E2]"
                   />
                   <div>
                     <div className="text-sm font-semibold text-[#101410]">{t("brand.name")}</div>

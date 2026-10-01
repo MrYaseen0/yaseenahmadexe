@@ -186,10 +186,11 @@ export default function HireWebDeveloperPeshawar() {
           <div className="relative mx-auto w-full max-w-xs">
             <div className="overflow-hidden rounded-2xl border border-[#E2E5E0]">
               <Image
-                src="/assets/dev-photo.jpg"
+                src="/assets/dev-photo.avif"
                 alt="Yaseen Ahmad — Web Developer in Peshawar, Pakistan, available for hire"
                 width={480}
                 height={600}
+                sizes="(max-width: 640px) 100vw, 320px"
                 className="aspect-[4/5] w-full object-cover"
               />
             </div>

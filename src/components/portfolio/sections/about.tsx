@@ -21,7 +21,7 @@ export function About() {
             <div className="relative mx-auto max-w-md">
               <div className="relative overflow-hidden rounded-xl border border-(--hairline)">
                 <Image
-                  src="/assets/dev-photo.jpg"
+                  src="/assets/dev-photo.avif"
                   alt={`${t("brand.name")} — Full-Stack Developer and Software Engineer in Peshawar, Pakistan`}
                   width={640}
                   height={800}

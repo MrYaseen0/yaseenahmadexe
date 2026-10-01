@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { ArrowRight, ArrowUpRight, Play, Facebook, Linkedin, Instagram, MessageCircle } from "lucide-react";
 import { useContent } from "@/components/portfolio/content-editor";
 
@@ -161,20 +162,25 @@ export function Hero() {
         }}
       >
         {/* dark base layer: low-light default state */}
-        <img
-          src="/assets/yaseen-viridia.png"
+        <Image
+          src="/assets/yaseen-viridia.avif"
           alt="Yaseen Ahmad"
+          fill
+          priority
+          fetchPriority="high"
+          sizes="46vw"
           className="h-full w-full object-cover object-top [filter:brightness(0.22)_saturate(0.35)]"
-          loading="eager"
         />
         {/* bright reveal layer: visible only inside the spotlight circle */}
-        <img
-          src="/assets/yaseen-viridia.png"
+        <Image
+          src="/assets/yaseen-viridia.avif"
           alt=""
           aria-hidden="true"
+          fill
+          loading="eager"
+          sizes="46vw"
           className="absolute inset-0 h-full w-full object-cover object-top"
           style={{ maskImage: SPOTLIGHT_CSS, WebkitMaskImage: SPOTLIGHT_CSS }}
-          loading="eager"
         />
         {/* soft green glow that travels with the cursor */}
         <div ref={glowRef} className="absolute left-0 top-0 h-0 w-0">
@@ -264,11 +270,14 @@ export function Hero() {
           className="mt-10 md:hidden"
         >
           <div className="overflow-hidden rounded-3xl border border-green-400/20 shadow-[0_0_60px_rgba(74,222,128,0.15)]">
-            <img
-              src="/assets/yaseen-viridia.png"
+            <Image
+              src="/assets/yaseen-viridia.avif"
               alt="Yaseen Ahmad"
-              className="h-72 w-full object-cover object-top"
+              width={940}
+              height={1268}
               loading="eager"
+              sizes="100vw"
+              className="h-72 w-full object-cover object-top"
             />
           </div>
         </motion.div>

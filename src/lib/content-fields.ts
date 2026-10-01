@@ -151,7 +151,7 @@ export const CONTENT_FIELDS: ContentField[] = [
   F("brand.phone", "Phone number", "brand", developer.phone),
   F("brand.githubUsername", "GitHub username", "brand", developer.githubUsername),
   F("brand.website", "Website domain", "brand", developer.website),
-  F("brand.avatar", "Avatar image URL", "brand", "/assets/dev-photo.jpg"),
+  F("brand.avatar", "Avatar image URL", "brand", "/assets/dev-photo.avif"),
 
   // ---------- Social links (JSON) ----------
   F("socials.links", "Social links (JSON)", "brand", J(socials), { json: true }),

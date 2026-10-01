@@ -136,8 +136,10 @@ export function GithubProfile() {
                   // Plain <img>: next/image needs remotePatterns in next.config.ts
                   // for avatars.githubusercontent.com, which is out of scope here.
                   <img
-                    src={profile?.avatar_url}
+                    src={profile?.avatar_url ? `${profile.avatar_url}&s=160` : undefined}
                     alt={t("brand.name")}
+                    width={160}
+                    height={160}
                     className="h-full w-full object-cover"
                     loading="lazy"
                   />

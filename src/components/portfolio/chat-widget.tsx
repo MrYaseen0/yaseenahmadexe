@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Editable, useContent } from "@/components/portfolio/content-editor";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface ChatMsg {
   id: string;
@@ -161,11 +162,13 @@ export function ChatWidget() {
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-[--hairline] bg-white p-4 text-[#101410]">
               <div className="relative">
-                <img
-                  src="/assets/dev-avatar.png"
+                <Image
+                  src="/assets/dev-avatar.avif"
                   alt={t("brand.name")}
-                  className="h-10 w-10 rounded-full border border-[--hairline] object-cover"
+                  width={80}
+                  height={80}
                   loading="lazy"
+                  className="h-10 w-10 rounded-full border border-[--hairline] object-cover"
                 />
                 <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-white bg-[#166534]" />
               </div>
