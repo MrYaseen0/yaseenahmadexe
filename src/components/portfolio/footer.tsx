@@ -60,6 +60,10 @@ export function Footer() {
               <img
                 src="/assets/logo.png"
                 alt="Yaseen Ahmad logo"
+                width={88}
+                height={88}
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
