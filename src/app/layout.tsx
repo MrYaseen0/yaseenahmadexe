@@ -4,6 +4,11 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
+
+// Google Analytics 4 — activates only when NEXT_PUBLIC_GA_ID (G-XXXXXXXXXX)
+// is set in the Vercel project env. No ID configured = no GA scripts served.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 import { CookieBanner } from "@/components/portfolio/cookie-banner";
 import { faqs } from "@/lib/portfolio-data";
 
@@ -316,6 +321,17 @@ export default function RootLayout({
         <Toaster />
         <SonnerToaster richColors position="bottom-right" />
         <Analytics />
+        {GA_ID ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        ) : null}
         <CookieBanner />
       </body>
     </html>

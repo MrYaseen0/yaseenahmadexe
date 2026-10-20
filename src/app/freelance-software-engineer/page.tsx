@@ -8,7 +8,7 @@ const PAGE = `${SITE}/freelance-software-engineer`;
 const WHATSAPP = "https://wa.me/923189370042";
 
 export const metadata: Metadata = {
-  title: "Freelance Software Engineer for Hire — Yaseen Ahmad",
+  title: "Freelance Software Engineer for Hire",
   description:
     "Hire Yaseen Ahmad, a freelance software engineer for web apps, SaaS, APIs, and automation. Next.js, React, TypeScript, Node.js, Python. Fixed quotes, weekly demos, worldwide remote availability.",
   keywords: [

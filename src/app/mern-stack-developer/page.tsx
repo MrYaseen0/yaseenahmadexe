@@ -8,7 +8,7 @@ const PAGE = `${SITE}/mern-stack-developer`;
 const WHATSAPP = "https://wa.me/923189370042";
 
 export const metadata: Metadata = {
-  title: "MERN Stack Developer for Hire — Yaseen Ahmad",
+  title: "MERN Stack Developer for Hire",
   description:
     "Hire a MERN stack developer (MongoDB, Express, React, Node.js) for your next project. Yaseen Ahmad builds production-grade MERN & Next.js applications — APIs, dashboards, SaaS. Fixed price, worldwide availability.",
   keywords: [

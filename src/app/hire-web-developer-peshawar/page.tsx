@@ -8,7 +8,7 @@ const PAGE = `${SITE}/hire-web-developer-peshawar`;
 const WHATSAPP = "https://wa.me/923189370042";
 
 export const metadata: Metadata = {
-  title: "Hire a Web Developer in Peshawar, Pakistan — Yaseen Ahmad",
+  title: "Hire a Web Developer in Peshawar, Pakistan",
   description:
     "Looking to hire a web developer in Peshawar, Pakistan? Yaseen Ahmad (yaseenahmadexe) builds fast, production-grade websites and web apps with Next.js, React & Node.js. Freelance & software-house-grade services — message on WhatsApp today.",
   keywords: [
