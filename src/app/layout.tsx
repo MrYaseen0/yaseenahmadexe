@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Anton, Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -23,6 +23,13 @@ const fontDisplay = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["600"],
+  display: "swap",
+});
+
+const fontAnton = Anton({
+  variable: "--font-anton",
+  subsets: ["latin"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -315,7 +322,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} font-sans bg-[#FBFBF9] text-[#101410] antialiased`}
+        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontAnton.variable} font-sans bg-[#FBFBF9] text-[#101410] antialiased`}
       >
         {children}
         <Toaster />
