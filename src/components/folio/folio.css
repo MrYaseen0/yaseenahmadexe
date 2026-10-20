@@ -158,3 +158,14 @@
 .f-btn.red{background:var(--f-red-d)}
 .f-slide a[href*="github.com"],.f-sec a[href*="github.com"]{min-height:44px;display:inline-flex;align-items:center}
 .f-link{min-height:44px;display:inline-flex;align-items:center}
+.f-contact{min-height:auto;padding:140px 0 110px}
+@media(min-width:1600px){
+  .f-wrap{max-width:1720px}
+  .f-p{font-size:clamp(18px,1.25vw,26px);max-width:60ch}
+  .f-hi{font-size:clamp(13px,.9vw,18px)}
+  .f-role{font-size:clamp(2.6rem,min(7vw,13vh),9rem)}
+  .f-h2{font-size:clamp(2.6rem,6vw,9rem)}
+  .f-btn{font-size:clamp(15px,1vw,20px);min-height:clamp(48px,3.4vw,62px);padding:0 clamp(24px,1.8vw,36px)}
+  .f-link{font-size:clamp(15px,1vw,20px)}
+  .f-label{font-size:clamp(12px,.8vw,16px)}
+}
