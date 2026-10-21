@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import "@/components/folio/subpage.css";
+import { SubNav, SubRelated, breadcrumbSchema } from "@/components/folio/subpage";
 import { ArrowLeft } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -33,7 +35,10 @@ const sections = [
 
 export default function TermsPage() {
   return (
-    <main className="bg-white px-5 py-20 sm:py-28">
+    <main className="bg-white f-subpage f-legal">
+      <SubNav current="/terms" />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema("/terms", "Terms")) }} />
+      <div className="px-5 py-16 sm:py-24">
       <div className="mx-auto max-w-3xl">
         <Link
           href="/"
@@ -62,6 +67,8 @@ export default function TermsPage() {
           ))}
         </div>
       </div>
+      </div>
+      <SubRelated current="/terms" />
     </main>
   );
 }

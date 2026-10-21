@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { Anton, Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
@@ -23,6 +23,13 @@ const fontDisplay = Fraunces({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["600"],
+  display: "swap",
+});
+
+const fontAnton = Anton({
+  variable: "--font-anton",
+  subsets: ["latin"],
+  weight: ["400"],
   display: "swap",
 });
 
@@ -54,7 +61,7 @@ export const metadata: Metadata = {
     template: "%s | Yaseen Ahmad",
   },
   description:
-    "Yaseen Ahmad (yaseenahmadexe) is a full-stack web developer and software engineer in Peshawar, Pakistan — building MERN/Next.js web apps and SaaS products. Hire a freelance developer or partner with a software house in Peshawar, KPK. Available for work worldwide.",
+    "Yaseen Ahmad (yaseenahmadexe) is a full-stack web developer and software engineer in Peshawar, Pakistan — building MERN/Next.js web apps and SaaS products. Explore project details, screenshots and public source code.",
   keywords: [
     "Yaseen Ahmad",
     "yaseenahmadexe",
@@ -119,7 +126,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer | Peshawar, Pakistan",
     description:
-      "Full-stack web developer & software engineer in Peshawar, Pakistan. I build production-grade web apps and SaaS — hire me or partner with my software house.",
+      "Full-stack web developer & software engineer in Peshawar, Pakistan. Explore web applications, project details and public source code.",
     url: SITE_URL,
     siteName: "Yaseen Ahmad",
     type: "website",
@@ -188,99 +195,6 @@ const personSchema = {
   },
 };
 
-// Local-business schema: lets Google show this as a software house /
-// professional service in Peshawar, Pakistan (Maps + local search panels).
-const serviceSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  "@id": `${SITE_URL}/#business`,
-  name: "Yaseen Ahmad — Web Development Services (yaseenahmadexe)",
-  alternateName: "yaseenahmadexe",
-  url: SITE_URL,
-  image: `${SITE_URL}/og-image.png`,
-  description:
-    "Software-house-grade web development services in Peshawar, Pakistan: custom web applications, SaaS products, REST APIs, and UI/UX — for clients in Peshawar, KPK, Pakistan, and worldwide.",
-  priceRange: "$$",
-  telephone: "+92-318-9370042",
-  email: "yaseenahmad.exe@gmail.com",
-  address: {
-    "@type": "PostalAddress",
-    addressLocality: "Peshawar",
-    addressRegion: "Khyber Pakhtunkhwa",
-    addressCountry: "PK",
-  },
-  geo: {
-    "@type": "GeoCoordinates",
-    latitude: 34.0151,
-    longitude: 71.5249,
-  },
-  areaServed: [
-    { "@type": "City", name: "Peshawar" },
-    { "@type": "AdministrativeArea", name: "Khyber Pakhtunkhwa" },
-    { "@type": "Country", name: "Pakistan" },
-    "Worldwide",
-  ],
-  openingHoursSpecification: {
-    "@type": "OpeningHoursSpecification",
-    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    opens: "09:00",
-    closes: "21:00",
-  },
-  founder: {
-    "@type": "Person",
-    name: "Yaseen Ahmad",
-    url: SITE_URL,
-  },
-  sameAs: [
-    "https://github.com/MrYaseen0",
-    "https://www.instagram.com/yaseenahmadexe/",
-    "https://www.linkedin.com/in/yaseen-ahmad-489967280",
-    "https://x.com/yaseencecosian",
-    "https://www.tiktok.com/@mryaseen.exe",
-  ],
-  knowsAbout: [
-    "Web development",
-    "SaaS development",
-    "MERN stack",
-    "Next.js",
-    "React",
-    "TypeScript",
-    "Node.js",
-    "Python",
-    "Object-oriented programming",
-    "Software engineering",
-  ],
-  makesOffer: [
-    {
-      "@type": "Offer",
-      itemOffered: {
-        "@type": "Service",
-        name: "Custom web application development",
-        description:
-          "Full-stack web apps built with Next.js, React, TypeScript, and Node.js — from landing pages to complex platforms.",
-      },
-    },
-    {
-      "@type": "Offer",
-      itemOffered: {
-        "@type": "Service",
-        name: "SaaS product development",
-        description:
-          "End-to-end SaaS builds: auth, billing, dashboards, APIs, and cloud deployment.",
-      },
-    },
-    {
-      "@type": "Offer",
-      itemOffered: {
-        "@type": "Service",
-        name: "API development & integrations",
-        description:
-          "REST APIs, database design, and third-party integrations (payments, maps, AI).",
-      },
-    },
-  ],
-};
-
 // FAQ schema: feeds Google/AI answers for "who is Yaseen Ahmad",
 // "software house in Peshawar", "hire web developer" style queries.
 const faqSchema = {
@@ -307,15 +221,11 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
-        />
-        <script
-          type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       </head>
       <body
-        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} font-sans bg-[#FBFBF9] text-[#101410] antialiased`}
+        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontAnton.variable} font-sans bg-[#FBFBF9] text-[#101410] antialiased`}
       >
         {children}
         <Toaster />

@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion, type Variant } from "framer-motion";
+import { motion, type Variant } from "framer-motion";
 import type { ReactNode } from "react";
+import { useHydratedReducedMotion as useReducedMotion } from "@/hooks/use-hydrated-reduced-motion";
 
 type Direction = "up" | "down" | "left" | "right" | "none";
 

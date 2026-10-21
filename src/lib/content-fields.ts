@@ -489,8 +489,6 @@ export const CONTENT_FIELDS: ContentField[] = [
   ),
   F("testimonials.stats", "Summary stat cards (JSON)", "testimonials", J([
     { v: "COUNT", l: "Testimonials" },
-    { v: "100%", l: "Commitment to Quality" },
-    { v: "100%", l: "On-Time Delivery" },
   ]), { json: true }),
   F("testimonials.leaveBtn", "\"Leave a Testimonial\" button", "testimonials", "Leave a Testimonial"),
   F("testimonials.emptyTitle", "Empty-state title", "testimonials", "No testimonials yet"),

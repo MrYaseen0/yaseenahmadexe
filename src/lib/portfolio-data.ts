@@ -11,7 +11,7 @@ export const developer = {
   location: "Peshawar, Pakistan",
   status: "Available for work",
   availability: "open",
-  jobTitle: "Freelance Developer",
+  jobTitle: "Full-Stack Developer",
   email: "yaseenahmad.exe@gmail.com",
   phone: "+92 318 937 0042",
   phoneRaw: "+923189370042",
@@ -19,9 +19,9 @@ export const developer = {
   githubUsername: "MrYaseen0",
   aboutTitle: "Turning Ideas Into Digital Reality",
   aboutText:
-    "I'm Yaseen Ahmad, a Software Engineering Student and Full-Stack Developer from Peshawar, Pakistan. I specialize in building production-grade SaaS applications using modern web technologies.",
+    "I'm Yaseen Ahmad, a final-year Software Engineering student at CECOS University in Peshawar. I build full-stack web applications with Next.js, TypeScript and React.",
   aboutText2:
-    "With expertise in Next.js, TypeScript, and React, I create scalable, performant applications that solve real-world problems. I'm passionate about clean code, great UX, and continuous learning.",
+    "My project work spans education, health and local business. My final-year research project focuses on AI-assisted requirements analysis, test generation and traceability.",
   skills: [
     "Full-Stack Development",
     "SaaS Applications",
@@ -122,15 +122,15 @@ export const featuredProjects = [
   {
     title: "GitNova",
     description:
-      "Multi-agent AI platform with advanced orchestration, 225+ backend tests, and production-grade architecture.",
-    tags: ["Python", "AI/ML", "Multi-Agent", "Testing"],
+      "Gamified learning platform for Git and programming, with a simulated Git terminal, progressive levels, achievements and leaderboards.",
+    tags: ["TypeScript", "React", "Learning", "Git"],
     gradient: "from-sky-400 via-sky-500 to-blue-600",
     featured: true,
   },
   {
     title: "Healtheon OS",
     description:
-      "Multi-agent clinical AI system with healthcare-focused architecture and comprehensive test coverage.",
+      "Multi-agent medical education proof of concept. Educational use only, not a clinical care system.",
     tags: ["Python", "AI", "Healthcare", "Multi-Agent"],
     gradient: "from-pink-400 via-pink-500 to-rose-600",
     featured: true,
@@ -138,7 +138,7 @@ export const featuredProjects = [
   {
     title: "XAUUSD Trading Pipeline",
     description:
-      "Automated gold trading pipeline with real-time market data, analysis, and execution capabilities.",
+      "Gold trading study dashboard with delayed chart snapshots, indicators and a paper-trading journal. Educational, simulated trading only.",
     tags: ["Python", "Finance", "Real-Time", "Automation"],
     gradient: "from-amber-600 via-orange-600 to-rose-600",
     featured: true,
@@ -210,43 +210,38 @@ export const navLinks = [
   { label: "Contact", href: "#contact" },
 ];
 
-// Professional experience timeline
+// Journey grounded in the corrected CV. No unverified employment or dates.
 export const experiences = [
   {
-    role: "Freelance Full-Stack Developer",
-    company: "Self-Employed",
+    role: "Full-Stack Project Experience",
+    company: "Self-directed and university work",
     location: "Peshawar, Pakistan",
-    period: "2023 — Present",
-    type: "Freelance",
-    description:
-      "Building production-grade SaaS applications, e-commerce platforms, and custom web solutions. Specializing in MERN stack and Next.js projects.",
+    period: "Project work",
+    type: "Projects",
+    description: "Full-stack web applications spanning education, health and local business, with public source and documentation on GitHub.",
     achievements: [
-      "Built GitNova — a multi-agent AI platform with 225+ backend tests",
-      "Developed Healtheon OS — clinical AI system with multi-agent architecture",
-      "Created XAUUSD automated trading pipeline with real-time data",
-      "Built NutriMate — a nutrition tracking application",
+      "GitNova: a gamified learning platform for Git and programming",
+      "QEC website for CECOS University: a public directory, events and reports",
+      "Bitanas Salon: a business website with online booking and an admin dashboard",
+      "Game Booster: an Android app for distraction-free gaming",
     ],
-    tech: ["Next.js", "TypeScript", "Node.js", "PostgreSQL", "Python", "AI/ML"],
-    color: "sky",
-    current: true,
+    tech: ["Next.js", "TypeScript", "React", "Node.js", "PostgreSQL", "Java"],
+    color: "sky", current: true,
   },
   {
-    role: "Software Engineering Student",
+    role: "BS Software Engineering (Final Year)",
     company: "CECOS University",
     location: "Peshawar, Pakistan",
-    period: "2022 — Present",
+    period: "In progress",
     type: "Education",
-    description:
-      "Pursuing a Bachelor's in Software Engineering. Building foundational knowledge in algorithms, data structures, software design patterns, and modern web development.",
+    description: "Final-year Software Engineering student, combining software engineering coursework with practical project work.",
     achievements: [
-      "Studying software engineering fundamentals",
-      "Building real-world projects alongside coursework",
-      "Contributing to open-source projects on GitHub",
-      "Learning modern web technologies and best practices",
+      "Final-year project in progress: AI-assisted requirements analysis, test generation and traceability",
+      "Working in a supervised team of three, with a human reviewer in final control",
+      "Software Architecture and Design coursework: a generative-AI documentation engine",
     ],
-    tech: ["Java", "Python", "C++", "SQL", "Data Structures"],
-    color: "pink",
-    current: false,
+    tech: ["Software Engineering", "Python", "FastAPI", "PostgreSQL"],
+    color: "pink", current: false,
   },
 ];
 
@@ -258,68 +253,11 @@ export const achievements = [
   { value: 100, suffix: "%", label: "On-Time Delivery", icon: "Clock" },
 ];
 
-// FAQ — common client questions
+// Public facts, not unconfirmed commercial promises.
 export const faqs = [
-  {
-    q: "Who is Yaseen Ahmad (yaseenahmadexe)?",
-    a: "Yaseen Ahmad — online as yaseenahmadexe — is a full-stack web developer and software engineer based in Peshawar, Khyber Pakhtunkhwa, Pakistan. A final-year BS Software Engineering student at CECOS University, he builds production-grade web applications, SaaS products, and APIs for clients across Pakistan and worldwide.",
-    icon: "Users",
-  },
-  {
-    q: "Do you offer software house services in Peshawar, Pakistan?",
-    a: "Yes. Based in Peshawar, I deliver software-house-grade services — custom web development, SaaS builds, REST APIs, and UI/UX — to startups and businesses in Peshawar, across KPK and Pakistan, and remotely worldwide. You get a dedicated engineer, transparent pricing, and direct communication without agency overhead.",
-    icon: "ShieldCheck",
-  },
-  {
-    q: "Are you available for freelance work or hiring?",
-    a: "Yes — I'm currently available for freelance projects, contract work, and remote software engineering roles. Send a message through the contact form, book a discovery call, or reach me instantly on WhatsApp. I typically respond within a few hours during business hours (9 AM – 9 PM PKT).",
-    icon: "Calendar",
-  },
-  {
-    q: "What programming skills and fundamentals do you cover?",
-    a: "A to Z of modern web development: HTML, CSS, JavaScript, TypeScript, React, Next.js, Node.js, Express, REST APIs, and SQL/NoSQL databases — plus core software engineering fundamentals like OOP (object-oriented programming), data structures, and clean architecture. If it runs on the web, I can build it.",
-    icon: "Code",
-  },
-  {
-    q: "What's your typical response time?",
-    a: "I usually respond to emails and form submissions within 2-4 hours during business hours (9 AM – 9 PM PKT). For urgent matters, WhatsApp is the fastest — I reply within minutes. The live chat widget on this site connects you to me in real-time.",
-    icon: "Clock",
-  },
-  {
-    q: "How do you handle payments and billing?",
-    a: "I accept payments via Stripe, PayPal, bank transfer, and Wise. For larger projects, I use a 50% upfront milestone payment, with the remaining 50% split across deliverables. Smaller projects are paid 50% upfront and 50% on completion. All invoices are provided for your records.",
-    icon: "CreditCard",
-  },
-  {
-    q: "What's your minimum project budget?",
-    a: "My starter packages begin at $499 for landing pages and small websites. For full-stack web applications, projects typically start at $1,500. SaaS products and enterprise solutions are quoted custom based on scope. I'm happy to work within your budget — just reach out and we'll find a fit.",
-    icon: "DollarSign",
-  },
-  {
-    q: "Do you provide ongoing maintenance and support?",
-    a: "Yes! Every project includes 30-90 days of free post-launch support depending on the plan. After that, I offer affordable monthly maintenance retainers covering bug fixes, security updates, performance monitoring, and small feature additions. Plans start at $99/month.",
-    icon: "Wrench",
-  },
-  {
-    q: "Can you work with my existing codebase or team?",
-    a: "Absolutely. I'm experienced in onboarding to existing codebases, following established patterns and conventions. I've collaborated with in-house teams using Git workflows, code reviews, and agile ceremonies. I can adapt to your tech stack, whether it's MERN, Next.js, or something custom.",
-    icon: "Users",
-  },
-  {
-    q: "What technologies do you specialize in?",
-    a: "My core stack is MERN (MongoDB, Express, React, Node.js) with Next.js and TypeScript as my daily drivers. I'm proficient in PostgreSQL, Prisma, Tailwind CSS, Socket.io for real-time features, Stripe for payments, and deploy on Vercel, AWS, or Docker. I also work with Python for backend scripts and automation.",
-    icon: "Code",
-  },
-  {
-    q: "How long does a typical project take?",
-    a: "Landing pages: 5-7 days. Small web apps: 2-3 weeks. Full SaaS products: 4-8 weeks depending on complexity. I provide a detailed timeline breakdown in my proposal after our initial call, with weekly milestones so you always know where things stand.",
-    icon: "Calendar",
-  },
-  {
-    q: "Do you sign NDAs and handle confidential projects?",
-    a: "Yes, I regularly sign NDAs before accessing sensitive codebases or business logic. Your intellectual property remains 100% yours — I include IP assignment clauses in all contracts. I've worked with startups in stealth mode and understand discretion is key.",
-    icon: "ShieldCheck",
-  },
+ {q:"Who is Yaseen Ahmad?", a:"A full-stack developer and final-year Software Engineering student at CECOS University in Peshawar, Pakistan.", icon:"Users"},
+ {q:"Where can I see the projects?", a:"The portfolio links to public repositories, with descriptions and interface screenshots. Repository listings do not imply sole authorship.", icon:"Code"},
+ {q:"How can I discuss a project?", a:"Email yaseenahmad.exe@gmail.com with the scope. Timing, cost, payment and support need to be agreed for the specific project.", icon:"Mail"},
 ];
 
 // Real per-repo preview images (auto-generated 2026-09-28).
