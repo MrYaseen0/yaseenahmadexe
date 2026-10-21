@@ -8,7 +8,7 @@ import { HomeWidgets } from "@/components/portfolio/home-widgets";
 import "./folio.css";
 import { useHydratedReducedMotion as useReducedMotion } from "@/hooks/use-hydrated-reduced-motion";
 
-type Id = "home" | "more" | (typeof sections)[number]["id"];
+type Id = "home" | "more" | "services" | (typeof sections)[number]["id"];
 
 // Portrait pose per section: [x vw, y vh, scale, rotate deg, image, opacity] (desktop / mobile)
 const POSES: Record<Id, { d: [number, number, number, number, 0 | 1, number]; m: [number, number, number, number, 0 | 1, number] }> = {
@@ -18,6 +18,7 @@ const POSES: Record<Id, { d: [number, number, number, number, 0 | 1, number]; m:
   journey: { d: [0, 2, 0.88, -2, 0, 1], m: [18, 8, 0.75, 0, 0, 0.14] },
   toolkit: { d: [-20, 0, 0.9, 0, 0, 1], m: [18, 10, 0.75, 0, 0, 0.14] },
   proof: { d: [4, 6, 0.74, 0, 1, 1], m: [18, 10, 0.7, 0, 1, 0.14] },
+  services: { d: [4, 6, 0.74, 0, 1, 1], m: [18, 10, 0.7, 0, 1, 0.14] },
   more: { d: [0, 0, 0.8, 0, 0, 0], m: [0, 0, 0.8, 0, 0, 0] },
   contact: { d: [-62, 0, 1, 0, 0, 0.32], m: [10, 0, 0.9, 0, 0, 0.28] },
 };
@@ -25,7 +26,7 @@ const POSES: Record<Id, { d: [number, number, number, number, 0 | 1, number]; m:
 function useActive(): Id {
   const [active, setActive] = useState<Id>("home");
   useEffect(() => {
-    const ids: Id[] = ["home", ...sections.map((s) => s.id), "more"];
+    const ids: Id[] = ["home", ...sections.map((s) => s.id), "services", "more"];
     const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
       (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id as Id)),
@@ -100,7 +101,7 @@ function Portrait({ active }: { active: Id }) {
   const { scrollY } = useScroll();
   const [track, setTrack] = useState({ stops: [0, 1], poses: [POSES.home.d, POSES.home.d] });
   useEffect(() => {
-    const ids: Id[] = ["home", "about", "work", "journey", "toolkit", "proof", "contact", "more"];
+    const ids: Id[] = ["home", "about", "work", "journey", "toolkit", "proof", "services", "contact", "more"];
     const measure = () => {
       const stops: number[] = [], poses: typeof POSES.home.d[] = [];
       ids.forEach((id) => {
@@ -145,10 +146,11 @@ const WASH: Record<Id, string> = {
   journey: "radial-gradient(70% 80% at 80% 40%, #ffd2d8 0%, #f6efe6 62%)",
   toolkit: "radial-gradient(50% 60% at 50% 50%, #ffc9c2 0%, #f6efe6 65%)",
   proof: "radial-gradient(70% 80% at 30% 40%, #ffe3cf 0%, #f6efe6 62%)",
+  services: "radial-gradient(70% 80% at 70% 40%, #ffe3cf 0%, #f6efe6 62%)",
   more: "linear-gradient(#f6efe6,#f6efe6)",
   contact: "linear-gradient(#e8231a,#e8231a)",
 };
-const NUM: Record<Id, string> = { home: "2026", about: "01", work: "02", journey: "2026", toolkit: "04", proof: "05", more: "", contact: "" };
+const NUM: Record<Id, string> = { home: "2026", about: "01", work: "02", journey: "2026", toolkit: "04", proof: "05", services: "06", more: "", contact: "" };
 
 function Backdrop({ active }: { active: Id }) {
   const reduce = useReducedMotion();
