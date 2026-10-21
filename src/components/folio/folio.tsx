@@ -508,17 +508,17 @@ export function Folio() {
               <Reveal>
                 <p className="f-label">(06) - Freelance</p>
                 <h2 className="f-h2">Working <em>with me.</em></h2>
-                <p className="f-p">I take on freelance web projects as a full-stack developer, from a first brief to a deployed site or app.</p>
+                <p className="f-p" style={{ maxWidth: 480 }}>I take on freelance web projects as a full-stack developer, from a first brief to a deployed site or app.</p>
                 <ul className="f-chips" aria-label="What I build">
                   {["Web apps", "Business and portfolio sites", "Dashboards and admin panels", "REST APIs", "Responsive UI"].map((t, i) => <li key={t} className={`f-chip${i % 3 === 0 ? " red" : ""}`}>{t}</li>)}
                 </ul>
-                <ol className="f-p" style={{ paddingLeft: 20, marginTop: 24, display: "grid", gap: 8 }}>
-                  <li><b>Brief.</b> You email the goal and scope.</li>
-                  <li><b>Scope.</b> Timing, cost and payment are agreed in writing for your specific project before work starts.</li>
-                  <li><b>Build.</b> Next.js, React and Node.js, with the work kept in version control.</li>
-                  <li><b>Handover.</b> You get the source code and the deployed result.</li>
+                <ol className="f-p" style={{ listStyle: "none", padding: 0, margin: "24px 0 0", display: "grid", gap: 10, maxWidth: 480 }}>
+                  <li><b>01 Brief.</b> You email the goal and scope.</li>
+                  <li><b>02 Scope.</b> Timing, cost and payment are agreed in writing for your specific project before work starts.</li>
+                  <li><b>03 Build.</b> Next.js, React and Node.js, with the work kept in version control.</li>
+                  <li><b>04 Handover.</b> You get the source code and the deployed result.</li>
                 </ol>
-                <p className="f-p"><a href="mailto:yaseenahmad.exe@gmail.com?subject=Project%20enquiry">Start with an email</a>. Examples above are in the selected projects section.</p>
+                <p className="f-p" style={{ maxWidth: 480 }}><a href="mailto:yaseenahmad.exe@gmail.com?subject=Project%20enquiry" style={{ textDecoration: "underline" }}>Start with an email</a>. Examples above are in the selected projects section.</p>
               </Reveal>
             </div></div>
           </section>
