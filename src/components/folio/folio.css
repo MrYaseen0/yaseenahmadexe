@@ -391,3 +391,4 @@
 .f-slide{scroll-margin-top:100px}
 
 @media(max-width:899px){.f-sec{scroll-margin-top:130px}#services{padding-bottom:0}}
+@media(min-width:600px) and (max-width:899px){#services{padding-bottom:90px}}
