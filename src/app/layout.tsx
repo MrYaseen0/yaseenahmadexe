@@ -99,6 +99,7 @@ export const metadata: Metadata = {
   authors: [{ name: "Yaseen Ahmad", url: SITE_URL }],
   creator: "Yaseen Ahmad",
   publisher: "Yaseen Ahmad",
+  other: { "msvalidate.01": "0C27A57AE0D9E5EF7D881C9726517816" },
   alternates: {
     canonical: "/",
   },
