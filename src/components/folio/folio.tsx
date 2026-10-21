@@ -152,10 +152,12 @@ const NUM: Record<Id, string> = { home: "2026", about: "01", work: "02", journey
 
 function Backdrop({ active }: { active: Id }) {
   const reduce = useReducedMotion();
+  const mounted = useRef(false);
+  useEffect(() => { mounted.current = true; }, []);
   return (
     <div className="f-backdrop" aria-hidden="true">
       <motion.div className="f-wash" initial={false} animate={{ background: WASH[active] }} transition={{ duration: reduce ? 0 : 0.9 }} />
-      <motion.span key={NUM[active]} className="f-numeral" initial={reduce ? false : { opacity: 0, x: -40 }} animate={{ opacity: active === "contact" || active === "more" ? 0 : 1, x: 0 }} transition={{ duration: 0.7 }}>{NUM[active]}</motion.span>
+      <motion.span key={NUM[active]} className="f-numeral" initial={reduce || !mounted.current ? false : { opacity: 0, x: -40 }} animate={{ opacity: active === "contact" || active === "more" ? 0 : 1, x: 0 }} transition={{ duration: 0.7 }}>{NUM[active]}</motion.span>
       <i className="f-diag d1" /><i className="f-diag d2" />
     </div>
   );
