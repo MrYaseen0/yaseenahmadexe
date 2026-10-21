@@ -57,11 +57,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
     default:
-      "Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer in Peshawar, Pakistan",
+      "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer in Peshawar, Pakistan",
     template: "%s | Yaseen Ahmad",
   },
   description:
-    "Yaseen Ahmad (yaseenahmadexe) is a full-stack web developer and software engineer in Peshawar, Pakistan — building MERN/Next.js web apps and SaaS products. Explore project details, screenshots and public source code.",
+    "Yaseen Ahmad (yaseenahmadexe) is a freelance full-stack developer and final-year Software Engineering student in Peshawar, Pakistan, building MERN/Next.js web apps. Explore real project details, screenshots and public source code, then get in touch.",
   keywords: [
     "Yaseen Ahmad",
     "yaseenahmadexe",
@@ -70,6 +70,8 @@ export const metadata: Metadata = {
     "Web Developer in Pakistan",
     "Software Engineer Pakistan",
     "Software Engineer Peshawar",
+    "Freelance Full-Stack Developer",
+    "Freelance Web Developer Peshawar",
     "Hire Web Developer",
     "Freelance Web Developer",
     "MERN stack",
@@ -116,9 +118,9 @@ export const metadata: Metadata = {
     apple: "/assets/logo.png",
   },
   openGraph: {
-    title: "Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer | Peshawar, Pakistan",
+    title: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer | Peshawar, Pakistan",
     description:
-      "Full-stack web developer & software engineer in Peshawar, Pakistan. Explore web applications, project details and public source code.",
+      "Freelance full-stack developer in Peshawar, Pakistan. Real projects, screenshots and public source code.",
     url: SITE_URL,
     siteName: "Yaseen Ahmad",
     type: "website",
@@ -128,13 +130,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer in Peshawar, Pakistan",
+        alt: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer in Peshawar, Pakistan",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer | Peshawar, Pakistan",
+    title: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer | Peshawar, Pakistan",
     description:
       "Full-stack web developer & software engineer in Peshawar, Pakistan. Projects, screenshots and public source code.",
     creator: "@yaseencecosian",
@@ -151,14 +153,18 @@ const personSchema = {
   image: `${SITE_URL}/assets/dev-photo.jpg`,
   "@id": `${SITE_URL}/#person`,
   description:
-    "Full-stack web developer and final-year BS Software Engineering student at CECOS University in Peshawar, Pakistan.",
+    "Freelance full-stack developer and final-year BS Software Engineering student at CECOS University in Peshawar, Pakistan.",
   email: "mailto:yaseenahmad.exe@gmail.com",
-  jobTitle: "Full-Stack Developer",
+  jobTitle: "Freelance Full-Stack Developer",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Peshawar",
     addressRegion: "Khyber Pakhtunkhwa",
     addressCountry: "PK",
+  },
+  makesOffer: {
+    "@type": "Offer",
+    itemOffered: { "@type": "Service", name: "Freelance full-stack web development" },
   },
   alumniOf: {
     "@type": "CollegeOrUniversity",

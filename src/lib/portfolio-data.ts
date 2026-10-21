@@ -11,7 +11,7 @@ export const developer = {
   location: "Peshawar, Pakistan",
   status: "Available for work",
   availability: "open",
-  jobTitle: "Full-Stack Developer",
+  jobTitle: "Freelance Full-Stack Developer",
   email: "yaseenahmad.exe@gmail.com",
   phone: "+92 318 937 0042",
   phoneRaw: "+923189370042",

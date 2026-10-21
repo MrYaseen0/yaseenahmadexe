@@ -1,6 +1,6 @@
 # Yaseen Ahmad (yaseenahmadexe)
 
-> Yaseen Ahmad (online as yaseenahmadexe) is a full-stack web developer and final-year BS Software Engineering student at CECOS University of IT and Emerging Sciences in Peshawar, Khyber Pakhtunkhwa, Pakistan. This site is his portfolio: selected projects with details, screenshots and links to public source code.
+> Yaseen Ahmad (online as yaseenahmadexe) is a freelance full-stack developer and final-year BS Software Engineering student at CECOS University of IT and Emerging Sciences in Peshawar, Khyber Pakhtunkhwa, Pakistan. This site is his portfolio: selected projects with details, screenshots and links to public source code.
 
 ## Pages
 
@@ -20,6 +20,7 @@
 
 ## Facts
 
+- Work: Freelance full-stack developer (Next.js, React, Node.js). Project enquiries by email.
 - Name: Yaseen Ahmad. Also uses the handle yaseenahmadexe.
 - Location: Peshawar, Khyber Pakhtunkhwa, Pakistan.
 - Education: BS Software Engineering, CECOS University, Peshawar (final year).
