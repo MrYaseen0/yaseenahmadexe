@@ -9,6 +9,7 @@
 - [Software engineering project enquiries](https://yaseenahmadexe.vercel.app/freelance-software-engineer)
 - [Web developer in Peshawar](https://yaseenahmadexe.vercel.app/hire-web-developer-peshawar)
 - [React, Node.js and full-stack development](https://yaseenahmadexe.vercel.app/mern-stack-developer)
+- [Uncensored LLM — free AI chat and open-source server](https://yaseenahmadexe.vercel.app/uncensored-llm): Project page for Uncensored AI, a free uncensored LLM chat (live app: https://uncensored-llm.vercel.app), and the open-source Kaggle GPU server behind it.
 
 ## Profiles
 

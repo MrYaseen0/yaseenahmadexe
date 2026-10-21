@@ -5,6 +5,7 @@ export const SUBPAGES = [
   { href: "/freelance-software-engineer", label: "Freelance software engineer" },
   { href: "/hire-web-developer-peshawar", label: "Web developer in Peshawar" },
   { href: "/mern-stack-developer", label: "MERN stack developer" },
+  { href: "/uncensored-llm", label: "Uncensored LLM" },
 ];
 
 export function breadcrumbSchema(path: string, name: string) {
