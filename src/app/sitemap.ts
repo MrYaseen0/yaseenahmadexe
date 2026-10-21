@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 const SITE = "https://yaseenahmadexe.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  const now = new Date("2026-10-21T00:00:00Z");
   return [
     {
       url: SITE,

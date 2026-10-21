@@ -70,20 +70,12 @@ export const metadata: Metadata = {
     "Web Developer in Pakistan",
     "Software Engineer Pakistan",
     "Software Engineer Peshawar",
-    "Software House Peshawar",
-    "Software House in KPK",
-    "Software House in Pakistan",
-    "Software House Khyber Pakhtunkhwa",
     "Hire Web Developer",
-    "Hire Web Developer Pakistan",
     "Freelance Web Developer",
-    "Freelance Software Engineer",
     "MERN stack",
     "MERN Stack Developer",
     "Next.js Developer",
     "SaaS",
-    "SaaS Development",
-    "Web Development Services",
     "Next.js",
     "React",
     "TypeScript",
@@ -144,7 +136,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer | Peshawar, Pakistan",
     description:
-      "Full-stack web developer & software engineer in Peshawar, Pakistan. Web apps, SaaS, APIs — available for hire.",
+      "Full-stack web developer & software engineer in Peshawar, Pakistan. Projects, screenshots and public source code.",
     creator: "@yaseencecosian",
     images: ["/og-image.png"],
   },
@@ -157,10 +149,15 @@ const personSchema = {
   alternateName: "yaseenahmadexe",
   url: SITE_URL,
   image: `${SITE_URL}/assets/dev-photo.jpg`,
+  "@id": `${SITE_URL}/#person`,
+  description:
+    "Full-stack web developer and final-year BS Software Engineering student at CECOS University in Peshawar, Pakistan.",
+  email: "mailto:yaseenahmad.exe@gmail.com",
   jobTitle: "Full-Stack Developer",
   address: {
     "@type": "PostalAddress",
     addressLocality: "Peshawar",
+    addressRegion: "Khyber Pakhtunkhwa",
     addressCountry: "PK",
   },
   alumniOf: {
@@ -189,10 +186,24 @@ const personSchema = {
     "REST APIs",
     "Database design",
   ],
-  seeks: {
-    "@type": "Demand",
-    name: "Freelance web development projects and remote software engineering roles",
-  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Yaseen Ahmad",
+  alternateName: "yaseenahmadexe",
+  url: SITE_URL,
+  inLanguage: "en",
+  publisher: { "@id": `${SITE_URL}/#person` },
+};
+
+const profilePageSchema = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  url: SITE_URL,
+  name: "Yaseen Ahmad - Portfolio",
+  mainEntity: { "@id": `${SITE_URL}/#person` },
 };
 
 // FAQ schema: feeds Google/AI answers for "who is Yaseen Ahmad",
@@ -218,6 +229,14 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
         />
         <script
           type="application/ld+json"

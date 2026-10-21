@@ -1,40 +1,32 @@
-# Yaseen Ahmad (yaseenahmadexe) — Web Developer & Software Engineer, Peshawar, Pakistan
+# Yaseen Ahmad (yaseenahmadexe)
 
-> Portfolio of Yaseen Ahmad (yaseenahmadexe), a full-stack web developer and software engineer in Peshawar, Khyber Pakhtunkhwa, Pakistan. Software-house-grade services: custom web apps, SaaS products, REST APIs, UI/UX. Available for freelance hire and remote roles worldwide. Also found under: web developer Peshawar, software engineer Pakistan, software house Peshawar, software house KPK.
+> Yaseen Ahmad (online as yaseenahmadexe) is a full-stack web developer and final-year BS Software Engineering student at CECOS University of IT and Emerging Sciences in Peshawar, Khyber Pakhtunkhwa, Pakistan. This site is his portfolio: selected projects with details, screenshots and links to public source code.
 
-## About
+## Pages
 
-- [Portfolio home](https://yaseenahmadexe.vercel.app/): Full portfolio — hero, projects, services, pricing, blog, testimonials, booking, and contact.
-- [GitHub](https://github.com/MrYaseen0): Open-source projects and contributions.
-- [LinkedIn](https://www.linkedin.com/in/yaseen-ahmad-489967280): Professional background and experience.
-- [X (Twitter)](https://x.com/yaseencecosian): Updates and tech posts.
-- [Instagram](https://www.instagram.com/yaseenahmadexe/): Behind-the-scenes and short-form content.
+- [Portfolio home](https://yaseenahmadexe.vercel.app/): Selected projects, project details, screenshots, CV and contact.
+- [CV (PDF)](https://yaseenahmadexe.vercel.app/Yaseen-Ahmad-CV.pdf): Curriculum vitae.
+- [Software engineering project enquiries](https://yaseenahmadexe.vercel.app/freelance-software-engineer)
+- [Web developer in Peshawar](https://yaseenahmadexe.vercel.app/hire-web-developer-peshawar)
+- [React, Node.js and full-stack development](https://yaseenahmadexe.vercel.app/mern-stack-developer)
 
-## Background
+## Profiles
 
-- Name: Yaseen Ahmad (online as yaseenahmadexe)
-- Role: Full-Stack Developer — MERN stack & SaaS specialist
-- Location: Peshawar, Khyber Pakhtunkhwa, Pakistan (34.0151, 71.5249); works with clients worldwide
-- Availability: **currently available for freelance projects, contract work, and remote roles**
-- Education: BS Software Engineering, CECOS University (final year)
-- Experience: 15+ projects built; freelance web development
-- Stack: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Flask, Supabase, PostgreSQL, MongoDB
+- [GitHub](https://github.com/MrYaseen0)
+- [LinkedIn](https://www.linkedin.com/in/yaseen-ahmad-489967280)
+- [X](https://x.com/yaseencecosian)
+- [Instagram](https://www.instagram.com/yaseenahmadexe/)
+- [TikTok](https://www.tiktok.com/@mryaseen.exe)
 
-## Services
+## Facts
 
-- [Services](https://yaseenahmadexe.vercel.app/#services): Full-stack web application development, SaaS architecture and builds, React/Next.js frontends, Node.js APIs.
-- [Pricing](https://yaseenahmadexe.vercel.app/#pricing): Engagement models and starting rates.
-- [Book a call](https://yaseenahmadexe.vercel.app/#booking): Schedule a discovery call.
-- [Hire / Contact](https://yaseenahmadexe.vercel.app/#contact): Contact form, email, and WhatsApp.
-
-## Work
-
-- [Projects](https://yaseenahmadexe.vercel.app/#projects): Selected production work with case-study detail.
-- [Experience](https://yaseenahmadexe.vercel.app/#experience): Work history and roles.
-- [Testimonials](https://yaseenahmadexe.vercel.app/#testimonials): Client feedback.
-- [Blog](https://yaseenahmadexe.vercel.app/#blog): Technical articles and notes.
+- Name: Yaseen Ahmad. Also uses the handle yaseenahmadexe.
+- Location: Peshawar, Khyber Pakhtunkhwa, Pakistan.
+- Education: BS Software Engineering, CECOS University, Peshawar (final year).
+- Skills: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Flask, databases.
+- Built the website for the Quality Enhancement Cell (QEC) at CECOS University: https://qec-page.vercel.app/qec
+- Repository listings on the portfolio do not imply sole authorship of every project.
 
 ## Contact
 
-- [Contact form](https://yaseenahmadexe.vercel.app/#contact): Fastest way to reach out for project inquiries.
-- [WhatsApp](https://wa.me/923189370042): Direct chat for quick questions.
+- Email: yaseenahmad.exe@gmail.com
