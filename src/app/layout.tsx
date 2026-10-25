@@ -133,6 +133,12 @@ export const metadata: Metadata = {
         height: 630,
         alt: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer in Peshawar, Pakistan",
       },
+      {
+        url: "/yaseen-ahmad.jpg",
+        width: 940,
+        height: 1268,
+        alt: "Yaseen Ahmad — Freelance Full-Stack Developer",
+      },
     ],
   },
   twitter: {
@@ -151,7 +157,7 @@ const personSchema = {
   name: "Yaseen Ahmad",
   alternateName: "yaseenahmadexe",
   url: SITE_URL,
-  image: `${SITE_URL}/assets/dev-photo.jpg`,
+  image: `${SITE_URL}/yaseen-ahmad.jpg`,
   "@id": `${SITE_URL}/#person`,
   description:
     "Freelance full-stack developer and final-year BS Software Engineering student at CECOS University in Peshawar, Pakistan.",
