@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useSpring, useTransform, useInView } from "framer-motion";
 import { developer, experiences, moreProjects, proof, projects, sections, socials, toolkit, type Project } from "./data";
+import { faqs } from "@/lib/portfolio-data";
 import { ContentProvider } from "@/components/portfolio/content-editor";
 import { HomeWidgets } from "@/components/portfolio/home-widgets";
 import "./folio.css";
@@ -545,6 +546,11 @@ export function Folio() {
           </section>
         </main>
         <section id="more" className="f-more" aria-label="More information" style={{position:"relative",zIndex:40}}>
+          <div className="f-wrap f-faq" id="faq" aria-labelledby="faq-title">
+            <p className="f-label">Quick answers</p>
+            <h2 className="f-h2" id="faq-title">Skills and <em>contact.</em></h2>
+            {faqs.map((faq) => <details key={faq.q}><summary>{faq.q}</summary><p className="f-p">{faq.a}</p></details>)}
+          </div>
           <div className="f-wrap"><p className="f-label">More information</p><h2 className="f-h2">Let&apos;s discuss <em>the scope.</em></h2><p className="f-p">For a project enquiry, share what you want to build. Scope, timing, cost and support need to be agreed for that project.</p><div className="f-project-actions"><a className="f-btn red" href={socials.email}>Email Yaseen</a><a className="f-btn ghost" href="/Yaseen-Ahmad-CV.pdf">Download CV (PDF)</a><a className="f-link" href="/freelance-software-engineer">Freelance software engineer</a><a className="f-link" href="/hire-web-developer-peshawar">Web developer in Peshawar</a><a className="f-link" href="/mern-stack-developer">React and Node.js developer</a><a className="f-link" href="/privacy">Privacy</a><a className="f-link" href="/terms">Terms</a></div></div>
         </section>
       </div>
