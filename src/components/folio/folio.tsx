@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useScroll, useSpring, useTransform, useInView } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useSpring, useTransform, useInView } from "framer-motion";
 import { developer, experiences, moreProjects, proof, projects, sections, socials, toolkit, type Project } from "./data";
 import { faqs } from "@/lib/portfolio-data";
 import { ContentProvider } from "@/components/portfolio/content-editor";
@@ -155,12 +155,12 @@ const NUM: Record<Id, string> = { home: "2026", about: "01", work: "02", journey
 
 function Backdrop({ active }: { active: Id }) {
   const reduce = useReducedMotion();
-  const mounted = useRef(false);
-  useEffect(() => { mounted.current = true; }, []);
   return (
     <div className="f-backdrop" aria-hidden="true">
       <motion.div className="f-wash" initial={false} animate={{ background: WASH[active] }} transition={{ duration: reduce ? 0 : 0.9 }} />
-      <motion.span key={NUM[active]} className="f-numeral" initial={reduce || !mounted.current ? false : { opacity: 0, x: -40 }} animate={{ opacity: active === "contact" || active === "more" ? 0 : 1, x: 0 }} transition={{ duration: 0.7 }}>{NUM[active]}</motion.span>
+      <AnimatePresence initial={false}>
+        <motion.span key={NUM[active]} className="f-numeral" initial={reduce ? false : { opacity: 0, x: -40 }} animate={{ opacity: active === "contact" || active === "more" ? 0 : 1, x: 0 }} transition={{ duration: 0.7 }}>{NUM[active]}</motion.span>
+      </AnimatePresence>
       <i className="f-diag d1" /><i className="f-diag d2" />
     </div>
   );

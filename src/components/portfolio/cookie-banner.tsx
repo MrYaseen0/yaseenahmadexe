@@ -10,14 +10,15 @@ export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    let delay = 1200;
     try {
-      if (!localStorage.getItem(KEY)) {
-        const t = setTimeout(() => setVisible(true), 1200);
-        return () => clearTimeout(t);
-      }
+      if (localStorage.getItem(KEY)) return;
     } catch {
-      setVisible(true);
+      // Storage may be blocked. Keep the banner dismissible for this visit.
+      delay = 0;
     }
+    const timer = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(timer);
   }, []);
 
   const choose = (value: "accepted" | "declined") => {
