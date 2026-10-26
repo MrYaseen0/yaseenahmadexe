@@ -10,7 +10,6 @@ import Script from "next/script";
 // is set in the Vercel project env. No ID configured = no GA scripts served.
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 import { CookieBanner } from "@/components/portfolio/cookie-banner";
-import { faqs } from "@/lib/portfolio-data";
 
 const fontSans = Inter({
   variable: "--font-sans",
@@ -219,18 +218,6 @@ const profilePageSchema = {
   mainEntity: { "@id": `${SITE_URL}/#person` },
 };
 
-// FAQ schema: feeds Google/AI answers for "who is Yaseen Ahmad",
-// "software house in Peshawar", "hire web developer" style queries.
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqs.map((f) => ({
-    "@type": "Question",
-    name: f.q,
-    acceptedAnswer: { "@type": "Answer", text: f.a },
-  })),
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -250,10 +237,6 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
         />
       </head>
       <body
