@@ -255,6 +255,7 @@ export const achievements = [
 
 // Public facts, not unconfirmed commercial promises.
 export const faqs = [
+ {q:"Which programming languages and web technologies does Yaseen use?", a:"My portfolio toolkit includes JavaScript, TypeScript and Python, with React, Next.js and Node.js for web development. These are programming technologies, not a count of spoken languages.", icon:"Code"},
  {q:"Who is Yaseen Ahmad?", a:"A full-stack developer and final-year Software Engineering student at CECOS University in Peshawar, Pakistan.", icon:"Users"},
  {q:"Where can I see the projects?", a:"The portfolio links to public repositories, with descriptions and interface screenshots. Repository listings do not imply sole authorship.", icon:"Code"},
  {q:"How can I discuss a project?", a:"Email yaseenahmad.exe@gmail.com with the scope. Timing, cost, payment and support need to be agreed for the specific project.", icon:"Mail"},
@@ -358,4 +359,3 @@ function getMockupPreview(repoName: string): string {
     return "/assets/projects/task-mgmt.avif";
   return "/assets/projects/default-project.avif";
 }
-
