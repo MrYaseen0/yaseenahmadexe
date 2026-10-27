@@ -18,8 +18,13 @@ export type Project = {
   blurb: string;
   tags: string[];
   image: string;
-  github: string;
+  /** Public repo link. Omitted for private repos, so no dead link is shown. */
+  github?: string;
   live?: string;
+  /** Pinned projects render first with a "Pinned" badge. */
+  pinned?: boolean;
+  /** Inline showcase video (muted autoplay loop). Paths are under /public. */
+  video?: { mp4: string; webm?: string; poster: string; label: string };
   gallery?: { src: string; caption: string }[];
   details?: string[];
 };
@@ -27,6 +32,25 @@ export type Project = {
 // Real public repos of MrYaseen0. Preview images are the repo previews that
 // already ship in public/assets/projects/real.
 export const projects: Project[] = [
+  {
+    title: "FoodHub",
+    blurb: "Food-ordering marketplace for Peshawar. Flutter Android and web app with a TypeScript API on Neon Postgres, Neon Auth sign-in, live order tracking and cash-on-delivery checkout.",
+    tags: ["Flutter", "TypeScript", "Neon Postgres", "Marketplace"],
+    image: "/assets/projects/foodhub/foodhub-poster.jpg",
+    pinned: true,
+    video: {
+      mp4: "/assets/projects/foodhub/foodhub-promo-720p.mp4",
+      webm: "/assets/projects/foodhub/foodhub-promo-720p.webm",
+      poster: "/assets/projects/foodhub/foodhub-poster.jpg",
+      label: "FoodHub promo video: the real Android app's home, menu, cart and checkout screens",
+    },
+    details: [
+      "A marketplace where customers in Peshawar browse restaurants, open a menu, add dishes to a cart and check out with cash on delivery.",
+      "Built as one Flutter codebase for Android and the web, backed by a TypeScript REST API on Neon serverless Postgres with Neon Auth accounts and owner approval for new users.",
+      "Orders carry the delivery name, phone and address, are protected against duplicate submits, and update live for tracking.",
+      "Every screen in the promo is a real recording of the app running against its live API. The source code is private.",
+    ],
+  },
   {
     title: "CECOS QEC",
     blurb: "Public website for the Quality Enhancement Cell at CECOS University, with a focal-persons directory, events, reports and team pages.",
@@ -126,7 +150,7 @@ export const toolkit: string[] = Array.from(
 export const proof = [
   { value: "29", label: "Public GitHub repos", note: "github.com/MrYaseen0" },
   { value: "7", label: "Languages used", note: "HTML, TypeScript, JavaScript, Python, Java, Jupyter, TeX" },
-  { value: "10", label: "Selected projects", note: "each links to its repo" },
+  { value: "11", label: "Selected projects", note: "public ones link to their repo" },
   { value: "Oct 2026", label: "Latest push", note: "read from GitHub, 21 Oct 2026" },
 ];
 
