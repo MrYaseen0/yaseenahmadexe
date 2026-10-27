@@ -1,7 +1,7 @@
 import { readJson, RequestError } from "@/lib/request-json";
 import { NextResponse } from "next/server";
 import { verifyCredentials, signAdminToken, verifyAdmin, revokeAdmin, ADMIN_COOKIE } from "@/lib/auth";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimit, rateLimitDb, getClientIp } from "@/lib/rate-limit";
 import {
   logSecurityEvent,
   isIpBlocked,
@@ -14,6 +14,7 @@ import {
 
 // Admin login brute-force policy:
 //  - fast lane: max 5 attempts per 5 minutes per IP (in-memory, per instance)
+//  - shared lane: max 10 attempts per 15 minutes per IP (DB-backed, all instances)
 //  - hard lane: 5 FAILED logins inside a rolling 5-minute window (DB-backed,
 //    works across serverless instances) → IP blocked for 24 hours.
 // A successful login clears the failed-attempt counter, so the owner's own
@@ -44,6 +45,16 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Too many attempts. Please try again shortly." },
       { status: 429, headers: { "Retry-After": String(Math.ceil(limit.retryAfterMs / 1000)) } }
+    );
+  }
+
+  // Second layer: attempt cap shared by every serverless instance (DB-backed).
+  const shared = await rateLimitDb(`admin-auth:${ip}`, { limit: 10, windowMs: 15 * 60_000 });
+  if (!shared.ok) {
+    await logSecurityEvent("RATE_LIMIT", ip, "/api/admin/auth", "Login attempt cap (10/15min, all instances)", request.headers.get("user-agent") || undefined);
+    return NextResponse.json(
+      { error: "Too many attempts. Please try again shortly." },
+      { status: 429, headers: { "Retry-After": String(Math.ceil(shared.retryAfterMs / 1000)) } }
     );
   }
 

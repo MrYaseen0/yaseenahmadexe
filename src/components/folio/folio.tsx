@@ -402,6 +402,61 @@ function Reel() {
   );
 }
 
+// Under 768px the two-row pill nav becomes one menu button; the panel reuses the pill styling.
+function MobileMenu({ active }: { active: Id }) {
+  const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
+  const wrap = useRef<HTMLDivElement>(null);
+  const items = [...sections.map((s) => ({ id: s.id as Id, label: s.label })), { id: "more" as Id, label: "More" }];
+  const current = items.find((i) => i.id === active)?.label;
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    const onDown = (e: PointerEvent) => { if (wrap.current && !wrap.current.contains(e.target as Node)) setOpen(false); };
+    const onScroll = () => setOpen(false);
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onDown);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => { window.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onDown); window.removeEventListener("scroll", onScroll); };
+  }, [open]);
+  return (
+    <div className="f-mnav" ref={wrap}>
+      <a className="f-mnav-logo" href="#home" aria-label="Yaseen Ahmad, home">YASEEN<i>.</i></a>
+      <button type="button" className="f-mnav-btn" aria-expanded={open} aria-controls="f-mnav-panel" onClick={() => setOpen((o) => !o)}>
+        <span className="f-mnav-cur">{open ? "Close" : current && active !== "home" ? current : "Menu"}</span>
+        <span className={`f-burger${open ? " x" : ""}`} aria-hidden="true"><i /><i /></span>
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.nav
+            id="f-mnav-panel"
+            className="f-mnav-panel"
+            aria-label="Sections"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: -10, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: reduce ? 0.12 : 0.28, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {items.map((it, i) => (
+              <motion.a
+                key={it.id}
+                href={`#${it.id}`}
+                aria-current={active === it.id}
+                onClick={() => setOpen(false)}
+                initial={reduce ? false : { opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: reduce ? 0 : 0.04 + i * 0.03, duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {it.label}
+              </motion.a>
+            ))}
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export function Folio() {
   const active = useActive();
   const tools = [...toolkit, ...toolkit];
@@ -419,6 +474,7 @@ export function Folio() {
             ))}
             <a href="#more" aria-current={active === "more"}>More</a>
           </nav>
+          <MobileMenu active={active} />
         </header>
         <Backdrop active={active} />
         <Intro />
