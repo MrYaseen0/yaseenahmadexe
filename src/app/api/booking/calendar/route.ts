@@ -18,6 +18,17 @@ export async function GET(request: Request) {
     );
   }
 
+  // RFC 5545: TEXT escaping is not parameter or CAL-ADDRESS escaping.
+  // Reject control characters and parameter delimiters at the input boundary.
+  if ([date, time, purpose, name, email].some(v => /[\x00-\x1f\x7f]/.test(v)) ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(date) ||
+      !/^(0?[1-9]|1[0-2]):[0-5]\d (AM|PM)$/i.test(time) ||
+      (email && !/^[A-Za-z0-9.!#$%&'*+\/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\.[A-Za-z]{2,}$/.test(email)) ||
+      /[";:,]/.test(name) || name.length > 120 || purpose.length > 200 || email.length > 200 ||
+      (!Number.isFinite(Date.parse(`${date}T00:00:00Z`)) || new Date(`${date}T00:00:00Z`).toISOString().slice(0,10) !== date)) {
+    return NextResponse.json({ error: "Invalid calendar fields" }, { status: 400 });
+  }
+
   try {
     // Parse "10:00 AM" → 24h format
     const timeMatch = time.match(/(\d+):(\d+)\s*(AM|PM)/i);
@@ -60,7 +71,7 @@ export async function GET(request: Request) {
       `DESCRIPTION:${escapeICS(`Call with ${developer.name} (${developer.role}).\\n\\nPurpose: ${purpose}\\nClient: ${name}${email ? ` <${email}>` : ""}\\n\\nMeeting link will be sent via email after confirmation.\\n\\nContact: ${developer.email}`)}`,
       `LOCATION:${escapeICS("Google Meet / Zoom (link sent via email)")}`,
       `ORGANIZER;CN=${escapeICS(developer.name)}:MAILTO:${developer.email}`,
-      `ATTENDEE;CN=${escapeICS(name)};ROLE=REQ-PARTICIPANT:MAILTO:${email || "client@example.com"}`,
+      `ATTENDEE;CN="${name}";ROLE=REQ-PARTICIPANT:MAILTO:${email || "client@example.com"}`,
       "STATUS:TENTATIVE",
       "BEGIN:VALARM",
       "TRIGGER:-PT15M",
@@ -69,9 +80,9 @@ export async function GET(request: Request) {
       "END:VALARM",
       "END:VEVENT",
       "END:VCALENDAR",
-    ].join("\r\n");
+    ].map(foldICS).join("\r\n") + "\r\n";
 
-    const filename = `yaseen-ahmad-${purpose.toLowerCase().replace(/\s+/g, "-")}-${date}.ics`;
+    const filename = `yaseen-ahmad-${purpose.toLowerCase().replace(/[^a-z0-9-]/g, "-").slice(0,60)}-${date}.ics`;
 
     return new NextResponse(ics, {
       headers: {
@@ -95,4 +106,15 @@ function escapeICS(str: string): string {
     .replace(/;/g, "\\;")
     .replace(/,/g, "\\,")
     .replace(/\n/g, "\\n");
+}
+
+// Fold by UTF-8 octets, without splitting a code point (RFC 5545 section 3.1).
+function foldICS(line: string): string {
+  let result = "", length = 0;
+  for (const ch of line) {
+    const bytes = Buffer.byteLength(ch);
+    if (length + bytes > 75) { result += "\r\n "; length = 1; }
+    result += ch; length += bytes;
+  }
+  return result;
 }

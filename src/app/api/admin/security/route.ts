@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
 import { blockIp, unblockIp, logAudit } from "@/lib/security";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken, requestToken } from "@/lib/auth";
 
 // GET — security overview for the admin dashboard (admin only).
 // Returns recent attack events, 24h stats, top offending IPs, blocked list.
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -73,7 +73,7 @@ export async function GET(request: Request) {
 
 // POST — manually block an IP (admin only). Body: { ip, reason? }
 export async function POST(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     await logAudit({
       event: "ADMIN_ACTION",
       request,
-      actor: verifyToken((request.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""))?.email || "admin",
+      actor: verifyToken(requestToken(request))?.email || "admin",
       path: "/api/admin/security",
       detail: `IP blocked manually — ${ip.trim().slice(0, 45)} (${String(reason || "no reason").slice(0, 120)})`,
     });
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
 
 // DELETE — unblock an IP (admin only). Query: ?ip=1.2.3.4
 export async function DELETE(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   const ip = new URL(request.url).searchParams.get("ip");
@@ -108,7 +108,7 @@ export async function DELETE(request: Request) {
   await logAudit({
     event: "ADMIN_ACTION",
     request,
-    actor: verifyToken((request.headers.get("authorization") || "").replace(/^Bearer\s+/i, ""))?.email || "admin",
+    actor: verifyToken(requestToken(request))?.email || "admin",
     path: "/api/admin/security",
     detail: `IP unblocked — ${ip.slice(0, 45)}`,
   });

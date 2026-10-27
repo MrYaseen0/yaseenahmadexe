@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdmin, verifyToken } from "@/lib/auth";
+import { verifyAdmin, verifyToken, requestToken } from "@/lib/auth";
 import { getClientIp } from "@/lib/rate-limit";
 import { logAudit } from "@/lib/security";
 import {
@@ -62,7 +62,7 @@ export async function GET() {
 // Every write is audit-logged as a CONTENT_EDIT security event with the
 // admin's email, IP, key, and old → new value.
 export async function PUT(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -165,7 +165,7 @@ export async function PUT(request: Request) {
 
 // DELETE — remove a content key (admin only)
 export async function DELETE(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

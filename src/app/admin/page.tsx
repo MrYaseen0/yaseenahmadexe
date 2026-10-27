@@ -47,11 +47,7 @@ const TOKEN_STORAGE = "ya-admin-token";
 
 // Returns the stored admin token if it looks like a signed JWT
 // (header.payload.signature), otherwise "". Safe to call during SSR.
-function readStoredToken(): string {
-  if (typeof window === "undefined") return "";
-  const stored = window.localStorage.getItem(TOKEN_STORAGE);
-  return stored && stored.split(".").length === 3 ? stored : "";
-}
+function readStoredToken(): string { return "cookie-session"; }
 
 interface Booking {
   id: string;
@@ -124,10 +120,15 @@ export default function AdminPage() {
   // Restored via lazy state initializers (read once) instead of a mount
   // effect that sets state synchronously.
   const [token, setToken] = useState<string>(() => readStoredToken());
-  const [authed, setAuthed] = useState<boolean>(() => readStoredToken() !== "");
+  const [authed, setAuthed] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    localStorage.removeItem(TOKEN_STORAGE);
+    fetch("/api/admin/auth", { cache: "no-store" }).then(r => { if (r.ok) setAuthed(true); }).catch(() => {});
+  }, []);
 
   const authenticate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,8 +141,8 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Invalid credentials");
-      localStorage.setItem(TOKEN_STORAGE, data.token);
-      setToken(data.token);
+      localStorage.removeItem(TOKEN_STORAGE);
+      setToken("cookie-session");
       setAuthed(true);
       toast.success("Welcome back, Yaseen! 🎉");
     } catch (err: any) {
@@ -151,25 +152,13 @@ export default function AdminPage() {
     }
   };
 
-  const logout = () => {
-    // Audit the logout first (fire-and-forget, keepalive survives navigation).
-    const t = readStoredToken();
-    if (t) {
-      fetch("/api/admin/activity", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${t}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ event: "ADMIN_LOGOUT", path: "/admin" }),
-        keepalive: true,
-      }).catch(() => {});
-    }
-    localStorage.removeItem(TOKEN_STORAGE);
-    setAuthed(false);
-    setToken("");
-    setEmail("");
-    setPassword("");
+  const logout = async () => {
+    try {
+      const response = await fetch("/api/admin/auth", { method: "DELETE" });
+      if (!response.ok) throw new Error("Logout not confirmed. Please retry.");
+      localStorage.removeItem(TOKEN_STORAGE);
+      setAuthed(false); setToken(""); setEmail(""); setPassword("");
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Logout failed"); }
   };
 
   if (!authed) {

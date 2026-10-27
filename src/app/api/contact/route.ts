@@ -97,7 +97,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
 
 // Admin-only: mark a message read/unread.
 export async function PATCH(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {

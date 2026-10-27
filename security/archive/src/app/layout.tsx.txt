@@ -1,0 +1,264 @@
+import type { Metadata, Viewport } from "next";
+import { Anton, Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as SonnerToaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next";
+import Script from "next/script";
+
+// Google Analytics 4 — activates only when NEXT_PUBLIC_GA_ID (G-XXXXXXXXXX)
+// is set in the Vercel project env. No ID configured = no GA scripts served.
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+import { CookieBanner } from "@/components/portfolio/cookie-banner";
+
+const fontSans = Inter({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const fontDisplay = Fraunces({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["600"],
+  display: "swap",
+});
+
+const fontAnton = Anton({
+  variable: "--font-anton",
+  subsets: ["latin"],
+  weight: ["400"],
+  display: "swap",
+});
+
+const fontMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+});
+
+// Responsive mobile viewport: render at the device width so phones get the
+// real mobile layout (the codebase is fully responsive — sm:/lg: Tailwind
+// breakpoints, max-w containers, no fixed pixel widths). The previous
+// fixed `width: 1280` "desktop mirror" rendered a zoomed-out miniature
+// desktop on phones and was flagged by PageSpeed ("Optimize viewport for
+// mobile"). Desktop browsers are unaffected by this meta tag.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+const SITE_URL = "https://yaseenahmadexe.vercel.app";
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default:
+      "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer in Peshawar, Pakistan",
+    template: "%s | Yaseen Ahmad",
+  },
+  description:
+    "Yaseen Ahmad (yaseenahmadexe) is a freelance full-stack developer and final-year Software Engineering student in Peshawar, Pakistan, building MERN/Next.js web apps. Explore real project details, screenshots and public source code, then get in touch.",
+  keywords: [
+    "Yaseen Ahmad",
+    "yaseenahmadexe",
+    "Full-Stack Developer",
+    "Web Developer Peshawar",
+    "Web Developer in Pakistan",
+    "Software Engineer Pakistan",
+    "Software Engineer Peshawar",
+    "Freelance Full-Stack Developer",
+    "Freelance Web Developer Peshawar",
+    "Hire Web Developer",
+    "Freelance Web Developer",
+    "MERN stack",
+    "MERN Stack Developer",
+    "Next.js Developer",
+    "SaaS",
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Node.js",
+    "Python",
+    "Flask",
+    "Object Oriented Programming",
+    "Peshawar",
+    "Khyber Pakhtunkhwa",
+    "Pakistan",
+    "Software Engineer",
+  ],
+  other: {
+    "msvalidate.01": "0C27A57AE0D9E5EF7D881C9726517816",
+    "geo.region": "PK-KP",
+    "geo.placename": "Peshawar, Khyber Pakhtunkhwa, Pakistan",
+    "geo.position": "34.0151;71.5249",
+    ICBM: "34.0151, 71.5249",
+  },
+  authors: [{ name: "Yaseen Ahmad", url: SITE_URL }],
+  creator: "Yaseen Ahmad",
+  publisher: "Yaseen Ahmad",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/assets/logo.png",
+    apple: "/assets/logo.png",
+  },
+  openGraph: {
+    title: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer | Peshawar, Pakistan",
+    description:
+      "Freelance full-stack developer in Peshawar, Pakistan. Real projects, screenshots and public source code.",
+    url: SITE_URL,
+    siteName: "Yaseen Ahmad",
+    type: "website",
+    locale: "en_US",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer in Peshawar, Pakistan",
+      },
+      {
+        url: "/yaseen-ahmad.jpg",
+        width: 940,
+        height: 1268,
+        alt: "Yaseen Ahmad — Freelance Full-Stack Developer",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Yaseen Ahmad (yaseenahmadexe) — Freelance Full-Stack Developer | Peshawar, Pakistan",
+    description:
+      "Full-stack web developer & software engineer in Peshawar, Pakistan. Projects, screenshots and public source code.",
+    creator: "@yaseencecosian",
+    images: ["/og-image.png"],
+  },
+};
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Yaseen Ahmad",
+  alternateName: "yaseenahmadexe",
+  url: SITE_URL,
+  image: `${SITE_URL}/yaseen-ahmad.jpg`,
+  "@id": `${SITE_URL}/#person`,
+  description:
+    "Freelance full-stack developer and final-year BS Software Engineering student at CECOS University in Peshawar, Pakistan.",
+  email: "mailto:yaseenahmad.exe@gmail.com",
+  jobTitle: "Freelance Full-Stack Developer",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Peshawar",
+    addressRegion: "Khyber Pakhtunkhwa",
+    addressCountry: "PK",
+  },
+  makesOffer: {
+    "@type": "Offer",
+    itemOffered: { "@type": "Service", name: "Freelance full-stack web development" },
+  },
+  alumniOf: {
+    "@type": "CollegeOrUniversity",
+    name: "CECOS University of IT and Emerging Sciences",
+  },
+  sameAs: [
+    "https://github.com/MrYaseen0",
+    "https://www.instagram.com/yaseenahmadexe/",
+    "https://www.linkedin.com/in/yaseen-ahmad-489967280",
+    "https://x.com/yaseencecosian",
+    "https://www.tiktok.com/@mryaseen.exe",
+  ],
+  knowsAbout: [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Node.js",
+    "MERN stack",
+    "Python",
+    "Flask",
+    "SaaS architecture",
+    "Web development",
+    "Software engineering",
+    "Object-oriented programming",
+    "REST APIs",
+    "Database design",
+  ],
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Yaseen Ahmad",
+  alternateName: "yaseenahmadexe",
+  url: SITE_URL,
+  inLanguage: "en",
+  publisher: { "@id": `${SITE_URL}/#person` },
+};
+
+const profilePageSchema = {
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  url: SITE_URL,
+  name: "Yaseen Ahmad - Portfolio",
+  mainEntity: { "@id": `${SITE_URL}/#person` },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(profilePageSchema) }}
+        />
+      </head>
+      <body
+        className={`${fontSans.variable} ${fontDisplay.variable} ${fontMono.variable} ${fontAnton.variable} font-sans bg-[#FBFBF9] text-[#101410] antialiased`}
+      >
+        {children}
+        <Toaster />
+        <SonnerToaster richColors position="bottom-right" />
+        <Analytics />
+        {GA_ID ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${GA_ID}');`}
+            </Script>
+          </>
+        ) : null}
+        <CookieBanner />
+      </body>
+    </html>
+  );
+}

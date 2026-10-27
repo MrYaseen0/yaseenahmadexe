@@ -4,7 +4,7 @@ import { verifyAdmin } from "@/lib/auth";
 
 // GET — list all newsletter subscribers
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

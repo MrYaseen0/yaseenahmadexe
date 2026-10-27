@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdmin, verifyToken } from "@/lib/auth";
+import { verifyAdmin, verifyToken, requestToken } from "@/lib/auth";
 import { logAudit, type AuditEventType } from "@/lib/security";
 
 // GET — unified audit timeline (admin only).
@@ -13,7 +13,7 @@ import { logAudit, type AuditEventType } from "@/lib/security";
 //
 // Single indexed query: fast even with large tables.
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -91,7 +91,7 @@ export async function GET(request: Request) {
 const BEACON_EVENTS: AuditEventType[] = ["ADMIN_PAGE_VIEW", "ADMIN_LOGOUT"];
 
 export async function POST(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "invalid event" }, { status: 400 });
     }
     const auth = request.headers.get("authorization") || "";
-    const token = auth.replace(/^Bearer\s+/i, "").trim();
+    const token = requestToken(request);
     const actor = verifyToken(token)?.email || "admin";
     await logAudit({
       event: event as AuditEventType,

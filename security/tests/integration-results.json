@@ -1,0 +1,218 @@
+[
+  {
+    "name": "Smoke /",
+    "pass": true
+  },
+  {
+    "name": "Smoke /admin",
+    "pass": true
+  },
+  {
+    "name": "Smoke /freelance-software-engineer",
+    "pass": true
+  },
+  {
+    "name": "Smoke /hire-web-developer-peshawar",
+    "pass": true
+  },
+  {
+    "name": "Smoke /mern-stack-developer",
+    "pass": true
+  },
+  {
+    "name": "Smoke /privacy",
+    "pass": true
+  },
+  {
+    "name": "Smoke /terms",
+    "pass": true
+  },
+  {
+    "name": "Smoke /uncensored-llm",
+    "pass": true
+  },
+  {
+    "name": "Smoke /robots.txt",
+    "pass": true
+  },
+  {
+    "name": "Smoke /sitemap.xml",
+    "pass": true
+  },
+  {
+    "name": "Smoke /llms.txt",
+    "pass": true
+  },
+  {
+    "name": "Smoke /Yaseen-Ahmad-CV.pdf",
+    "pass": true
+  },
+  {
+    "name": "Real PostgreSQL admin login",
+    "pass": true
+  },
+  {
+    "name": "Session cookie HttpOnly Secure Strict",
+    "pass": true
+  },
+  {
+    "name": "No token in login body",
+    "pass": true
+  },
+  {
+    "name": "Session stored and valid",
+    "pass": true
+  },
+  {
+    "name": "CSRF origin rejected",
+    "pass": true
+  },
+  {
+    "name": "Logout confirms revocation",
+    "pass": true
+  },
+  {
+    "name": "Logged-out cookie rejected across HTTP requests",
+    "pass": true
+  },
+  {
+    "name": "Atomic shared SQL quota: five admitted, three blocked",
+    "pass": true
+  },
+  {
+    "name": "Before consent: no optional tracking",
+    "pass": true
+  },
+  {
+    "name": "FAQ count",
+    "pass": true
+  },
+  {
+    "name": "FAQ 1 expands",
+    "pass": true
+  },
+  {
+    "name": "FAQ 2 expands",
+    "pass": true
+  },
+  {
+    "name": "FAQ 3 expands",
+    "pass": true
+  },
+  {
+    "name": "FAQ 4 expands",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 1",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 1",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 2",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 2",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 3",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 3",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 4",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 4",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 5",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 5",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 6",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 6",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 7",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 7",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 8",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 8",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 9",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 9",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 10",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 10",
+    "pass": true
+  },
+  {
+    "name": "Project dialog 11",
+    "pass": true
+  },
+  {
+    "name": "Dialog Escape 11",
+    "pass": true
+  },
+  {
+    "name": "Decline: no optional tracking",
+    "pass": true
+  },
+  {
+    "name": "Accept: optional tracking enabled",
+    "pass": true
+  },
+  {
+    "name": "Revoke: custom tracking stops",
+    "pass": true
+  },
+  {
+    "name": "No horizontal overflow 320",
+    "pass": true
+  },
+  {
+    "name": "No horizontal overflow 390",
+    "pass": true
+  },
+  {
+    "name": "No client runtime errors",
+    "pass": true
+  }
+]

@@ -1,12 +1,13 @@
+import { readJson, RequestError } from "@/lib/request-json";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { verifyAdmin } from "@/lib/auth";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitDb, getClientIp } from "@/lib/rate-limit";
 import { sendLeadNotification } from "@/lib/email";
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const limit = rateLimit(`hire:${ip}`, { limit: 5, windowMs: 60_000 });
+  const limit = await rateLimitDb(`hire:${ip}`, { limit: 5, windowMs: 60_000 });
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please slow down and try again shortly." },
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
+    const body = await readJson(request) as any;
     const { name, email, company, projectType, budget, timeline, description } =
       body;
 
@@ -71,6 +72,7 @@ export async function POST(request: Request) {
         "Your hiring request has been submitted! I'll review and respond within 24 hours.",
     });
   } catch (error: any) {
+    if (error instanceof RequestError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Hire request error:", error);
     return NextResponse.json(
       { error: "Failed to submit request. Please try again." },
@@ -80,7 +82,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {

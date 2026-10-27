@@ -27,10 +27,13 @@ export function CookieBanner() {
     } catch {
       /* storage unavailable — just dismiss */
     }
+    window.dispatchEvent(new Event("analytics-consent-changed"));
     setVisible(false);
   };
 
   return (
+    <>
+    {!visible && <button onClick={() => setVisible(true)} className="fixed bottom-2 right-2 z-[89] rounded bg-white px-2 py-1 text-[10px] text-slate-600 border">Privacy choices</button>}
     <AnimatePresence>
       {visible && (
         <motion.div
@@ -52,7 +55,7 @@ export function CookieBanner() {
                 A quick note on cookies
               </p>
               <p className="mt-1 text-xs leading-relaxed text-[#5F665F]">
-                This site uses anonymous analytics to understand traffic. No
+                Optional analytics run only after you accept. No
                 advertising or cross-site tracking. See the{" "}
                 <a
                   href="/privacy"
@@ -81,5 +84,6 @@ export function CookieBanner() {
         </motion.div>
       )}
     </AnimatePresence>
+    </>
   );
 }

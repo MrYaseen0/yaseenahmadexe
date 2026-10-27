@@ -1,13 +1,14 @@
+import { readJson, RequestError } from "@/lib/request-json";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdmin, verifyToken } from "@/lib/auth";
+import { verifyAdmin, verifyToken, requestToken } from "@/lib/auth";
 import { logAudit } from "@/lib/security";
-import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { rateLimitDb, getClientIp } from "@/lib/rate-limit";
 import { sendLeadNotification } from "@/lib/email";
 
 // GET — list all bookings (admin only)
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -24,7 +25,7 @@ export async function GET(request: Request) {
 // POST — submit a new booking request
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const limit = rateLimit(`booking:${ip}`, { limit: 5, windowMs: 60_000 });
+  const limit = await rateLimitDb(`booking:${ip}`, { limit: 5, windowMs: 60_000 });
   if (!limit.ok) {
     return NextResponse.json(
       { error: "Too many requests. Please slow down and try again shortly." },
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
+    const body = await readJson(request) as any;
     const { name, email, purpose, date, time, timezone, notes } = body;
 
     if (!name || !email || !purpose || !date || !time) {
@@ -86,6 +87,7 @@ export async function POST(request: Request) {
         "Booking request submitted! I'll confirm via email within a few hours.",
     });
   } catch (error: any) {
+    if (error instanceof RequestError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Booking error:", error);
     return NextResponse.json(
       { error: "Failed to submit booking. Please try again." },
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
 
 // PATCH — admin manages a booking: confirm / cancel / delete
 export async function PATCH(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {
@@ -106,7 +108,7 @@ export async function PATCH(request: Request) {
     }
     const actor =
       verifyToken(
-        (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "")
+        requestToken(request)
       )?.email || "admin";
     if (action === "delete") {
       const doomed = await db.booking.findUnique({ where: { id: String(id) } });
@@ -136,6 +138,7 @@ export async function PATCH(request: Request) {
     }
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   } catch (error: any) {
+    if (error instanceof RequestError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Booking update error:", error);
     return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
   }

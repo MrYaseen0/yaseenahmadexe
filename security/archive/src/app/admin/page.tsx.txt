@@ -1,0 +1,1340 @@
+"use client";
+
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
+import {
+  Shield,
+  Lock,
+  Mail,
+  KeyRound,
+  Trash2,
+  Check,
+  Calendar,
+  MessageSquare,
+  Mail as MailIcon,
+  RefreshCw,
+  ExternalLink,
+  Save,
+  Edit3,
+  BarChart3,
+  Eye,
+  History,
+  RotateCcw,
+  Search,
+  FileJson,
+  Pencil,
+  Inbox,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { TrafficDashboard } from "@/components/admin/traffic-dashboard";
+import { SecurityDashboard } from "@/components/admin/security-dashboard";
+import ActivityFeed from "@/components/admin/activity-feed";
+import {
+  CONTENT_FIELDS,
+  CONTENT_DEFAULTS,
+  CONTENT_CATEGORIES,
+  validateJsonField,
+} from "@/lib/content-fields";
+
+const TOKEN_STORAGE = "ya-admin-token";
+
+// Returns the stored admin token if it looks like a signed JWT
+// (header.payload.signature), otherwise "". Safe to call during SSR.
+function readStoredToken(): string {
+  if (typeof window === "undefined") return "";
+  const stored = window.localStorage.getItem(TOKEN_STORAGE);
+  return stored && stored.split(".").length === 3 ? stored : "";
+}
+
+interface Booking {
+  id: string;
+  name: string;
+  email: string;
+  purpose: string;
+  date: string;
+  time: string;
+  timezone: string;
+  notes: string | null;
+  status: string;
+  createdAt: string;
+}
+
+interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string | null;
+  email: string;
+  rating: number;
+  message: string;
+  approved: boolean;
+  color: string;
+  createdAt: string;
+}
+
+interface Subscriber {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  website: string | null;
+  read: boolean;
+  createdAt: string;
+}
+
+interface Analytics {
+  visits7d: { date: string; label: string; count: number }[];
+  visits30d: { date: string; count: number }[];
+  bookings7d: { date: string; label: string; count: number }[];
+  sections: { section: string; count: number }[];
+  bookingPurposes: { purpose: string; count: number }[];
+  ratingDistribution: { rating: number; count: number }[];
+  totals: { visits: number; bookings: number; testimonials: number; pendingBookings: number };
+  visitors7d?: { date: string; label: string; visitors: number }[];
+  pageviews7d?: { date: string; label: string; count: number }[];
+  bounceRate?: number | null;
+  topPages?: { path: string; count: number }[];
+  referrers?: { referrer: string; count: number }[];
+  countries?: { name: string; count: number }[];
+  devices?: { name: string; count: number }[];
+  browsers?: { name: string; count: number }[];
+  operatingSystems?: { name: string; count: number }[];
+}
+
+interface ContentMap {
+  [key: string]: { value: string; category: string };
+}
+
+export default function AdminPage() {
+  // A valid token is a signed JWT: header.payload.signature.
+  // Restored via lazy state initializers (read once) instead of a mount
+  // effect that sets state synchronously.
+  const [token, setToken] = useState<string>(() => readStoredToken());
+  const [authed, setAuthed] = useState<boolean>(() => readStoredToken() !== "");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const authenticate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Invalid credentials");
+      localStorage.setItem(TOKEN_STORAGE, data.token);
+      setToken(data.token);
+      setAuthed(true);
+      toast.success("Welcome back, Yaseen! 🎉");
+    } catch (err: any) {
+      toast.error("Login failed", { description: err?.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = () => {
+    // Audit the logout first (fire-and-forget, keepalive survives navigation).
+    const t = readStoredToken();
+    if (t) {
+      fetch("/api/admin/activity", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${t}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ event: "ADMIN_LOGOUT", path: "/admin" }),
+        keepalive: true,
+      }).catch(() => {});
+    }
+    localStorage.removeItem(TOKEN_STORAGE);
+    setAuthed(false);
+    setToken("");
+    setEmail("");
+    setPassword("");
+  };
+
+  if (!authed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-50 to-pink-50 px-4 dark:from-slate-950 dark:to-rose-950/40">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md rounded-3xl border border-sky-500/20 bg-card p-8 shadow-card-hover"
+        >
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-pink-500 shadow-glow-sky">
+              <Lock className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Sign in with your admin credentials to manage your website.
+            </p>
+          </div>
+          <form onSubmit={authenticate} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="rounded-xl pl-9"
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Password</Label>
+              <div className="relative">
+                <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="rounded-xl pl-9"
+                  required
+                />
+              </div>
+            </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+            >
+              {loading ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Shield className="mr-2 h-4 w-4" />
+              )}
+              Sign In
+            </Button>
+          </form>
+          <div className="mt-6 text-center">
+            <a href="/" className="text-xs text-muted-foreground hover:text-sky-600">
+              ← Back to portfolio
+            </a>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return <AdminDashboard token={token} onLogout={logout} />;
+}
+
+function AdminDashboard({ token, onLogout }: { token: string; onLogout: () => void }) {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
+  const [content, setContent] = useState<ContentMap>({});
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("analytics");
+
+  // Memoized: children use this as an effect dependency, so a stable
+  // identity prevents refetch loops on every parent render.
+  const authHeaders = useMemo(
+    () => ({
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    }),
+    [token]
+  );
+
+  // Audit every admin panel visit: one ADMIN_PAGE_VIEW per login session.
+  // Fire-and-forget — the panel must never wait on its own audit log.
+  // (This component only renders when authenticated.)
+  const pageViewLogged = useRef<string>("");
+  useEffect(() => {
+    if (token && pageViewLogged.current !== token) {
+      pageViewLogged.current = token;
+      fetch("/api/admin/activity", {
+        method: "POST",
+        headers: authHeaders,
+        body: JSON.stringify({ event: "ADMIN_PAGE_VIEW", path: "/admin" }),
+        keepalive: true,
+      }).catch(() => {});
+    }
+  }, [token, authHeaders]);
+
+  // Pure fetch: no setState inside, so effects can await it without
+  // synchronously triggering renders.
+  const fetchAllData = useCallback(async () => {
+    const [bookingRes, testRes, subRes, msgRes, analyticsRes, contentRes] = await Promise.all([
+      fetch("/api/booking", { headers: authHeaders }),
+      fetch("/api/admin/testimonials", { headers: authHeaders }),
+      fetch("/api/admin/subscribers", { headers: authHeaders }),
+      fetch("/api/contact", { headers: authHeaders }),
+      fetch("/api/admin/analytics", { headers: authHeaders }),
+      fetch("/api/admin/content"),
+    ]);
+    const bookingData = await bookingRes.json();
+    const testData = await testRes.json();
+    const subData = await subRes.json();
+    const msgData = await msgRes.json();
+    const analyticsData = await analyticsRes.json();
+    const contentData = await contentRes.json();
+    // A 401 means the stored token is dead — signal the caller to log out
+    // instead of rendering error bodies as if they were real data.
+    const unauthorized = [bookingRes, testRes, subRes, msgRes, analyticsRes].some(
+      (r) => r.status === 401
+    );
+    return {
+      bookings: bookingData.bookings || [],
+      testimonials: testData.testimonials || [],
+      subscribers: subData.subscribers || [],
+      messages: msgData.messages || [],
+      analytics:
+        analyticsRes.ok && analyticsData?.totals ? analyticsData : null,
+      content: contentData.contents || {},
+      unauthorized,
+    };
+  }, [token]);
+
+  const applyAllData = useCallback(
+    (d: Awaited<ReturnType<typeof fetchAllData>>) => {
+      setBookings(d.bookings);
+      setTestimonials(d.testimonials);
+      setSubscribers(d.subscribers);
+      setMessages(d.messages);
+      setAnalytics(d.analytics);
+      setContent(d.content);
+    },
+    []
+  );
+
+  const loadAll = useCallback(async () => {
+    setLoading(true);
+    try {
+      const d = await fetchAllData();
+      if (d.unauthorized) {
+        onLogout();
+        return;
+      }
+      applyAllData(d);
+    } catch {
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchAllData, applyAllData, onLogout]);
+
+  useEffect(() => {
+    let dead = false;
+    (async () => {
+      try {
+        const d = await fetchAllData();
+        if (dead) return;
+        if (d.unauthorized) {
+          onLogout();
+          return;
+        }
+        applyAllData(d);
+      } catch {
+        if (!dead) toast.error("Failed to load data");
+      }
+    })();
+    return () => {
+      dead = true;
+    };
+  }, [fetchAllData, applyAllData, onLogout]);
+
+  const approveTestimonial = async (id: string) => {
+    try {
+      const res = await fetch("/api/admin/testimonials", {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ id, action: "approve" }),
+      });
+      if (res.ok) {
+        toast.success("Testimonial approved");
+        loadAll();
+      }
+    } catch {
+      toast.error("Failed to approve");
+    }
+  };
+
+  const deleteTestimonial = async (id: string) => {
+    if (!confirm("Delete this testimonial permanently?")) return;
+    try {
+      await fetch("/api/admin/testimonials", {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ id, action: "delete" }),
+      });
+      toast.success("Testimonial deleted");
+      loadAll();
+    } catch {
+      toast.error("Failed to delete");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50/50 to-pink-50/50 dark:from-slate-950 dark:to-rose-950/30">
+      <header className="sticky top-0 z-30 border-b border-sky-500/15 bg-card/80 backdrop-blur">
+        <div className="container mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-pink-500">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold sm:text-lg">Admin Dashboard</h1>
+              <p className="text-[11px] text-muted-foreground">Yaseen Ahmad</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={loadAll} disabled={loading} className="rounded-full">
+              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              <span className="hidden sm:inline ml-1">Refresh</span>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="rounded-full">
+              <a href="/" target="_blank">
+                <ExternalLink className="h-4 w-4" />
+                <span className="hidden sm:inline ml-1">View Site</span>
+              </a>
+            </Button>
+            <Button variant="outline" size="sm" onClick={onLogout} className="rounded-full">
+              Logout
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto max-w-7xl px-4 py-6 sm:px-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted p-1 sm:grid-cols-9">
+            <TabsTrigger value="analytics" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <BarChart3 className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Analytics</span>
+            </TabsTrigger>
+            <TabsTrigger value="content" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Edit3 className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Content</span>
+            </TabsTrigger>
+            <TabsTrigger value="visual" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Eye className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Visual</span>
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Calendar className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Bookings</span>
+              {analytics?.totals?.pendingBookings ? (
+                <Badge className="ml-1 bg-pink-500 text-white">{analytics?.totals?.pendingBookings}</Badge>
+              ) : null}
+            </TabsTrigger>
+            <TabsTrigger value="testimonials" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <MessageSquare className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Reviews</span>
+            </TabsTrigger>
+            <TabsTrigger value="subscribers" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <MailIcon className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Emails</span>
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Inbox className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Messages</span>
+              {messages.some((m) => !m.read) ? (
+                <Badge className="ml-1 bg-sky-500 text-white">
+                  {messages.filter((m) => !m.read).length}
+                </Badge>
+              ) : null}
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <History className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Audit Log</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="rounded-full data-[state=active]:bg-gradient-to-r data-[state=active]:from-sky-500 data-[state=active]:to-pink-500 data-[state=active]:text-white">
+              <Shield className="mr-1.5 h-4 w-4" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="mt-6">
+            {analytics ? (
+              <TrafficDashboard analytics={analytics} />
+            ) : (
+              <div className="space-y-4" aria-label="Loading analytics">
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {[0, 1, 2].map((i) => (
+                    <div key={i} className="h-28 animate-pulse rounded-2xl bg-muted/40" />
+                  ))}
+                </div>
+                <div className="h-64 animate-pulse rounded-2xl bg-muted/40" />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {[0, 1].map((i) => (
+                    <div key={i} className="h-48 animate-pulse rounded-2xl bg-muted/40" />
+                  ))}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Content Editor Tab */}
+          <TabsContent value="content" className="mt-6">
+            <ContentEditor content={content} setContent={setContent} authHeaders={authHeaders} />
+          </TabsContent>
+
+          {/* Visual Editor Tab — the public page with inline pencils */}
+          <TabsContent value="visual" className="mt-6">
+            <VisualEditorView />
+          </TabsContent>
+
+          {/* Bookings Tab */}
+          <TabsContent value="bookings" className="mt-6">
+            <BookingsView
+              bookings={bookings}
+              authHeaders={authHeaders}
+              onChanged={loadAll}
+            />
+          </TabsContent>
+
+          {/* Testimonials Tab */}
+          <TabsContent value="testimonials" className="mt-6">
+            <TestimonialsView
+              testimonials={testimonials}
+              onApprove={approveTestimonial}
+              onDelete={deleteTestimonial}
+            />
+          </TabsContent>
+
+          {/* Subscribers Tab */}
+          <TabsContent value="subscribers" className="mt-6">
+            <SubscribersView subscribers={subscribers} />
+          </TabsContent>
+
+          {/* Contact Messages Tab — inbox receipt for the contact form */}
+          <TabsContent value="messages" className="mt-6">
+            <MessagesView messages={messages} setMessages={setMessages} authHeaders={authHeaders} />
+          </TabsContent>
+
+          {/* Audit Log Tab — unified timeline: logins, page views, actions, attacks */}
+          <TabsContent value="audit" className="mt-6">
+            <ActivityFeed authHeaders={authHeaders} />
+          </TabsContent>
+
+          {/* Security Tab */}
+          <TabsContent value="security" className="mt-6">
+            <SecurityDashboard authHeaders={authHeaders} />
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+}
+
+// ===== Content Editor (registry-driven) =====
+// Every registered field (see src/lib/content-fields.ts) is listed here,
+// grouped by category, with its registry default. Keys that have a saved
+// database override show the override plus a "Customized" badge and a
+// reset button (restores the default by deleting the override).
+function ContentEditor({
+  content,
+  setContent,
+  authHeaders,
+}: {
+  content: ContentMap;
+  setContent: (c: ContentMap) => void;
+  authHeaders: Record<string, string>;
+}) {
+  const [query, setQuery] = useState("");
+  const [saving, setSaving] = useState<string | null>(null);
+
+  const q = query.trim().toLowerCase();
+  const fields = CONTENT_FIELDS.filter(
+    (f) =>
+      !q ||
+      f.key.toLowerCase().includes(q) ||
+      f.label.toLowerCase().includes(q) ||
+      f.category.toLowerCase().includes(q)
+  );
+
+  const groups = CONTENT_CATEGORIES.map((c) => ({
+    ...c,
+    fields: fields.filter((f) => f.category === c.id),
+  })).filter((g) => g.fields.length > 0);
+
+  const save = async (key: string, value: string, category: string) => {
+    setSaving(key);
+    try {
+      const res = await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: authHeaders,
+        body: JSON.stringify({ key, value, category }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setContent({ ...content, [key]: { value, category } });
+      toast.success(`Saved "${key}"`);
+    } catch (err: any) {
+      toast.error("Save failed", { description: err?.message });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const reset = async (key: string) => {
+    // No native confirm() here on purpose: headless/automated browsers dismiss
+    // it silently, which made the button look dead. Confirmation is a two-step
+    // inline button in RegistryField instead.
+    setSaving(key);
+    try {
+      const res = await fetch(
+        `/api/admin/content?key=${encodeURIComponent(key)}`,
+        {
+          method: "DELETE",
+          headers: authHeaders,
+        }
+      );
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Reset failed (${res.status})`);
+      const next = { ...content };
+      delete next[key];
+      setContent(next);
+      toast.success(`"${key}" reset to default`);
+    } catch (err: any) {
+      toast.error("Reset failed", { description: err?.message });
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const customizedCount = CONTENT_FIELDS.filter((f) => content[f.key]).length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Edit3 className="h-4 w-4 text-sky-500" />
+          {CONTENT_FIELDS.length} editable fields · {customizedCount} customized
+        </div>
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search fields..."
+            className="rounded-full pl-9"
+          />
+        </div>
+      </div>
+
+      {groups.map((g) => (
+        <div
+          key={g.id}
+          className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft"
+        >
+          <h3 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-r from-sky-500 to-pink-500 text-[10px] font-bold text-white">
+              {g.fields.length}
+            </span>
+            {g.label}
+          </h3>
+          <div className="space-y-5">
+            {g.fields.map((f) => {
+              const override = content[f.key];
+              const current = override?.value ?? CONTENT_DEFAULTS[f.key] ?? "";
+              return (
+                <RegistryField
+                  key={f.key}
+                  fieldKey={f.key}
+                  label={f.label}
+                  category={f.category}
+                  json={f.json}
+                  multiline={f.multiline}
+                  defaultValue={CONTENT_DEFAULTS[f.key] ?? ""}
+                  value={current}
+                  customized={!!override}
+                  saving={saving === f.key}
+                  onSave={(val) => save(f.key, val, f.category)}
+                  onReset={() => reset(f.key)}
+                />
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {groups.length === 0 && (
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          No fields match "{query}"
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Registry Field (single row: default + override aware) =====
+function RegistryField({
+  fieldKey,
+  label,
+  category,
+  json,
+  multiline,
+  defaultValue,
+  value,
+  customized,
+  saving,
+  onSave,
+  onReset,
+}: {
+  fieldKey: string;
+  label: string;
+  category: string;
+  json?: boolean;
+  multiline?: boolean;
+  defaultValue: string;
+  value: string;
+  customized: boolean;
+  saving: boolean;
+  onSave: (val: string) => void;
+  onReset: () => void;
+}) {
+  const [val, setVal] = useState(value);
+  const [showDefault, setShowDefault] = useState(false);
+  const [jsonError, setJsonError] = useState("");
+  // Two-step inline reset confirmation (no native confirm() — headless
+  // browsers auto-dismiss it, which made the button look dead).
+  const [confirmReset, setConfirmReset] = useState(false);
+  useEffect(() => {
+    if (!confirmReset) return;
+    const t = setTimeout(() => setConfirmReset(false), 5000);
+    return () => clearTimeout(t);
+  }, [confirmReset]);
+  const trySave = () => {
+    if (json) {
+      const check = validateJsonField(fieldKey, val);
+      if (!check.ok) {
+        setJsonError(check.error);
+        return;
+      }
+      setJsonError("");
+      onSave(check.normalized);
+      return;
+    }
+    setJsonError("");
+    onSave(val);
+  };
+  // keep the input in sync when the saved value changes elsewhere
+  // (render-phase adjustment: the React-endorsed alternative to setState-in-effect)
+  const [prevValue, setPrevValue] = useState(value);
+  if (prevValue !== value) {
+    setPrevValue(value);
+    setVal(value);
+  }
+
+  const long = json || multiline || val.length > 90 || val.includes("\n");
+  // Dirty tracking: highlight when the draft differs from the saved value,
+  // so unsaved edits are impossible to miss.
+  const dirty = val !== value;
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex flex-wrap items-center gap-2">
+        <Label className="text-xs font-semibold">
+          {label} <span className="font-mono text-muted-foreground">({fieldKey})</span>
+        </Label>
+        {dirty && (
+          <Badge className="rounded-full bg-amber-500/15 px-2 py-0 text-[9px] font-semibold text-amber-600">
+            ● Unsaved
+          </Badge>
+        )}
+        {customized ? (
+          <Badge className="rounded-full bg-pink-500/15 px-2 py-0 text-[9px] font-semibold text-pink-600">
+            Customized
+          </Badge>
+        ) : (
+          <Badge variant="secondary" className="rounded-full px-2 py-0 text-[9px]">
+            Default
+          </Badge>
+        )}
+        <button
+          onClick={() => setShowDefault((v) => !v)}
+          className="text-[11px] text-sky-600 underline-offset-2 hover:underline"
+        >
+          {showDefault ? "Hide default" : "Show default"}
+        </button>
+        {customized && (
+          <button
+            onClick={() => {
+              if (confirmReset) {
+                setConfirmReset(false);
+                onReset();
+              } else {
+                setConfirmReset(true);
+              }
+            }}
+            className={
+              confirmReset
+                ? "ml-auto flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[11px] font-semibold text-red-600"
+                : "ml-auto flex items-center gap-1 text-[11px] text-muted-foreground hover:text-red-500"
+            }
+          >
+            <RotateCcw className="h-3 w-3" />{" "}
+            {confirmReset ? "Click again to confirm reset" : "Reset to default"}
+          </button>
+        )}
+      </div>
+      {showDefault && (
+        <pre className="max-h-32 overflow-auto whitespace-pre-wrap rounded-lg bg-muted/40 p-2 font-mono text-[11px] text-muted-foreground">
+          {defaultValue}
+        </pre>
+      )}
+      <div className="flex gap-2">
+        {long ? (
+          <Textarea
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            className={cn("flex-1 font-mono text-xs", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
+            rows={json ? 6 : 3}
+            spellCheck={false}
+          />
+        ) : (
+          <Input
+            value={val}
+            onChange={(e) => setVal(e.target.value)}
+            className={cn("flex-1", dirty && "border-amber-400 ring-1 ring-amber-400/40")}
+          />
+        )}
+        <Button
+          size="sm"
+          onClick={trySave}
+          disabled={saving || !dirty}
+          title={dirty ? "Save this field" : "No changes to save"}
+          className={cn(
+            "shrink-0 rounded-xl text-white",
+            dirty
+              ? "bg-gradient-to-r from-amber-500 to-pink-500 shadow-glow-pink"
+              : "bg-gradient-to-r from-sky-500 to-pink-500 opacity-60"
+          )}
+        >
+          {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+        </Button>
+      </div>
+      {jsonError && (
+        <p className="text-xs font-medium text-red-500">{jsonError}</p>
+      )}
+    </div>
+  );
+}
+
+// ===== Visual Editor =====
+// Opens the public portfolio itself in edit mode (?edit=1). The page reads
+// the same admin token from localStorage, so no second login is needed.
+function VisualEditorView() {
+  const [embedded, setEmbedded] = useState(false);
+  const openVisual = () => {
+    window.open("/?edit=1", "_blank", "noopener");
+  };
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-6 shadow-soft sm:p-8">
+        <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-pink-500 shadow-glow-sky">
+            <Pencil className="h-7 w-7 text-white" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-bold">Visual Editor</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Edit the portfolio exactly as visitors see it. Open the live page
+              in edit mode — every headline, button, card, label, and list shows
+              a <Pencil className="inline h-3 w-3" /> pencil. Changes save
+              instantly to the live site and every change is recorded in the
+              Audit Log with your account and IP.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button
+            onClick={openVisual}
+            className="rounded-xl bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+          >
+            <Eye className="mr-2 h-4 w-4" /> Open Visual Editor
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => setEmbedded((v) => !v)}
+            className="rounded-xl"
+          >
+            <FileJson className="mr-2 h-4 w-4" />
+            {embedded ? "Hide embedded preview" : "Embed preview here"}
+          </Button>
+        </div>
+        <ul className="mt-6 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+          <li>Edit mode only activates with a valid admin session — visitors never see pencils.</li>
+          <li>Text fields open a quick dialog; lists (navigation, services, FAQs, plans…) open a JSON editor.</li>
+          <li>To undo a change, edit the field back or reset it to its default in the Content tab.</li>
+        </ul>
+      </div>
+
+      {embedded && (
+        <div className="overflow-hidden rounded-2xl border border-sky-500/20 shadow-soft">
+          <div className="flex items-center justify-between border-b border-sky-500/10 bg-muted/40 px-4 py-2">
+            <span className="font-mono text-xs text-muted-foreground">/?edit=1</span>
+            <Button size="sm" variant="ghost" onClick={openVisual} className="h-7 text-xs">
+              Open in new tab <ExternalLink className="ml-1 h-3 w-3" />
+            </Button>
+          </div>
+          <iframe
+            src="/?edit=1"
+            title="Visual editor preview"
+            className="h-[80vh] w-full bg-white"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BookingsView({
+  bookings,
+  authHeaders,
+  onChanged,
+}: {
+  bookings: Booking[];
+  authHeaders: Record<string, string>;
+  onChanged: () => void;
+}) {
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [acting, setActing] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+  const act = async (id: string, action: "confirm" | "cancel" | "delete") => {
+    setActing(id);
+    try {
+      const res = await fetch("/api/booking", {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ id, action }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Action failed");
+      toast.success(
+        action === "confirm"
+          ? "Booking confirmed"
+          : action === "cancel"
+            ? "Booking cancelled"
+            : "Booking deleted"
+      );
+      setConfirmDelete(null);
+      onChanged();
+    } catch (err: any) {
+      toast.error("Action failed", { description: err?.message });
+    } finally {
+      setActing(null);
+    }
+  };
+
+  const counts = {
+    all: bookings.length,
+    pending: bookings.filter((b) => b.status === "pending").length,
+    confirmed: bookings.filter((b) => b.status === "confirmed").length,
+    cancelled: bookings.filter((b) => b.status === "cancelled").length,
+  };
+  const shown =
+    statusFilter === "all"
+      ? bookings
+      : bookings.filter((b) => b.status === statusFilter);
+
+  const statusBadge = (status: string) =>
+    status === "pending"
+      ? "bg-amber-500/15 text-amber-600"
+      : status === "confirmed"
+        ? "bg-green-500/15 text-green-600"
+        : status === "cancelled"
+          ? "bg-red-500/15 text-red-600"
+          : "bg-muted text-muted-foreground";
+
+  if (bookings.length === 0) {
+    return (
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+        <Calendar className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+        No bookings yet
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap gap-2">
+        {(["all", "pending", "confirmed", "cancelled"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={cn(
+              "rounded-full px-3 py-1.5 text-xs font-semibold capitalize transition-colors",
+              statusFilter === s
+                ? "bg-gradient-to-r from-sky-500 to-pink-500 text-white"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {s} ({counts[s]})
+          </button>
+        ))}
+      </div>
+      {shown.length === 0 ? (
+        <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+          No {statusFilter} bookings
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {shown.map((b) => (
+            <div
+              key={b.id}
+              className="rounded-2xl border border-sky-500/15 bg-card p-4 shadow-soft"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-bold">{b.name}</h4>
+                    <Badge className={cn("rounded-full px-2 py-0.5 text-[10px] capitalize", statusBadge(b.status))}>
+                      {b.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{b.email}</p>
+                </div>
+                <div className="text-right text-xs text-muted-foreground">
+                  <div className="font-semibold text-foreground">{b.purpose}</div>
+                  <div>{b.date} at {b.time}</div>
+                  <div>{b.timezone}</div>
+                </div>
+              </div>
+              {b.notes && (
+                <p className="mt-2 rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
+                  <strong>Notes:</strong> {b.notes}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-sky-500/10 pt-3">
+                <div className="flex flex-wrap gap-2">
+                  {b.status === "pending" && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => act(b.id, "confirm")}
+                        disabled={acting === b.id}
+                        className="rounded-full bg-green-500 text-white hover:bg-green-600"
+                      >
+                        {acting === b.id ? (
+                          <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Check className="h-3.5 w-3.5" />
+                        )}
+                        <span className="ml-1">Confirm</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => act(b.id, "cancel")}
+                        disabled={acting === b.id}
+                        className="rounded-full border-amber-500/40 text-amber-600 hover:bg-amber-500/5"
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (confirmDelete === b.id) act(b.id, "delete");
+                      else {
+                        setConfirmDelete(b.id);
+                        setTimeout(() => setConfirmDelete((c) => (c === b.id ? null : c)), 5000);
+                      }
+                    }}
+                    disabled={acting === b.id}
+                    className={cn(
+                      "rounded-full",
+                      confirmDelete === b.id
+                        ? "border-red-500 bg-red-500 text-white hover:bg-red-600"
+                        : "border-red-500/30 text-red-600 hover:bg-red-500/5"
+                    )}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span className="ml-1">
+                      {confirmDelete === b.id ? "Click again to delete" : "Delete"}
+                    </span>
+                  </Button>
+                </div>
+                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                  <span>Submitted {new Date(b.createdAt).toLocaleString()}</span>
+                  <a
+                    href={`/api/booking/calendar?date=${b.date}&time=${encodeURIComponent(b.time)}&purpose=${encodeURIComponent(b.purpose)}&name=${encodeURIComponent(b.name)}&email=${encodeURIComponent(b.email)}`}
+                    download
+                    className="text-sky-600 hover:underline"
+                  >
+                    Download .ics
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Testimonials View =====
+function TestimonialsView({
+  testimonials,
+  onApprove,
+  onDelete,
+}: {
+  testimonials: Testimonial[];
+  onApprove: (id: string) => void;
+  onDelete: (id: string) => void;
+}) {
+  if (testimonials.length === 0) {
+    return (
+      <div className="rounded-2xl border border-sky-500/15 bg-card p-12 text-center text-muted-foreground">
+        <MessageSquare className="mx-auto mb-3 h-10 w-10 text-muted-foreground/40" />
+        No testimonials yet
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {testimonials.map((t) => (
+        <div key={t.id} className="rounded-2xl border border-sky-500/15 bg-card p-4 shadow-soft">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <h4 className="font-bold">{t.name}</h4>
+                <Badge className={cn(
+                  "rounded-full px-2 py-0.5 text-[10px]",
+                  t.approved ? "bg-green-500/15 text-green-600" : "bg-amber-500/15 text-amber-600"
+                )}>
+                  {t.approved ? "Approved" : "Pending"}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{"⭐".repeat(t.rating)}</span>
+              </div>
+              <p className="text-sm text-muted-foreground">{t.role}{t.company ? ` · ${t.company}` : ""}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t.email}</p>
+            </div>
+            {!t.approved && (
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => onApprove(t.id)} className="rounded-full bg-green-500 text-white hover:bg-green-600">
+                  <Check className="h-3.5 w-3.5" />
+                  <span className="ml-1 hidden sm:inline">Approve</span>
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => onDelete(t.id)} className="rounded-full border-red-500/30 text-red-600 hover:bg-red-500/5">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            )}
+          </div>
+          <p className="mt-2 rounded-lg bg-muted/30 p-3 text-sm">&ldquo;{t.message}&rdquo;</p>
+          <div className="mt-2 text-[11px] text-muted-foreground">
+            Submitted {new Date(t.createdAt).toLocaleString()}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ===== Subscribers View =====
+function SubscribersView({ subscribers }: { subscribers: Subscriber[] }) {
+  const copyEmails = () => {
+    const emails = subscribers.map((s) => s.email).join("\n");
+    navigator.clipboard.writeText(emails);
+    toast.success(`Copied ${subscribers.length} email addresses`);
+  };
+
+  return (
+    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="flex items-center gap-2 text-sm font-bold">
+          <MailIcon className="h-4 w-4 text-sky-500" />
+          Newsletter Subscribers ({subscribers.length})
+        </h3>
+        {subscribers.length > 0 && (
+          <Button size="sm" variant="outline" onClick={copyEmails} className="rounded-full">
+            Copy all
+          </Button>
+        )}
+      </div>
+      {subscribers.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No subscribers yet</p>
+      ) : (
+        <div className="space-y-2">
+          {subscribers.map((s) => (
+            <div key={s.id} className="flex items-center justify-between rounded-lg border border-sky-500/10 bg-muted/20 p-3 text-sm">
+              <span className="font-medium">{s.email}</span>
+              <span className="text-xs text-muted-foreground">
+                {new Date(s.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Contact Messages View (inbox receipt for the contact form) =====
+function MessagesView({
+  messages,
+  setMessages,
+  authHeaders,
+}: {
+  messages: ContactMessage[];
+  setMessages: (m: ContactMessage[]) => void;
+  authHeaders: Record<string, string>;
+}) {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const unreadCount = messages.filter((m) => !m.read).length;
+
+  const markRead = async (id: string, read: boolean) => {
+    try {
+      const res = await fetch("/api/contact", {
+        method: "PATCH",
+        headers: authHeaders,
+        body: JSON.stringify({ id, read }),
+      });
+      if (!res.ok) throw new Error("Update failed");
+      setMessages(messages.map((m) => (m.id === id ? { ...m, read } : m)));
+      toast.success(read ? "Marked as read" : "Marked as unread");
+    } catch {
+      toast.error("Failed to update message");
+    }
+  };
+
+  const markAllRead = async () => {
+    for (const m of messages.filter((x) => !x.read)) {
+      try {
+        await fetch("/api/contact", {
+          method: "PATCH",
+          headers: authHeaders,
+          body: JSON.stringify({ id: m.id, read: true }),
+        });
+      } catch {
+        // best-effort
+      }
+    }
+    setMessages(messages.map((m) => ({ ...m, read: true })));
+    toast.success("All messages marked as read");
+  };
+
+  return (
+    <div className="rounded-2xl border border-sky-500/15 bg-card p-5 shadow-soft">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="flex items-center gap-2 text-sm font-bold">
+          <Inbox className="h-4 w-4 text-sky-500" />
+          Contact Messages ({messages.length}
+          {unreadCount > 0 ? `, ${unreadCount} unread` : ""})
+        </h3>
+        {unreadCount > 0 && (
+          <Button size="sm" variant="outline" onClick={markAllRead} className="rounded-full">
+            <Check className="mr-1.5 h-3.5 w-3.5" /> Mark all read
+          </Button>
+        )}
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Every contact-form email lands here as a receipt. Limits: max 3 messages per
+        sender email, max 5 per 10 minutes from one network.
+      </p>
+      {messages.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No messages yet</p>
+      ) : (
+        <div className="space-y-2">
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={`rounded-lg border p-3 text-sm ${
+                m.read
+                  ? "border-sky-500/10 bg-muted/20"
+                  : "border-sky-500/40 bg-sky-500/5"
+              }`}
+            >
+              <button
+                onClick={() => setOpenId(openId === m.id ? null : m.id)}
+                className="flex w-full items-center justify-between gap-2 text-left"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  {!m.read && (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-sky-500" />
+                  )}
+                  <span className={`truncate font-medium ${m.read ? "" : "font-bold"}`}>
+                    {m.subject}
+                  </span>
+                  <span className="hidden truncate text-xs text-muted-foreground sm:inline">
+                    — {m.name} &lt;{m.email}&gt;
+                  </span>
+                </span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {new Date(m.createdAt).toLocaleDateString()}
+                </span>
+              </button>
+              {openId === m.id && (
+                <div className="mt-3 space-y-2 border-t border-sky-500/10 pt-3">
+                  <div className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">{m.name}</span> ·{" "}
+                    <a href={`mailto:${m.email}`} className="text-sky-500 hover:underline">
+                      {m.email}
+                    </a>{" "}
+                    · {new Date(m.createdAt).toLocaleString()}
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm">{m.message}</p>
+                  <div className="flex gap-2 pt-1">
+                    {m.read ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => markRead(m.id, false)}
+                        className="rounded-full"
+                      >
+                        Mark unread
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => markRead(m.id, true)}
+                        className="rounded-full"
+                      >
+                        <Check className="mr-1.5 h-3.5 w-3.5" /> Mark read
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => (window.location.href = `mailto:${m.email}?subject=${encodeURIComponent("Re: " + m.subject)}`)}
+                      className="rounded-full"
+                    >
+                      Reply
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
