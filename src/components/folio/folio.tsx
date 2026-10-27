@@ -220,12 +220,56 @@ function ProjectDetails({ project }: { project: Project }) {
       <div className="f-dialog-head"><span className="f-label">Project overview</span><button type="button" className="f-dialog-close" onClick={() => dialog.current?.close()} autoFocus aria-label="Close project details">Close ×</button></div>
       <h2 className="f-h2">{project.title}</h2><p className="f-p">{project.blurb}</p>
       {(project.details || []).map((text) => <p className="f-p" key={text}>{text}</p>)}
+      {project.video && <figure><video controls playsInline preload="none" poster={project.video.poster} width={1280} height={720} aria-label={project.video.label}>{project.video.webm && <source src={project.video.webm} type="video/webm" />}<source src={project.video.mp4} type="video/mp4" /></video><figcaption>Promo video with sound. Every screen is a real recording of the app.</figcaption></figure>}
       {project.gallery?.map((image) => <figure key={image.src}><img src={image.src} alt={`${project.title} interface`} width={1280} height={713} loading="lazy"/><figcaption>{image.caption}</figcaption></figure>)}
-      {!project.gallery?.length && <p className="f-p">The repository contains the source and documentation. No verified live UI capture is available for this project.</p>}
+      {!project.gallery?.length && !project.video && <p className="f-p">The repository contains the source and documentation. No verified live UI capture is available for this project.</p>}
       <ul className="f-chips">{project.tags.map(tag=><li className="f-chip" key={tag}>{tag}</li>)}</ul>
-      <div className="f-project-actions"><a className="f-btn red" href={project.github} target="_blank" rel="noopener noreferrer">View Repo ↗</a>{project.live && <a className="f-btn ghost" href={project.live} target="_blank" rel="noopener noreferrer">Visit live site ↗</a>}</div>
+      <div className="f-project-actions">{project.github ? <a className="f-btn red" href={project.github} target="_blank" rel="noopener noreferrer">View Repo ↗</a> : <span className="f-private">Private repository</span>}{project.live && <a className="f-btn ghost" href={project.live} target="_blank" rel="noopener noreferrer">Visit live site ↗</a>}</div>
     </dialog>
   </>;
+}
+
+// Inline showcase video: loads nothing until the card nears the viewport,
+// plays muted while visible, pauses when scrolled away. Reduced motion: no autoplay.
+function ShowcaseVideo({ project }: { project: Project }) {
+  const v = project.video!;
+  const ref = useRef<HTMLVideoElement>(null);
+  const reduce = useReducedMotion();
+  const [playing, setPlaying] = useState(false);
+  const [muted, setMuted] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.muted = true;
+    if (reduce) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) el.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+      else { el.pause(); setPlaying(false); }
+    }, { threshold: 0.35 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduce]);
+  const togglePlay = () => {
+    const el = ref.current; if (!el) return;
+    if (el.paused) el.play().then(() => setPlaying(true)).catch(() => {}); else { el.pause(); setPlaying(false); }
+  };
+  const toggleSound = () => {
+    const el = ref.current; if (!el) return;
+    el.muted = !el.muted; setMuted(el.muted);
+    if (!el.muted && el.paused) el.play().then(() => setPlaying(true)).catch(() => {});
+  };
+  return (
+    <div className="f-showcase">
+      <video ref={ref} muted loop playsInline preload="none" poster={v.poster} width={1280} height={720} aria-label={v.label}>
+        {v.webm && <source src={v.webm} type="video/webm" />}
+        <source src={v.mp4} type="video/mp4" />
+      </video>
+      <div className="f-vctl">
+        <button type="button" onClick={togglePlay} aria-label={playing ? `Pause ${project.title} video` : `Play ${project.title} video`}>{playing ? "Pause" : "Play"}</button>
+        <button type="button" onClick={toggleSound} aria-pressed={!muted} aria-label={muted ? "Turn sound on" : "Turn sound off"}>{muted ? "Sound off" : "Sound on"}</button>
+      </div>
+    </div>
+  );
 }
 
 function Mock({ project }: { project: Project }) {
@@ -243,8 +287,8 @@ function Mock({ project }: { project: Project }) {
   };
   return (
     <div className="f-mock" ref={ref} onPointerMove={onMove} onPointerLeave={(e) => { e.currentTarget.style.removeProperty("--tx"); e.currentTarget.style.removeProperty("--ty"); }}>
-      <motion.div className="f-mock-in" style={reduce ? undefined : { rotateX: rx, rotateY: ry }}>
-        {(project.image.includes("game-booster") || project.image.includes("/ui/")) ? (
+      <motion.div className={`f-mock-in${project.video ? " is-video" : ""}`} style={reduce ? undefined : { rotateX: rx, rotateY: ry }}>
+        {project.video ? <ShowcaseVideo project={project} /> : (project.image.includes("game-booster") || project.image.includes("/ui/")) ? (
           <img src={project.image} alt={`${project.title} app screenshot`} loading="lazy" width={1200} height={630} />
         ) : (
           <div className="f-tcard" role="img" aria-label={`${project.title}: ${project.tags.join(", ")}`}>
@@ -425,14 +469,14 @@ export function Folio() {
               <Reveal><p className="f-label">(02) - Selected work</p><h2 className="f-h2">Selected <em>projects.</em></h2></Reveal>
             </div></div>
             {projects.map((p, i) => (
-              <article key={p.title} className="f-slide">
+              <article key={p.title} className={`f-slide${p.pinned ? " is-pinned" : ""}`}>
                 <div className="f-wrap"><Reveal className="f-left">
-                  <p className="f-count">{String(i + 1).padStart(2, "0")} <span>/ {String(projects.length).padStart(2, "0")}</span></p>
+                  <p className="f-count">{String(i + 1).padStart(2, "0")} <span>/ {String(projects.length).padStart(2, "0")}</span>{p.pinned && <span className="f-pin"><svg aria-hidden="true" viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M16 3a1 1 0 0 1 .7 1.7L15.4 6l2.6 5.2 1.3-1.3a1 1 0 1 1 1.4 1.4l-3.5 3.5-1.4-1.4-3.6 3.6-.2 4.2a.5.5 0 0 1-.85.33L8.5 18.9l-4.3 4.3-1.4-1.4 4.3-4.3-2.6-2.65a.5.5 0 0 1 .33-.85l4.2-.2 3.6-3.6-1.4-1.4 3.5-3.5a1 1 0 0 1 1.4 0L15.3 4.3A1 1 0 0 1 16 3z"/></svg>Pinned</span>}</p>
                   <Mock project={p} />
                   <h3 className="f-title">{p.title}</h3>
                   <p className="f-p">{p.blurb}</p>
                   <ul className="f-chips" aria-label={`${p.title} stack`}>{p.tags.map((t) => <li key={t} className="f-chip">{t}</li>)}</ul>
-                  <div className="f-project-actions"><ProjectDetails project={p} /><a className="f-link" href={p.github} target="_blank" rel="noopener noreferrer">View Repo <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a></div>
+                  <div className="f-project-actions"><ProjectDetails project={p} />{p.github ? <a className="f-link" href={p.github} target="_blank" rel="noopener noreferrer">View Repo <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : <span className="f-private">Private repository</span>}</div>
                 </Reveal></div>
               </article>
             ))}

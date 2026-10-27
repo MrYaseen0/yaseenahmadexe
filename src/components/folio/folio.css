@@ -400,3 +400,26 @@
 .f-faq summary{cursor:pointer;min-height:44px;display:list-item;font-size:18px;line-height:1.5;padding:8px 24px 8px 0}
 .f-faq summary:focus-visible{outline:2px solid #df392f;outline-offset:4px}
 .f-faq details .f-p{max-width:640px;margin-top:12px}
+
+/* pinned showcase project (FoodHub): video inside the same red device frame */
+.f-pin{display:inline-flex;align-items:center;gap:6px;margin-left:14px;vertical-align:middle;font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;line-height:1;padding:7px 12px;border-radius:999px;background:var(--f-red);color:#fff;transform:translateY(-.35em)}
+.f-slide.is-pinned .f-mock{max-width:680px}
+.f-mock-in.is-video{aspect-ratio:16/9}
+.f-showcase{position:relative;width:100%;height:100%;border-radius:12px;overflow:hidden;background:var(--f-ink)}
+.f-showcase video{width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;background:var(--f-ink)}
+.f-vctl{position:absolute;right:10px;bottom:10px;display:flex;gap:6px}
+.f-vctl button{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;min-height:32px;padding:0 12px;border-radius:999px;border:1px solid rgba(246,239,230,.35);background:rgba(21,16,16,.62);color:var(--f-cream);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);transition:background .2s}
+.f-vctl button:hover{background:rgba(21,16,16,.85)}
+.f-vctl button:focus-visible{outline:3px solid var(--f-cream);outline-offset:2px}
+.f-private{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--f-mute);min-height:44px;display:inline-flex;align-items:center}
+.f-project-dialog video{width:100%;height:auto;border-radius:12px;display:block;background:var(--f-ink)}
+@media(max-width:899px){.f-pin{margin-left:10px;font-size:11px;padding:6px 10px}.f-vctl{right:8px;bottom:8px}.f-vctl button{min-height:30px;padding:0 10px;font-size:10px}}
+
+/* pinned badge sits inside .f-count, whose generic span rule would grey and shrink it */
+.f-count .f-pin{color:#fff;font-size:12px;letter-spacing:.12em}
+@media(max-width:899px){.f-count .f-pin{font-size:11px}}
+/* small phones: the wrapped nav split 6 + 1 ("More" alone on row two); balance it as even rows */
+@media(max-width:480px){
+  .f-nav{width:100%}
+  .f-nav a{flex:1 0 22%;justify-content:center}
+}
