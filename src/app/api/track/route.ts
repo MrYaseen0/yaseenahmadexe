@@ -14,6 +14,7 @@ import {
 // POST — record a pageview or section view (anonymous, privacy-respecting).
 // Body: { section, path?, referrer?, sessionId?, pageview? }
 export async function POST(request: Request) {
+  if (request.headers.get("X-Analytics-Consent") !== "accepted") return new NextResponse(null, { status: 204 });
   const ip = getClientIp(request);
 
   // 1) Blocked IPs get nothing.

@@ -17,11 +17,11 @@ const sections = [
   },
   {
     h: "Analytics",
-    p: "This site uses Vercel Analytics to understand aggregate traffic (page views, referrers, device types). Analytics data is anonymized and contains no personally identifying information.",
+    p: "Optional Vercel Analytics, configured Google Analytics, and custom page/section analytics run only after you accept. Custom analytics store paths, referrer origins, device types and pseudonymous session/IP identifiers. These are not described as fully anonymous. Use Privacy choices to change consent. Reload after revoking consent to clear already-loaded third-party scripts.",
   },
   {
     h: "Cookies",
-    p: "A single local cookie (or localStorage entry) remembers your cookie-consent choice. No advertising or cross-site tracking cookies are used.",
+    p: "Local storage remembers your consent choice. A secure HttpOnly session cookie is used for admin access. Necessary security logs can include raw IPs and device details for abuse detection; optional analytics consent does not disable security protection. No third-party IP enrichment is used.",
   },
   {
     h: "Data retention",
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="mt-3 text-sm text-[#5F665F]">
-          Last updated: September 2026
+          Last updated: October 2026
         </p>
         <div className="mt-10 space-y-8">
           {sections.map((s) => (

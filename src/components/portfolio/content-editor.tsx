@@ -102,8 +102,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get("edit") !== "1") return;
-      const token = localStorage.getItem(TOKEN_KEY);
-      if (!token) return;
+      const token = "cookie-session";
       fetch("/api/admin/auth", {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -145,7 +144,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   );
 
   const save = useCallback(async (key: string, value: string) => {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = "cookie-session";
     if (!token) throw new Error("Admin session expired — log in again.");
     const field = CONTENT_FIELDS.find((f) => f.key === key);
     const res = await fetch("/api/admin/content", {
@@ -168,7 +167,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reset = useCallback(async (key: string) => {
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = "cookie-session";
     if (!token) throw new Error("Admin session expired — log in again.");
     const res = await fetch(
       `/api/admin/content?key=${encodeURIComponent(key)}`,

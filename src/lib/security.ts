@@ -13,7 +13,7 @@ import { getClientIp } from "@/lib/rate-limit";
 
 /** One-way hash of an IP for unique-visitor counting. Raw IPs of normal visitors are never stored. */
 export function hashIp(ip: string): string {
-  return crypto.createHash("sha256").update(`visit:${ip}`).digest("hex");
+  return crypto.createHmac("sha256", process.env.ANALYTICS_SECRET || process.env.AUTH_SECRET || crypto.randomBytes(32).toString("hex")).update(ip).digest("hex");
 }
 
 // ---- Request enrichment ----
@@ -135,39 +135,9 @@ function isPrivateIp(ip: string): boolean {
 }
 
 /** City/region/country/ISP for an IP via ip-api.com. Best-effort, never throws. */
-async function lookupGeo(ip: string): Promise<GeoInfo | null> {
-  if (!ip || isPrivateIp(ip)) return null;
-  const now = Date.now();
-  const cached = geoCache.get(ip);
-  if (cached && now - cached.at < GEO_TTL_MS) return cached.geo;
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 3500);
-    const res = await fetch(
-      `http://ip-api.com/json/${encodeURIComponent(
-        ip
-      )}?fields=status,country,regionName,city,isp,query`,
-      { signal: ctrl.signal }
-    );
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    const j: any = await res.json();
-    if (!j || j.status !== "success") return null;
-    const geo: GeoInfo = {
-      city: j.city ?? null,
-      region: j.regionName ?? null,
-      country: j.country ?? null,
-      isp: j.isp ?? null,
-    };
-    geoCache.set(ip, { at: now, geo });
-    if (geoCache.size > 2000) {
-      const oldest = geoCache.keys().next().value;
-      if (oldest) geoCache.delete(oldest);
-    }
-    return geo;
-  } catch {
-    return null;
-  }
+async function lookupGeo(_ip: string): Promise<GeoInfo | null> {
+  // Disabled: the old free endpoint used plain HTTP and disclosed security IPs.
+  return null;
 }
 
 /** Stable per-device fingerprint: sha256(ip + user-agent), 16 hex chars. */

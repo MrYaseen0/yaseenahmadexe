@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { verifyAdmin, verifyToken } from "@/lib/auth";
+import { verifyAdmin, verifyToken, requestToken } from "@/lib/auth";
 import { logAudit } from "@/lib/security";
 
 // GET — list ALL testimonials (including pending) for admin review
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 
 // PATCH — approve or reject a testimonial
 export async function PATCH(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -39,7 +39,7 @@ export async function PATCH(request: Request) {
 
     const actor =
       verifyToken(
-        (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "")
+        requestToken(request)
       )?.email || "admin";
     if (action === "approve") {
       const updated = await db.testimonial.update({

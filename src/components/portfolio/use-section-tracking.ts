@@ -25,9 +25,10 @@ function getSessionId(): string {
 }
 
 function ping(data: Record<string, unknown>) {
+  try { if (localStorage.getItem("yaseen-cookie-consent") !== "accepted") return; } catch { return; }
   fetch("/api/track", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "X-Analytics-Consent": "accepted" },
     body: JSON.stringify({
       path: window.location.pathname,
       referrer: document.referrer || null,
@@ -41,8 +42,15 @@ export function useSectionTracking() {
   const trackedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    // One pageview ping per tab session.
-    ping({ section: "pageview", pageview: true });
+    const consentChanged = () => {
+      try {
+        if (localStorage.getItem("yaseen-cookie-consent") === "accepted") {
+          trackedRef.current.clear(); ping({ section: "pageview", pageview: true });
+        }
+      } catch {}
+    };
+    consentChanged();
+    window.addEventListener("analytics-consent-changed", consentChanged);
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -64,6 +72,6 @@ export function useSectionTracking() {
     const sections = document.querySelectorAll("section[id]");
     sections.forEach((s) => observer.observe(s));
 
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); window.removeEventListener("analytics-consent-changed", consentChanged); };
   }, []);
 }

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { rateLimitDb, getClientIp } from "@/lib/rate-limit";
+import { readJson, RequestError } from "@/lib/request-json";
 import { db } from "@/lib/db";
 
 // GET — fetch approved testimonials (public)
@@ -8,6 +10,7 @@ export async function GET() {
       where: { approved: true },
       orderBy: { createdAt: "desc" },
       take: 20,
+      select: { id: true, name: true, role: true, company: true, rating: true, message: true, avatar: true, color: true },
     });
     return NextResponse.json({ testimonials });
   } catch (error) {
@@ -17,11 +20,13 @@ export async function GET() {
 
 // POST — submit a new testimonial (pending approval)
 export async function POST(request: Request) {
+  const limit = await rateLimitDb(`testimonials:${getClientIp(request)}`, { limit: 5, windowMs: 60_000 });
+  if (!limit.ok) return NextResponse.json({ error: "Please try later" }, { status: 429 });
   try {
-    const body = await request.json();
+    const body = await readJson(request);
     const { name, role, company, email, rating, message } = body;
 
-    if (!name || !role || !email || !message) {
+    if (typeof name !== "string" || !name.trim() || typeof role !== "string" || !role.trim() || typeof email !== "string" || typeof message !== "string") {
       return NextResponse.json(
         { error: "Name, role, email, and message are required" },
         { status: 400 }
@@ -65,6 +70,7 @@ export async function POST(request: Request) {
         "Thank you for your testimonial! It will appear publicly after a quick review.",
     });
   } catch (error: any) {
+    if (error instanceof RequestError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Testimonial submission error:", error);
     return NextResponse.json(
       { error: "Failed to submit testimonial. Please try again." },

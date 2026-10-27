@@ -44,7 +44,7 @@ function normalizeAction(detail: Record<string, unknown>): string {
 }
 
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 // GET — aggregate visitor stats (admin only: never expose to the public).
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
   try {

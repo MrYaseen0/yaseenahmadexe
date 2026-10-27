@@ -1,5 +1,6 @@
+import { readJson, RequestError } from "@/lib/request-json";
 import { NextResponse } from "next/server";
-import { verifyCredentials, signAdminToken, verifyAdmin } from "@/lib/auth";
+import { verifyCredentials, signAdminToken, verifyAdmin, revokeAdmin, ADMIN_COOKIE } from "@/lib/auth";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   logSecurityEvent,
@@ -23,6 +24,9 @@ const FAIL_LIMIT = 5;
 const LOCKOUT_MS = 24 * 60 * 60_000;
 
 export async function POST(request: Request) {
+  const origin = request.headers.get("origin");
+  const expected = process.env.NEXT_PUBLIC_SITE_URL || "https://yaseenahmadexe.vercel.app";
+  if ((origin && origin !== expected) || request.headers.get("sec-fetch-site") === "cross-site") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const ip = getClientIp(request);
 
   // Blocked IPs can't even attempt login.
@@ -44,7 +48,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const body = await request.json();
+    const body = await readJson(request);
     const { email, password } = body;
 
     if (!email || !password) {
@@ -83,7 +87,7 @@ export async function POST(request: Request) {
     // Success clears the strike counter.
     await clearFailedLogins(ip, FAIL_WINDOW_MS);
 
-    const token = signAdminToken(String(email).toLowerCase().trim());
+    const token = await signAdminToken(String(email).toLowerCase().trim());
 
     // Audit the successful admin login: IP + timestamp + device + geo/ISP.
     await logAudit({
@@ -94,13 +98,16 @@ export async function POST(request: Request) {
       detail: "Admin login successful",
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
-      token,
       email: String(email).toLowerCase().trim(),
       message: "Authentication successful",
     });
+    response.cookies.set(ADMIN_COOKIE, token, { httpOnly: true, secure: true, sameSite: "strict", path: "/", maxAge: 3600 });
+    response.headers.set("Cache-Control", "no-store");
+    return response;
   } catch (error: any) {
+    if (error instanceof RequestError) return NextResponse.json({ error: error.message }, { status: error.status });
     console.error("Admin auth error:", error);
     return NextResponse.json(
       { error: "Authentication failed" },
@@ -111,8 +118,16 @@ export async function POST(request: Request) {
 
 // GET — verify whether the presented token is still valid
 export async function GET(request: Request) {
-  if (verifyAdmin(request)) {
+  if (await verifyAdmin(request)) {
     return NextResponse.json({ valid: true });
   }
   return NextResponse.json({ valid: false }, { status: 401 });
+}
+
+export async function DELETE(request: Request) {
+  if (!(await verifyAdmin(request))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try { await revokeAdmin(request); } catch { return NextResponse.json({ error: "Logout failed, retry" }, { status: 503 }); }
+  const response = NextResponse.json({ success: true });
+  response.cookies.set(ADMIN_COOKIE, "", { httpOnly: true, secure: true, sameSite: "strict", path: "/", maxAge: 0 });
+  return response;
 }

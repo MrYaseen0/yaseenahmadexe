@@ -6,8 +6,8 @@ import { db } from "@/lib/db";
  *
  * NOTE: state lives in a module-level Map, so it is per-instance and resets on
  * redeploy / cold start. On serverless (Vercel) each instance limits
- * independently. That is acceptable for a portfolio site's abuse protection; for
- * strict distributed limits, swap this for @upstash/ratelimit + Redis.
+ * independently. Costly public submissions use the DB-backed atomic limiter below.
+ * Memory-only guards remain best-effort for telemetry and login fast lanes.
  */
 
 type Bucket = number[]; // timestamps (ms) within the current window
@@ -85,7 +85,7 @@ function ensureRateTable(): Promise<void> {
           `CREATE INDEX IF NOT EXISTS "RateHit_key_createdAt_idx" ON "RateHit"("key", "createdAt")`
         );
       } catch {
-        // best-effort — caller falls back to the in-memory limiter
+        // caller fails closed if subsequent transaction fails
       }
     })();
   }
@@ -94,56 +94,35 @@ function ensureRateTable(): Promise<void> {
 
 /**
  * DB-backed sliding-window rate limit. Counts hits for `key` inside the
- * window across ALL serverless instances. Falls back to the in-memory
- * limiter if the database is unreachable.
+ * window across ALL serverless instances. Fails closed if the database is unreachable.
  */
 export async function rateLimitDb(
   key: string,
   opts: RateLimitOptions
 ): Promise<RateLimitResult> {
-  await ensureRateTable();
-  const now = Date.now();
-  const windowStart = new Date(now - opts.windowMs);
   try {
-    await db.$executeRawUnsafe(
-      `INSERT INTO "RateHit"("id","key","createdAt") VALUES ($1,$2,NOW())`,
-      crypto.randomUUID(),
-      key
-    );
-    const rows = await db.$queryRawUnsafe<{ c: bigint; oldest: Date }[]>(
-      `SELECT COUNT(*)::bigint AS c, MIN("createdAt") AS oldest FROM "RateHit" WHERE "key" = $1 AND "createdAt" > $2`,
-      key,
-      windowStart
-    );
-    const count = Number(rows[0]?.c ?? 0);
-
-    // Best-effort prune of stale rows so the table stays small
-    // (~5% of calls; cheap and lock-free).
-    if (Math.random() < 0.05) {
-      void db
-        .$executeRawUnsafe(
-          `DELETE FROM "RateHit" WHERE "createdAt" < NOW() - INTERVAL '2 hours'`
-        )
-        .catch(() => {});
-    }
-
-    if (count > opts.limit) {
-      const oldestMs = rows[0]?.oldest ? new Date(rows[0].oldest).getTime() : now;
-      return {
-        ok: false,
-        remaining: 0,
-        retryAfterMs: Math.max(0, oldestMs + opts.windowMs - now),
-      };
-    }
-    return { ok: true, remaining: opts.limit - count, retryAfterMs: 0 };
+    await ensureRateTable();
+    return await db.$transaction(async tx => {
+      // A transaction-scoped per-key lock serializes count+insert across instances.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${key}, 0))`;
+      const rows = await tx.$queryRaw<{ c: bigint; oldest: Date | null }[]>`
+        SELECT COUNT(*)::bigint AS c, MIN("createdAt") AS oldest FROM "RateHit"
+        WHERE "key"=${key} AND "createdAt">NOW()-(${opts.windowMs} * INTERVAL '1 millisecond')`;
+      const count = Number(rows[0]?.c || 0);
+      if (count >= opts.limit) return { ok: false, remaining: 0, retryAfterMs: Math.max(1000, new Date(rows[0].oldest!).getTime()+opts.windowMs-Date.now()) };
+      await tx.$executeRaw`INSERT INTO "RateHit" ("id","key","createdAt") VALUES (${crypto.randomUUID()},${key},NOW())`;
+      await tx.$executeRaw`DELETE FROM "RateHit" WHERE "key"=${key} AND "createdAt"<NOW()-INTERVAL '2 hours'`;
+      return { ok: true, remaining: opts.limit-count-1, retryAfterMs: 0 };
+    });
   } catch {
-    return rateLimit(key, opts); // DB down → per-instance limit still applies
+    // Never silently weaken public-submission quotas when DB is unavailable.
+    return { ok: false, remaining: 0, retryAfterMs: 60_000 };
   }
 }
 
 /** Best-effort client IP from proxy headers (Vercel sets x-forwarded-for). */
 export function getClientIp(request: Request): string {
-  const xff = request.headers.get("x-forwarded-for");
+  const xff = request.headers.get(process.env.VERCEL ? "x-vercel-forwarded-for" : "x-forwarded-for");
   if (xff) return xff.split(",")[0].trim();
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  return process.env.VERCEL ? "unknown" : request.headers.get("x-real-ip")?.trim() || "unknown";
 }

@@ -7,7 +7,7 @@ import { verifyAdmin } from "@/lib/auth";
 // SPEED: daily series come from single indexed Postgres date_trunc queries
 // (3 queries) instead of one count-query per day (58 queries before).
 export async function GET(request: Request) {
-  if (!verifyAdmin(request)) {
+  if (!(await verifyAdmin(request))) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

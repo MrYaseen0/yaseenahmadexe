@@ -1,0 +1,114 @@
+[
+  {
+    "name": "Before: unauthenticated history exposed",
+    "pass": true
+  },
+  {
+    "name": "Before: caller owner attribution accepted",
+    "pass": true
+  },
+  {
+    "name": "Before: malformed JSON returned 500",
+    "pass": true
+  },
+  {
+    "name": "After: anonymous history rejected",
+    "pass": true
+  },
+  {
+    "name": "After: anonymous owner spoof rejected",
+    "pass": true
+  },
+  {
+    "name": "After: malformed JSON 400",
+    "pass": true
+  },
+  {
+    "name": "After: oversized chunked body 413",
+    "pass": true
+  },
+  {
+    "name": "After: array shape 400",
+    "pass": true
+  },
+  {
+    "name": "After: authenticated history works",
+    "pass": true
+  },
+  {
+    "name": "After: wrong message type rejected",
+    "pass": true
+  },
+  {
+    "name": "After: sender derived from authentication",
+    "pass": true
+  },
+  {
+    "name": "After: ICS CRLF email rejected",
+    "pass": true
+  },
+  {
+    "name": "After: ICS parameter injection rejected",
+    "pass": true
+  },
+  {
+    "name": "After: ICS invalid date rejected",
+    "pass": true
+  },
+  {
+    "name": "After: ICS invalid month rejected",
+    "pass": true
+  },
+  {
+    "name": "After: ICS invalid time rejected",
+    "pass": true
+  },
+  {
+    "name": "After: valid ICS download",
+    "pass": true
+  },
+  {
+    "name": "After: ICS escaped TEXT",
+    "pass": true
+  },
+  {
+    "name": "After: ICS octet folding",
+    "pass": true
+  },
+  {
+    "name": "After: testimonial projection excludes email",
+    "pass": true
+  },
+  {
+    "name": "After: legacy password works",
+    "pass": true
+  },
+  {
+    "name": "After: bad password rejected",
+    "pass": true
+  },
+  {
+    "name": "After: valid DB session accepted",
+    "pass": true
+  },
+  {
+    "name": "After: tampered token rejected",
+    "pass": true
+  },
+  {
+    "name": "After: cross-site write rejected",
+    "pass": true
+  },
+  {
+    "name": "After: logged-out token rejected",
+    "pass": true
+  },
+  {
+    "name": "After: auth fails closed on DB outage",
+    "pass": true
+  },
+  {
+    "name": "After: scrypt password accepted",
+    "pass": true
+  }
+]

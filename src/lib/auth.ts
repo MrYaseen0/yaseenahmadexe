@@ -1,102 +1,66 @@
-import crypto from "crypto";
-
-/**
- * Lightweight admin auth built on Node's built-in `crypto` — no external deps.
- *
- * A compact HS256 JWT (`header.payload.signature`, base64url) is signed with
- * AUTH_SECRET. Every admin/private route calls `verifyAdmin(request)`; the login
- * route issues a token via `signAdminToken(email)` after `verifyCredentials`.
- *
- * All of these routes touch Prisma, so they run on the Node.js runtime where
- * `crypto` is available (not the Edge runtime).
- */
-
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "").toLowerCase().trim();
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || "";
-const AUTH_SECRET = process.env.AUTH_SECRET || "";
-
-const TOKEN_TTL_SECONDS = 60 * 60 * 24; // 24h
-
-function base64url(input: Buffer | string): string {
-  return Buffer.from(input)
-    .toString("base64")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-}
-
-function sign(data: string): string {
-  return base64url(crypto.createHmac("sha256", AUTH_SECRET).update(data).digest());
-}
-
-function sha256Hex(input: string): string {
-  return crypto.createHash("sha256").update(input).digest("hex");
-}
-
-/** Constant-time string comparison that never throws on length mismatch. */
-function timingSafeEqualStr(a: string, b: string): boolean {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) {
-    // Still burn a comparison to reduce timing signal, then fail.
-    crypto.timingSafeEqual(bufA, bufA);
-    return false;
-  }
-  return crypto.timingSafeEqual(bufA, bufB);
-}
-
-/** Verify admin login credentials against the env-configured values. */
+import crypto from 'crypto';
+import { db } from '@/lib/db';
+export const ADMIN_COOKIE = '__Host-ya-admin';
+const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '';
+const AUTH_SECRET = process.env.AUTH_SECRET || '';
+const TTL = 3600;
+const ISSUER = 'yaseen-portfolio';
+function same(a: string, b: string) { const x = Buffer.from(a), y = Buffer.from(b); return x.length === y.length && crypto.timingSafeEqual(x, y); }
 export function verifyCredentials(email: unknown, password: unknown): boolean {
-  if (!ADMIN_EMAIL || !ADMIN_PASSWORD_HASH) return false; // fail closed if unconfigured
-  if (typeof email !== "string" || typeof password !== "string") return false;
-
-  const emailOk = timingSafeEqualStr(email.toLowerCase().trim(), ADMIN_EMAIL);
-  const passwordOk = timingSafeEqualStr(sha256Hex(password), ADMIN_PASSWORD_HASH);
-  return emailOk && passwordOk;
-}
-
-/** Issue a signed 24h token for the given admin email. */
-export function signAdminToken(email: string): string {
-  if (!AUTH_SECRET) throw new Error("AUTH_SECRET is not configured");
-  const nowSec = Math.floor(Date.now() / 1000);
-  const header = base64url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
-  const payload = base64url(
-    JSON.stringify({ email, iat: nowSec, exp: nowSec + TOKEN_TTL_SECONDS })
-  );
-  const signature = sign(`${header}.${payload}`);
-  return `${header}.${payload}.${signature}`;
-}
-
-/**
- * Verify a token string: correct signature and not expired.
- * Returns the decoded payload on success, or null.
- */
-export function verifyToken(token: string): { email: string; exp: number } | null {
-  if (!AUTH_SECRET || !token) return null;
-  const parts = token.split(".");
-  if (parts.length !== 3) return null;
-  const [header, payload, signature] = parts;
-
-  const expected = sign(`${header}.${payload}`);
-  if (!timingSafeEqualStr(signature, expected)) return null;
-
-  try {
-    const decoded = JSON.parse(
-      Buffer.from(payload.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString()
-    );
-    if (typeof decoded?.exp !== "number" || decoded.exp < Math.floor(Date.now() / 1000)) {
-      return null; // expired or malformed
-    }
-    return decoded;
-  } catch {
-    return null;
+  if (!ADMIN_EMAIL || !ADMIN_PASSWORD_HASH || typeof email !== 'string' || typeof password !== 'string' || password.length > 1024) return false;
+  let valid = false;
+  if (ADMIN_PASSWORD_HASH.startsWith('scrypt$')) {
+    const [, salt, hash] = ADMIN_PASSWORD_HASH.split('$');
+    if (/^[a-f0-9]{32}$/.test(salt || '') && /^[a-f0-9]{128}$/.test(hash || '')) valid = same(crypto.scryptSync(password, salt, 64).toString('hex'), hash);
+  } else if (/^[a-f0-9]{64}$/.test(ADMIN_PASSWORD_HASH)) {
+    // Legacy compatibility only. Rotate env to scrypt$salt$hash using scripts/hash-password.mjs.
+    valid = same(crypto.createHash('sha256').update(password).digest('hex'), ADMIN_PASSWORD_HASH);
   }
+  return same(email.toLowerCase().trim(), ADMIN_EMAIL) && valid;
 }
-
-/** Extract and verify the Bearer token from a request. Fails closed. */
-export function verifyAdmin(request: Request): boolean {
-  const auth = request.headers.get("authorization");
-  if (!auth?.startsWith("Bearer ")) return false;
-  const token = auth.slice("Bearer ".length).trim();
-  return verifyToken(token) !== null;
+let table: Promise<unknown> | undefined;
+function ensureSessions() {
+  return table ??= db.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "AdminSession" ("id" TEXT PRIMARY KEY, "expiresAt" TIMESTAMP(3) NOT NULL)` ).catch(e => { table = undefined; throw e; });
+}
+function signature(data: string) { return crypto.createHmac('sha256', AUTH_SECRET).update(data).digest('base64url'); }
+export async function signAdminToken(email: string): Promise<string> {
+  if (!AUTH_SECRET || email !== ADMIN_EMAIL) throw new Error('Auth configuration unavailable');
+  await ensureSessions(); const id = crypto.randomUUID(); const now = Math.floor(Date.now()/1000);
+  await db.$executeRawUnsafe(`INSERT INTO "AdminSession" ("id", "expiresAt") VALUES ($1,$2)`, id, new Date((now+TTL)*1000));
+  await db.$executeRawUnsafe(`DELETE FROM "AdminSession" WHERE "expiresAt" < NOW()`);
+  const h = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const p = Buffer.from(JSON.stringify({ email, sub: ADMIN_EMAIL, iss: ISSUER, aud: 'admin', jti: id, iat: now, exp: now+TTL })).toString('base64url');
+  return `${h}.${p}.${signature(`${h}.${p}`)}`;
+}
+export function verifyToken(token: string): { email: string; exp: number; jti: string } | null {
+  if (!AUTH_SECRET || !token || token.length > 4096) return null;
+  const [h,p,s,...rest] = token.split('.'); if (!h || !p || !s || rest.length || !same(s, signature(`${h}.${p}`))) return null;
+  try {
+    const header = JSON.parse(Buffer.from(h,'base64url').toString()); const data = JSON.parse(Buffer.from(p,'base64url').toString()); const now = Math.floor(Date.now()/1000);
+    if (header.alg !== 'HS256' || header.typ !== 'JWT' || data.email !== ADMIN_EMAIL || data.sub !== ADMIN_EMAIL || data.iss !== ISSUER || data.aud !== 'admin' || typeof data.jti !== 'string' || typeof data.iat !== 'number' || data.iat > now || typeof data.exp !== 'number' || data.exp <= now || data.exp-data.iat > TTL) return null;
+    return data;
+  } catch { return null; }
+}
+export function requestToken(request: Request): string {
+  const cookie = request.headers.get('cookie')?.split(';').map(v=>v.trim()).find(v=>v.startsWith(`${ADMIN_COOKIE}=`))?.slice(ADMIN_COOKIE.length+1);
+  return cookie || request.headers.get('authorization')?.replace(/^Bearer\s+/i,'') || '';
+}
+export async function verifyAdmin(request: Request): Promise<boolean> {
+  if (!['GET','HEAD','OPTIONS'].includes(request.method)) {
+    const origin = request.headers.get('origin');
+    const expected = process.env.NEXT_PUBLIC_SITE_URL || 'https://yaseenahmadexe.vercel.app';
+    if (origin && origin !== expected && !(process.env.NODE_ENV !== 'production' && origin === new URL(request.url).origin)) return false;
+    if (request.headers.get('sec-fetch-site') === 'cross-site') return false;
+  }
+  const data = verifyToken(requestToken(request)); if (!data) return false;
+  try {
+    await ensureSessions();
+    const rows = await db.$queryRawUnsafe<{id:string}[]>(`SELECT "id" FROM "AdminSession" WHERE "id"=$1 AND "expiresAt">NOW()`, data.jti);
+    return rows.length === 1;
+  } catch { return false; } // fail closed, including missing database/schema permissions
+}
+export async function revokeAdmin(request: Request) {
+  const data = verifyToken(requestToken(request)); if (!data) return;
+  await ensureSessions(); await db.$executeRawUnsafe(`DELETE FROM "AdminSession" WHERE "id"=$1`, data.jti);
 }
