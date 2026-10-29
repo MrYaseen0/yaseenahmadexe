@@ -6,6 +6,7 @@
 
 - [Portfolio home](https://yaseenahmadexe.vercel.app/): Selected projects, project details, screenshots, CV and contact.
 - [CV (PDF)](https://yaseenahmadexe.vercel.app/Yaseen-Ahmad-CV.pdf): Curriculum vitae.
+- [CECOS QEC Portal — case study](https://yaseenahmadexe.vercel.app/cecos-qec-portal): Case study of the Quality Enhancement Cell website he designed and built for CECOS University, Peshawar (live site: https://qec-page.vercel.app/qec).
 - [Software engineering project enquiries](https://yaseenahmadexe.vercel.app/freelance-software-engineer)
 - [Web developer in Peshawar](https://yaseenahmadexe.vercel.app/hire-web-developer-peshawar)
 - [React, Node.js and full-stack development](https://yaseenahmadexe.vercel.app/mern-stack-developer)
