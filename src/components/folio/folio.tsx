@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useScroll, useSpring, useTransform, useInView } from "framer-motion";
 import { developer, experiences, moreProjects, proof, projects, sections, socials, toolkit, type Project } from "./data";
 import { faqs } from "@/lib/portfolio-data";
@@ -224,7 +225,7 @@ function ProjectDetails({ project }: { project: Project }) {
       {project.gallery?.map((image) => <figure key={image.src}><img src={image.src} alt={`${project.title} interface`} width={1280} height={713} loading="lazy"/><figcaption>{image.caption}</figcaption></figure>)}
       {!project.gallery?.length && !project.video && <p className="f-p">The repository contains the source and documentation. No verified live UI capture is available for this project.</p>}
       <ul className="f-chips">{project.tags.map(tag=><li className="f-chip" key={tag}>{tag}</li>)}</ul>
-      <div className="f-project-actions">{project.github ? <a className="f-btn red" href={project.github} target="_blank" rel="noopener noreferrer">View Repo ↗</a> : <span className="f-private">Private repository</span>}{project.live && <a className="f-btn ghost" href={project.live} target="_blank" rel="noopener noreferrer">Visit live site ↗</a>}</div>
+      <div className="f-project-actions">{project.github ? <a className="f-btn red" href={project.github} target="_blank" rel="noopener noreferrer">View Repo ↗</a> : <span className="f-private">Private repository</span>}{project.live && <a className="f-btn ghost" href={project.live} target="_blank" rel="noopener noreferrer">Visit live site ↗</a>}{project.caseStudy && <Link className="f-btn ghost" href={project.caseStudy}>Read the case study →</Link>}</div>
     </dialog>
   </>;
 }
@@ -532,7 +533,7 @@ export function Folio() {
                   <h3 className="f-title">{p.title}</h3>
                   <p className="f-p">{p.blurb}</p>
                   <ul className="f-chips" aria-label={`${p.title} stack`}>{p.tags.map((t) => <li key={t} className="f-chip">{t}</li>)}</ul>
-                  <div className="f-project-actions"><ProjectDetails project={p} />{p.github ? <a className="f-link" href={p.github} target="_blank" rel="noopener noreferrer">View Repo <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : <span className="f-private">Private repository</span>}</div>
+                  <div className="f-project-actions"><ProjectDetails project={p} />{p.caseStudy && <Link className="f-link" href={p.caseStudy}>Case study <span aria-hidden="true">→</span></Link>}{p.github ? <a className="f-link" href={p.github} target="_blank" rel="noopener noreferrer">View Repo <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : <span className="f-private">Private repository</span>}</div>
                 </Reveal></div>
               </article>
             ))}
