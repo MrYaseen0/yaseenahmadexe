@@ -21,6 +21,8 @@ export type Project = {
   /** Public repo link. Omitted for private repos, so no dead link is shown. */
   github?: string;
   live?: string;
+  /** Internal case-study page for this project. */
+  caseStudy?: string;
   /** Pinned projects render first with a "Pinned" badge. */
   pinned?: boolean;
   /** Inline showcase video (muted autoplay loop). Paths are under /public. */
@@ -57,6 +59,7 @@ export const projects: Project[] = [
     tags: ["Next.js", "TypeScript", "Supabase", "SEO", "University"],
     image: "/assets/projects/qec/qec-poster.jpg",
     live: "https://qec-page.vercel.app/qec",
+    caseStudy: "/cecos-qec-portal",
     pinned: true,
     video: {
       mp4: "/assets/projects/qec/qec-promo-720p.mp4",

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 const SITE = "https://yaseenahmadexe.vercel.app";
 export const SUBPAGES = [
+  { href: "/cecos-qec-portal", label: "QEC case study" },
   { href: "/freelance-software-engineer", label: "Freelance software engineer" },
   { href: "/hire-web-developer-peshawar", label: "Web developer in Peshawar" },
   { href: "/mern-stack-developer", label: "MERN stack developer" },

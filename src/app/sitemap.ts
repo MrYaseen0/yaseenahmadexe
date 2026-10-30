@@ -11,6 +11,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${SITE}/cecos-qec-portal`,
+      lastModified: new Date("2026-10-29T00:00:00Z"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
       url: `${SITE}/freelance-software-engineer`,
       lastModified: new Date("2026-10-21T00:00:00Z"),
       changeFrequency: "monthly",

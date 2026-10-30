@@ -29,3 +29,41 @@
  @supports(animation-timeline:view()){.f-subpage section{animation:f-subin linear both;animation-timeline:view();animation-range:entry 0% entry 40%}}
 }
 .f-legal h2{font-size:clamp(1.3rem,3vw,1.8rem)!important;margin-top:4px}.f-legal section{animation:none!important}.f-legal [class*="text-[#5F665F]"]{color:#4a4240}
+
+/* CECOS QEC case study page */
+.f-case{max-width:1100px;margin:0 auto;padding:clamp(48px,8vw,96px) clamp(20px,4vw,40px) 0}
+.f-case section{padding:clamp(28px,5vw,48px) 0;border-top:1.5px solid rgba(21,16,16,.14)}
+.f-case header{padding-bottom:clamp(28px,5vw,48px)}
+.f-case-label{font-family:var(--font-mono),ui-monospace,monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--r);margin:0 0 14px}
+.f-case h1{margin:0 0 20px}
+.f-case h1 em,.f-case h2 em{font-style:normal;color:var(--r)}
+.f-case h2{margin:0 0 18px}
+.f-case-lede{font-size:clamp(17px,2vw,21px);line-height:1.6;max-width:60ch;margin:0 0 18px}
+.f-case p.body{font-size:clamp(15px,1.5vw,18px);line-height:1.7;color:#4a4240;max-width:68ch;margin:0 0 14px}
+.f-case-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:18px 28px;margin:28px 0;padding:22px 0;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+.f-case-meta dt{font-family:var(--font-mono),ui-monospace,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#5b5250}
+.f-case-meta dd{margin:4px 0 0;font-weight:600;font-size:15px}
+.f-case-actions{display:flex;flex-wrap:wrap;gap:14px;margin:26px 0 8px}
+.f-case-btn{display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 26px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;border:2px solid var(--ink);color:var(--ink);transition:transform .2s,background .2s,color .2s}
+.f-case-btn:hover{transform:translateY(-2px)}
+.f-case-btn.red{background:var(--r);border-color:var(--r);color:#fff}
+.f-case-btn.red:hover{background:var(--rd);border-color:var(--rd)}
+.f-case-btn.ghost:hover{background:var(--ink);color:#fff}
+.f-case-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin:20px 0 0;padding:0;list-style:none}
+.f-case-card{background:#fffaf5;border:1px solid rgba(21,16,16,.12);border-radius:22px;padding:22px}
+.f-case-card h3{font-family:var(--font-anton),Impact,"Arial Narrow",sans-serif;text-transform:uppercase;font-weight:400;font-size:19px;letter-spacing:.02em;margin:0 0 8px;color:var(--ink)}
+.f-case-card p{font-size:15px;line-height:1.6;color:#4a4240;margin:0}
+.f-case-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin:22px 0 0;padding:0;list-style:none}
+.f-case-stat{background:var(--ink);color:var(--cream);border-radius:22px;padding:20px}
+.f-case-stat b{display:block;font-family:var(--font-anton),Impact,sans-serif;font-weight:400;font-size:clamp(2rem,4vw,3rem);line-height:1;margin-bottom:6px}
+.f-case-stat span{font-family:var(--font-mono),ui-monospace,monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.f-case figure{margin:22px 0}
+.f-case figure img,.f-case figure video{width:100%;height:auto;border-radius:22px;border:1px solid rgba(21,16,16,.14);display:block;background:#fff}
+.f-case figcaption{font-size:13px;color:#5b5250;margin-top:8px}
+.f-case-dark{background:var(--ink);color:var(--cream);border-radius:28px;padding:clamp(24px,4vw,40px);margin:22px 0}
+.f-case-dark h2{color:#fff}
+.f-case-dark p{color:rgba(246,239,230,.85);font-size:clamp(15px,1.5vw,18px);line-height:1.7;max-width:68ch;margin:0 0 14px}
+.f-case-list{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:10px}
+.f-case-list li{padding-left:24px;position:relative;font-size:16px;line-height:1.6;color:#4a4240;max-width:70ch}
+.f-case-list li::before{content:"\2192";position:absolute;left:0;color:var(--r);font-weight:700}
+.f-case-dark .f-case-list li{color:rgba(246,239,230,.85)}
