@@ -1,11 +1,18 @@
 import type { NextConfig } from "next";
 
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
   reactStrictMode: true,
   poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: [
       // Inline scripts are required by this static Next.js layout. No unsafe-eval.
@@ -24,4 +31,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

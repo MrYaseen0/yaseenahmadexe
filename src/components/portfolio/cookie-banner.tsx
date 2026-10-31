@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence, LazyMotion, domAnimation } from "framer-motion";
 import { Cookie } from "lucide-react";
 
 const KEY = "yaseen-cookie-consent";
@@ -32,11 +32,12 @@ export function CookieBanner() {
   };
 
   return (
+    <LazyMotion features={domAnimation}>
     <>
     {!visible && <button onClick={() => setVisible(true)} className="fixed bottom-2 right-2 z-[89] rounded bg-white px-2 py-1 text-[10px] text-slate-600 border">Privacy choices</button>}
     <AnimatePresence>
       {visible && (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
@@ -81,9 +82,10 @@ export function CookieBanner() {
               </div>
             </div>
           </div>
-        </motion.div>
+        </m.div>
       )}
     </AnimatePresence>
     </>
+    </LazyMotion>
   );
 }
