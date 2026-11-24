@@ -1,35 +1,52 @@
 # Yaseen Ahmad (yaseenahmadexe)
 
-> Yaseen Ahmad (online as yaseenahmadexe) is a freelance full-stack developer and final-year BS Software Engineering student at CECOS University of IT and Emerging Sciences in Peshawar, Khyber Pakhtunkhwa, Pakistan. This site is his portfolio: selected projects with details, screenshots and links to public source code.
+> Yaseen Ahmad (online as yaseenahmadexe) is a freelance full-stack developer and final-year BS Software Engineering student at CECOS University in Peshawar, Pakistan. This site is his portfolio: selected projects with details, screenshots and links to public source code. Available for work.
 
-## Pages
+Stack: React, Next.js, TypeScript, Tailwind CSS, Node.js, Express.js, Python, REST APIs, GraphQL, PostgreSQL, MongoDB, Prisma, Docker, Vercel.
+Services: web apps, business and portfolio sites, dashboards and admin panels, REST APIs, responsive UI.
+Repository listings on the portfolio do not imply sole authorship of every project.
 
-- [Portfolio home](https://yaseenahmadexe.vercel.app/): Selected projects, project details, screenshots, CV and contact.
-- [CV (PDF)](https://yaseenahmadexe.vercel.app/Yaseen-Ahmad-CV.pdf): Curriculum vitae.
-- [CECOS QEC Portal — case study](https://yaseenahmadexe.vercel.app/cecos-qec-portal): Case study of the Quality Enhancement Cell website he designed and built for CECOS University, Peshawar (live site: https://qec-page.vercel.app/qec).
-- [Software engineering project enquiries](https://yaseenahmadexe.vercel.app/freelance-software-engineer)
-- [Web developer in Peshawar](https://yaseenahmadexe.vercel.app/hire-web-developer-peshawar)
-- [React, Node.js and full-stack development](https://yaseenahmadexe.vercel.app/mern-stack-developer)
-- [Uncensored LLM — free AI chat and open-source server](https://yaseenahmadexe.vercel.app/uncensored-llm): Project page for Uncensored AI, a free uncensored LLM chat (live app: https://uncensored-llm.vercel.app), and the open-source Kaggle GPU server behind it.
+## Key pages
 
-## Profiles
+- [Home](https://yaseenahmadexe.vercel.app): Portfolio, selected projects, journey, toolkit and contact details
+- [Software engineering project enquiries](https://yaseenahmadexe.vercel.app/freelance-software-engineer): Freelance services overview
+- [Web developer in Peshawar](https://yaseenahmadexe.vercel.app/hire-web-developer-peshawar): Local web development services
+- [React, Node.js and full-stack development](https://yaseenahmadexe.vercel.app/mern-stack-developer): Full-stack services
+- [CECOS QEC Portal case study](https://yaseenahmadexe.vercel.app/cecos-qec-portal): Case study of the university QEC website
+- [Uncensored LLM](https://yaseenahmadexe.vercel.app/uncensored-llm): Project page for a free uncensored LLM chat and its open-source Kaggle GPU server
+- [CV (PDF)](https://yaseenahmadexe.vercel.app/Yaseen-Ahmad-CV.pdf): Curriculum vitae
+- [Privacy](https://yaseenahmadexe.vercel.app/privacy): Privacy policy
+- [Terms](https://yaseenahmadexe.vercel.app/terms): Terms of service
 
+## Projects
+
+- [FoodHub](https://yaseenahmadexe.vercel.app): Food-ordering marketplace for Peshawar. Flutter (Android and web), TypeScript API on Neon Postgres. Source private.
+- [CECOS QEC Portal](https://qec-page.vercel.app/qec): Quality Enhancement Cell website for CECOS University Peshawar. Next.js and Supabase on Vercel. Source private.
+- [AI Clinic Receptionist](https://github.com/MrYaseen0/ai-clinic-receptionist): Open-source bilingual (English and Roman Urdu) clinic booking assistant. Live demo: https://ai-clinic-receptionist-gold.vercel.app/
+- [PropEase](https://github.com/MrYaseen0/PropEasy-An-Property-management-system): Property management web app. Repository access may require permission. Live app (sign-in required): https://propease-pi.vercel.app/
+- [Bitanas Salon](https://github.com/MrYaseen0/-Bitanas-Salon-Peshawar): Salon website with booking UI, price calculator and loyalty features
+- [Game Booster](https://github.com/MrYaseen0/game-booster): Android game-mode app for PUBG Mobile
+- [GitNova](https://github.com/MrYaseen0/gitnova): Gamified Git and programming learning platform
+- [XAU Bot](https://github.com/MrYaseen0/xau-bot): Gold trading dashboard, educational paper trading only
+- [YTUBE](https://github.com/MrYaseen0/ytube): YouTube-style full-stack app (Next.js 14, Supabase)
+- [System Design Reference](https://github.com/MrYaseen0/system-design-reference): System design interview reference notes
+- [Face Recognition Attendance](https://github.com/MrYaseen0/face-recognition-attendance-system): Attendance system using computer vision
+
+## Contact
+
+- Email: yaseenahmad.exe@gmail.com
 - [GitHub](https://github.com/MrYaseen0)
 - [LinkedIn](https://www.linkedin.com/in/yaseen-ahmad-489967280)
 - [X](https://x.com/yaseencecosian)
 - [Instagram](https://www.instagram.com/yaseenahmadexe/)
 - [TikTok](https://www.tiktok.com/@mryaseen.exe)
 
-## Facts
+## Optional
 
-- Work: Freelance full-stack developer (Next.js, React, Node.js). Project enquiries by email.
-- Name: Yaseen Ahmad. Also uses the handle yaseenahmadexe.
-- Location: Peshawar, Khyber Pakhtunkhwa, Pakistan.
-- Education: BS Software Engineering, CECOS University, Peshawar (final year).
-- Skills: Next.js, React, TypeScript, Node.js, Tailwind CSS, Python, Flask, databases.
-- Built the website for the Quality Enhancement Cell (QEC) at CECOS University: https://qec-page.vercel.app/qec
-- Repository listings on the portfolio do not imply sole authorship of every project.
-
-## Contact
-
-- Email: yaseenahmad.exe@gmail.com
+- [Uncensored LLM Server](https://github.com/MrYaseen0/uncensored-llm-server): Runs a 27B model on free Kaggle GPUs via Ollama and a Cloudflare tunnel; live chat app at https://uncensored-llm.vercel.app
+- [IronLife Gym Manager](https://github.com/MrYaseen0/IronLife-Gym-Manager-by-Yaseen-Ahmad): Gym management system (Flask, SQLite)
+- [StudyFlow](https://github.com/MrYaseen0/StudyFlow-your-academic-command-center): Academic command center for students
+- [Healtheon](https://github.com/MrYaseen0/FYP): Multi-agent medical education proof of concept
+- [BTC Trade Analysis](https://github.com/MrYaseen0/btc-trade-analysis): Bitcoin trade setup study with backtested Pine Script strategies
+- [Documentation Generator](https://github.com/MrYaseen0/Automated-Documentation-Generator-An-Researh-Based-Project): Generative AI documentation engine, a research-based project
+- [WebTester for Kali](https://github.com/MrYaseen0/webtester-kali): Authorized website load tester with a web GUI and safety limits
