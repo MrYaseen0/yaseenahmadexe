@@ -36,7 +36,7 @@ Repository listings on the portfolio do not imply sole authorship of every proje
 
 - Email: yaseenahmad.exe@gmail.com
 - [GitHub](https://github.com/MrYaseen0)
-- [LinkedIn](https://www.linkedin.com/in/yaseen-ahmad-489967280)
+- [LinkedIn](https://www.linkedin.com/in/yaseen-ahmad-489967280): automated check returned HTTP 999, so HTTP 200 could not be verified
 - [X](https://x.com/yaseencecosian)
 - [Instagram](https://www.instagram.com/yaseenahmadexe/)
 - [TikTok](https://www.tiktok.com/@mryaseen.exe)
